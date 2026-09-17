@@ -1,14 +1,12 @@
-<p align="center">
-  <img src="../../logo.jpeg" alt="Nanny-App logo" width="200">
-</p>
-
 # NannyApp — Native Android App + PHP/MySQL API
+
+![Nanny-App logo](../../logo.jpeg)
 
 A native Kotlin/Jetpack Compose Android app for the NannyApp childcare marketplace,
 rebuilt from the original PHP/MySQL web app (`nannyapp-master.zip`), plus a REST API
 layer (`api/`) that sits between the app and the existing MySQL database.
 
-```
+```text
 Android App (Kotlin, Compose, MVVM)
         │  Retrofit/HTTPS + Bearer token
         ▼
@@ -69,7 +67,7 @@ This sandbox also has no Android SDK/Gradle/Kotlin toolchain, so `./gradlew buil
 All seeded accounts use the password **`Password123!`**:
 
 | Role | Email |
-|---|---|
+| --- | --- |
 | Admin | `admin@nanny.app` |
 | Parent | `parent@nanny.app` |
 | Parent | `james@nanny.app` |
@@ -80,14 +78,14 @@ All seeded accounts use the password **`Password123!`**:
 ## 5. Environment variables / secrets
 
 | Where | What |
-|---|---|
+| --- | --- |
 | `config/db_credentials.php` | `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS` |
 | `config/paystack.php` | `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY` — secret key **never** leaves the server |
 | `app/build.gradle.kts` | `API_BASE_URL` per build type |
 
 ## 6. Project structure (Android)
 
-```
+```text
 com.nannyapp
 ├── data
 │   ├── api          Retrofit interfaces + DTOs
