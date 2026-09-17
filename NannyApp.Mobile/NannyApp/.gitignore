@@ -1,0 +1,11 @@
+config/db_credentials.php
+config/paystack.php
+/assets/*
+!/assets/.gitkeep
+/local.properties
+/.gradle
+/build
+/app/build
+*.iml
+.idea/
+.DS_Store

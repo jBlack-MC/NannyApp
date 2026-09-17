@@ -1,0 +1,11 @@
+# IDE / editor
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Android build output (per-project .gitignore also covers this under NannyApp.Mobile/NannyApp)
+build/
+.gradle/
+local.properties

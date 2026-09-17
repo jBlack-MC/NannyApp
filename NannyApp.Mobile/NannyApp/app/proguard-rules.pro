@@ -1,0 +1,6 @@
+-keep class com.nannyapp.data.api.dto.** { *; }
+-keep class com.nannyapp.data.model.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn okhttp3.**
+-dontwarn retrofit2.**
