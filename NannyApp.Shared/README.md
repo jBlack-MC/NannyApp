@@ -1,8 +1,6 @@
-<p align="center">
-  <img src="../logo.jpeg" alt="Nanny-App logo" width="200">
-</p>
-
 # NannyApp.Shared
+
+![Nanny-App logo](../logo.jpeg)
 
 Holds everything that's common to **every** Nanny-App client:
 

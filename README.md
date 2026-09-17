@@ -1,14 +1,12 @@
-<p align="center">
-  <img src="logo.jpeg" alt="Nanny-App logo" width="220">
-</p>
-
 # Nanny-App
+
+![Nanny-App logo](logo.jpeg)
 
 A three-role childcare booking marketplace connecting **parents** with verified **nannies**, moderated by an **admin**.
 
 **Module:** XISD6329 — Work Integrated Learning 3B
 
-**Demo video:** https://youtu.be/nO85AqjW2E4
+**Demo video:** [Watch on YouTube](https://youtu.be/nO85AqjW2E4)
 
 ---
 
@@ -26,12 +24,12 @@ native Android app talking to a JSON REST API.
 This repo has three top-level projects, each with its own README:
 
 | Folder | What it is |
-|---|---|
+| --- | --- |
 | **[`NannyApp.Web/`](NannyApp.Web/README.md)** | The main product: a plain PHP 8 + MySQL website (no framework, no build step — runs on XAMPP). Also installable as a PWA and packaged as a Cordova Android APK that wraps the same site in a WebView. |
 | **[`NannyApp.Mobile/`](NannyApp.Mobile/README.md)** | A separate, native Android app (Kotlin, Jetpack Compose) with its own PHP REST API layer, for a true native mobile experience against the same database. |
 | **[`NannyApp.Shared/`](NannyApp.Shared/README.md)** | The single source of truth both projects above depend on: the MySQL schema/migrations, the shared DB connection, and the shared upload-storage layer (local disk or S3-compatible object storage). |
 
-```
+```text
 Nanny-App
 ├── NannyApp.Web/       PHP website (+ PWA/Cordova Android packaging of it)
 ├── NannyApp.Mobile/    Native Android app + its own PHP REST API
@@ -58,11 +56,11 @@ Pick the project you want to run and follow its own README:
 All seeded accounts use the password `Password123!`:
 
 | Role | Email |
-|---|---|
-| Admin | admin@nanny.app |
-| Parent | parent@nanny.app |
-| Nanny (verified) | amelia@nanny.app |
-| Nanny (pending) | jasmine@nanny.app |
+| --- | --- |
+| Admin | `admin@nanny.app` |
+| Parent | `parent@nanny.app` |
+| Nanny (verified) | `amelia@nanny.app` |
+| Nanny (pending) | `jasmine@nanny.app` |
 
 > Remove or disable these accounts before any public deployment.
 
@@ -72,3 +70,4 @@ in [`NannyApp.Web/README.md`](NannyApp.Web/README.md) and
 [`NannyApp.Mobile/README.md`](NannyApp.Mobile/README.md), which each describe
 their own project in depth.
 
+---

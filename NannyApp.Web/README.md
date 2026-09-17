@@ -1,14 +1,12 @@
-<p align="center">
-  <img src="../logo.jpeg" alt="Nanny-App logo" width="200">
-</p>
-
 # Nanny-App — Web
+
+![Nanny-App logo](../logo.jpeg)
 
 A three-role childcare booking marketplace connecting **parents** with verified **nannies**, moderated by an **admin**. Built with plain PHP 8 and MySQL — no framework, no Composer, no build step. Runs on XAMPP out of the box. Also ships as an installable PWA and a Cordova-wrapped Android APK.
 
 **Module:** XISD6329 — Work Integrated learning 3B
 
-**Demo video:** https://youtu.be/nO85AqjW2E4
+**Demo video:** [Watch on YouTube](https://youtu.be/nO85AqjW2E4)
 
 This is the main PHP website — see the [repo-wide overview](../README.md) for how it fits with `NannyApp.Mobile` and `NannyApp.Shared`.
 
@@ -94,7 +92,7 @@ This is the main PHP website — see the [repo-wide overview](../README.md) for 
 ## Tech Stack
 
 | Layer | Technology |
-|---|---|
+| --- | --- |
 | Server | PHP 8.x |
 | Database | MySQL / MariaDB via PDO |
 | Local environment | XAMPP (Apache + MySQL) |
@@ -110,7 +108,7 @@ This is the main PHP website — see the [repo-wide overview](../README.md) for 
 
 ## Folder Structure
 
-```
+```text
 nannyapp/
 ├── index.php                   Landing page (hero, nannies, testimonials, pricing)
 ├── account.php                 Account settings and password change
@@ -240,39 +238,45 @@ nannyapp/
 
 ### Steps
 
-**1. Copy files**
-```
+### 1. Copy files
+
+```text
 Place the nannyapp/ folder inside C:\xampp\htdocs\
 Place the NannyApp.Shared/ folder next to it, inside C:\xampp\htdocs\ as well
 (NannyApp.Shared/.htaccess blocks direct browser access to it either way)
 ```
 
-**2. Create the database**
+### 2. Create the database
 
 Option A — Command line:
+
 ```bash
 mysql -u root < ../NannyApp.Shared/database/schema.sql
 ```
 
 Option B — phpMyAdmin:
-```
+
+```text
 Open http://localhost/phpmyadmin
 Import → select NannyApp.Shared/database/schema.sql → Go
 ```
 
-**3. Run migrations**
+### 3. Run migrations
 
 Log in as admin and visit these URLs in order (or use the buttons on the admin dashboard):
-```
+
+```text
 http://localhost/nannyapp/migrate_v2.php
 http://localhost/nannyapp/migrate_v3.php
 http://localhost/nannyapp/migrate_v4.php
 ```
+
 Each page runs once and confirms success. **All current features (admin profiles, check-in PINs, escrow payouts) require all three migrations.**
 
-**4. Configure (optional)**
+### 4. Configure (optional)
 
 Edit `config/config.php` if your database credentials differ from the XAMPP defaults:
+
 ```php
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'nanny_app');
@@ -281,12 +285,13 @@ define('DB_PASS', '');          // XAMPP default is no password
 define('BASE_URL', '/nannyapp');
 ```
 
-**5. Open the app**
-```
+### 5. Open the app
+
+```text
 http://localhost/nannyapp/
 ```
 
-**6. (Optional) Build the mobile app**
+### 6. (Optional) Build the mobile app
 
 The site is already an installable PWA — open it in Chrome on Android and choose *Install app*. To build a native Android APK instead, see `apk/BUILD_APK.md`. Note that the admin dashboard is intentionally unreachable from either the installed PWA or the packaged APK — that's enforced server-side, not just hidden in the UI.
 
@@ -297,7 +302,7 @@ The site is already an installable PWA — open it in Chrome on Android and choo
 The core schema now lives in `NannyApp.Shared/database/` (shared with every Nanny-App client) and is split into four files applied in sequence:
 
 | File | What it adds |
-|---|---|
+| --- | --- |
 | `NannyApp.Shared/database/schema.sql` | Core tables: users, nanny_profiles, parent_profiles, bookings, payments, chat_messages, reviews, notifications, contact_messages |
 | `NannyApp.Shared/database/migrate_v2.sql` | children, saved_nannies, nanny_portfolio, nanny_availability, page_content, unique constraints, indexes |
 | `NannyApp.Shared/database/migrate_v3.sql` | support_tickets, password_resets, email_verifications, availability_slots, booking_ref column, email_verified column |
@@ -314,12 +319,12 @@ Running the migrations a second time is safe — all statements use `IF NOT EXIS
 **Password for all accounts:** `Password123!`
 
 | Role | Email |
-|---|---|
-| Admin (super admin) | admin@nanny.app |
-| Parent | parent@nanny.app |
-| Nanny (verified) | amelia@nanny.app |
-| Nanny (verified) | margaret@nanny.app |
-| Nanny (pending) | jasmine@nanny.app |
+| --- | --- |
+| Admin (super admin) | `admin@nanny.app` |
+| Parent | `parent@nanny.app` |
+| Nanny (verified) | `amelia@nanny.app` |
+| Nanny (verified) | `margaret@nanny.app` |
+| Nanny (pending) | `jasmine@nanny.app` |
 
 > Remove or disable these accounts before any public deployment.
 
@@ -327,7 +332,7 @@ Running the migrations a second time is safe — all statements use `IF NOT EXIS
 
 ## Role Capabilities
 
-```
+```text
 GUEST
   Browse nannies (read-only)
   View landing page, pricing, FAQ, safety, contact
@@ -399,7 +404,7 @@ ADMIN  (web browser only — blocked inside the app/installed PWA)
 ## Known Limitations
 
 | Area | Detail |
-|---|---|
+| --- | --- |
 | Payments | No live payment gateway is integrated — charges are simulated. What *is* real is the escrow/hold logic: money is only marked payable to the nanny after check-in, check-out and parent confirmation (or the 48-hour auto-release). |
 | Email | Uses native PHP `mail()`. On `localhost`/`127.0.0.1` it logs to `storage/email_logs/` instead — password reset and notification emails won't actually send without a configured mail server or SMTP relay in production. |
 | Real-time chat | Uses polling (every 4s while the tab is visible), not WebSockets — there's a small delay, not instant delivery. |
