@@ -5,7 +5,7 @@
     </style>
 
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenAnimatedIcon">@drawable/nanny_app_icon</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/logo</item>
         <item name="windowSplashScreenBackground">@color/icon_background</item>
         <item name="postSplashScreenTheme">@style/Theme.NannyApp</item>
     </style>

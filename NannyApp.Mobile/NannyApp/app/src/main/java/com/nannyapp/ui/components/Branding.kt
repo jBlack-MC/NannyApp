@@ -28,7 +28,7 @@ fun NannyAppBrand(
     if (showTagline && !light) {
         Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
             AsyncImage(
-                model = painterResource(R.drawable.nanny_app_icon),
+                model = painterResource(R.drawable.logo),
                 contentDescription = null,
                 modifier = Modifier.size(196.dp),
                 contentScale = ContentScale.Fit,
@@ -44,7 +44,7 @@ fun NannyAppBrand(
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
-                    model = painterResource(R.drawable.nanny_app_icon),
+                    model = painterResource(R.drawable.logo),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize().padding(4.dp),
                     contentScale = ContentScale.Fit,
