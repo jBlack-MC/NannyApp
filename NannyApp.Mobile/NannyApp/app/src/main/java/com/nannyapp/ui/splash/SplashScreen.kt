@@ -11,15 +11,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.res.painterResource
 import com.nannyapp.domain.model.UserRole
+import com.nannyapp.R
 import com.nannyapp.ui.auth.SessionCheck
 import com.nannyapp.ui.auth.SplashViewModel
-import com.nannyapp.ui.components.NannyAppBrand
 import coil.compose.AsyncImage
 import kotlinx.coroutines.delay
 
@@ -54,7 +54,7 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(Color.Black),
+        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
     ) {
         SplashBackgroundWaves()
         val motion = rememberInfiniteTransition(label = "splash-motion")
@@ -76,7 +76,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = "file:///android_asset/Icon_Logo.png",
+                model = painterResource(R.drawable.ic_launcher_logo),
                 contentDescription = null,
                 modifier = Modifier
                     .size(250.dp)

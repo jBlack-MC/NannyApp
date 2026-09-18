@@ -47,6 +47,10 @@ cd nanny-apk
 
 # 3. Replace the generated config.xml with the one in this folder
 #    (copy apk/config.xml over nanny-apk/config.xml)
+#    Copy the approved logo so it becomes the installer/launcher icon:
+mkdir assets
+#    PowerShell: Copy-Item ..\NannyApp.Web\assets\Icon_Logo.png assets\Icon_Logo.png
+#    macOS/Linux: cp ../NannyApp.Web/assets/Icon_Logo.png assets/Icon_Logo.png
 
 # 4. Add the Android platform and build
 cordova platform add android
@@ -110,6 +114,9 @@ apksigner sign --ks nanny.keystore --out nanny-app.apk nanny-aligned.apk
 ---
 
 ## Notes
+- The installer/launcher name is **Nanny-App**. The packaging icon and PWA
+  icon both use the approved logo-only `assets/Icon_Logo.png` file; do not use
+  a text logo or unrelated icon.
 - For production, host the PHP app on a real server with **HTTPS** and point
   `content src` at that URL — then no cleartext/IP juggling is needed.
 - The app is also an installable **PWA**: open the site in Chrome on Android →
