@@ -1,6 +1,6 @@
 # NannyApp.Mobile
 
-![Nanny-App logo](../logo.jpeg)
+![Nanny-App logo](NannyApp/assets/Icon_Logo.png)
 
 The native mobile client for Nanny-App: a Kotlin/Jetpack Compose Android app,
 plus the PHP REST API it talks to. This is a separate product from
@@ -11,7 +11,6 @@ the same MySQL database and the same uploaded files via `NannyApp.Shared`.
 
 ```text
 NannyApp.Mobile/
-├── NannyLogo.jpeg     Brand logo (also copied to the repo root as logo.jpeg)
 └── NannyApp/          The actual project — open THIS folder in Android Studio
     ├── app/           Android Studio project (Kotlin, Compose, MVVM, Hilt, Room, Retrofit)
     ├── api/           PHP REST API (JSON) the app talks to over HTTPS

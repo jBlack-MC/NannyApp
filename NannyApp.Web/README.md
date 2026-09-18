@@ -1,6 +1,6 @@
 # Nanny-App — Web
 
-![Nanny-App logo](../logo.jpeg)
+![Nanny-App logo](assets/Icon_Logo.png)
 
 A three-role childcare booking marketplace connecting **parents** with verified **nannies**, moderated by an **admin**. Built with plain PHP 8 and MySQL — no framework, no Composer, no build step. Runs on XAMPP out of the box. Also ships as an installable PWA and a Cordova-wrapped Android APK.
 

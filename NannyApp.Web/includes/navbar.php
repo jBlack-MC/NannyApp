@@ -18,7 +18,7 @@ if (!isset($isActive) || !is_callable($isActive)) {
         <div class="navbar">
             <a class="brand" href="<?= url('index.php') ?>">
                 <span class="brand-icon brand-logo-wrap">
-                    <img class="brand-logo" src="<?= url('assets/img/logo.png') ?>" alt="<?= APP_NAME ?> logo">
+                    <img class="brand-logo" src="<?= url('assets/Icon_Logo.png') ?>" alt="<?= APP_NAME ?> logo">
                 </span>
                 <div class="brand-text">
                     <span class="brand-name"><?= APP_NAME ?></span>

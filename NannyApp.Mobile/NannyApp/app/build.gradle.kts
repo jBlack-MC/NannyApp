@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.nannyapp"
-    compileSdk = 34
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.nannyapp"
@@ -41,6 +41,12 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    sourceSets {
+        getByName("main") {
+            // Keep the approved brand artwork in this project's canonical assets folder.
+            assets.srcDirs("assets")
+        }
     }
     packaging {
         resources {

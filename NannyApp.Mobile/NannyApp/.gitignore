@@ -2,6 +2,8 @@ config/db_credentials.php
 config/paystack.php
 /assets/*
 !/assets/.gitkeep
+!/assets/Icon_Logo.png
+!/assets/nanny_app_logo.svg
 /local.properties
 /.gradle
 /build

@@ -1,6 +1,6 @@
 # NannyApp.Shared
 
-![Nanny-App logo](../logo.jpeg)
+![Nanny-App logo](../NannyApp.Web/assets/Icon_Logo.png)
 
 Holds everything that's common to **every** Nanny-App client:
 

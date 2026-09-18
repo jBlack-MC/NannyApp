@@ -1,9 +1,7 @@
 package com.nannyapp.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
@@ -11,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +23,7 @@ fun AppTopBar(
 ) {
     TopAppBar(
         title = {
-            if (title == "NannyApp") NannyAppBrand()
+            if (title == "NannyApp" || title == "Nanny-App") NannyAppBrand()
             else Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1)
         },
         modifier = modifier,
@@ -48,7 +45,8 @@ fun AppTopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background,
+            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
         ),
     )
 }
@@ -66,18 +64,24 @@ fun AppBottomNavigation(
     currentRoute: String?,
     onItemClick: (BottomNavItem) -> Unit,
 ) {
-    NavigationBar(tonalElevation = 3.dp) {
-        items.forEach { item ->
-            NavigationBarItem(
-                selected = currentRoute == item.route,
-                onClick = { onItemClick(item) },
-                icon = {
-                    BadgedBox(badge = { if (item.badgeCount > 0) Badge { Text(item.badgeCount.coerceAtMost(9).toString()) } }) {
-                        Icon(item.icon, contentDescription = item.label)
-                    }
-                },
-                label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
-            )
+    Surface(
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.7f)),
+        shadowElevation = 8.dp,
+    ) {
+        NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
+            items.forEach { item ->
+                NavigationBarItem(
+                    selected = currentRoute == item.route,
+                    onClick = { onItemClick(item) },
+                    icon = {
+                        BadgedBox(badge = { if (item.badgeCount > 0) Badge { Text(item.badgeCount.coerceAtMost(9).toString()) } }) {
+                            Icon(item.icon, contentDescription = item.label)
+                        }
+                    },
+                    label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                )
+            }
         }
     }
 }

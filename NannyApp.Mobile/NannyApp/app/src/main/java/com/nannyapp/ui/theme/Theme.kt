@@ -37,14 +37,17 @@ private val LightColors = lightColorScheme(
 
 private val DarkColors = darkColorScheme(
     primary = NannyPrimary,
-    onPrimary = Color(0xFF241109),
+    onPrimary = Color(0xFFFFFFFF),
     primaryContainer = NannyPrimaryDark,
+    onPrimaryContainer = Color(0xFFD1E4FF),
     secondary = NannySecondary,
-    background = Color(0xFF1C1613),
-    onBackground = Color(0xFFF1E9E3),
-    surface = Color(0xFF241D19),
-    onSurface = Color(0xFFF1E9E3),
-    surfaceVariant = Color(0xFF33291F),
+    onSecondary = Color(0xFFFFFFFF),
+    background = Color(0xFF111318),
+    onBackground = Color(0xFFE2E2E6),
+    surface = Color(0xFF111318),
+    onSurface = Color(0xFFE2E2E6),
+    surfaceVariant = Color(0xFF43474E),
+    onSurfaceVariant = Color(0xFFC3C7CF),
     error = NannyError,
 )
 

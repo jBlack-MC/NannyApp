@@ -1,6 +1,7 @@
 package com.nannyapp.ui.components
 
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -18,7 +19,7 @@ fun PrimaryButton(
     Button(
         onClick = onClick,
         enabled = enabled && !loading,
-        modifier = modifier.height(52.dp),
+        modifier = modifier.heightIn(min = 56.dp),
         shape = MaterialTheme.shapes.medium,
     ) {
         if (loading) {
@@ -39,7 +40,7 @@ fun SecondaryButton(
     OutlinedButton(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier.height(52.dp),
+        modifier = modifier.heightIn(min = 56.dp),
         shape = MaterialTheme.shapes.medium,
     ) {
         Text(text, style = MaterialTheme.typography.titleSmall)

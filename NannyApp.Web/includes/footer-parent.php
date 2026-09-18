@@ -34,7 +34,7 @@ $user = current_user();
             <div class="footer-brand">
                 <a class="brand" href="<?= url('parent/dashboard.php') ?>">
                     <span class="brand-icon brand-logo-wrap">
-                        <img class="brand-logo" src="<?= url('assets/img/logo.png') ?>" alt="<?= APP_NAME ?> logo">
+                        <img class="brand-logo" src="<?= url('assets/Icon_Logo.png') ?>" alt="<?= APP_NAME ?> logo">
                     </span>
                     <div class="brand-text">
                         <span class="brand-name"><?= APP_NAME ?></span>

@@ -1,6 +1,6 @@
 # NannyApp — Native Android App + PHP/MySQL API
 
-![Nanny-App logo](../../logo.jpeg)
+![Nanny-App logo](assets/Icon_Logo.png)
 
 A native Kotlin/Jetpack Compose Android app for the NannyApp childcare marketplace,
 rebuilt from the original PHP/MySQL web app (`nannyapp-master.zip`), plus a REST API

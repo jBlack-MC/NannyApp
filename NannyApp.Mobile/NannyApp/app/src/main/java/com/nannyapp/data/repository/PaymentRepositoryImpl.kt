@@ -8,6 +8,7 @@ import com.nannyapp.domain.repository.PaymentRepository
 import com.nannyapp.util.Resource
 import com.nannyapp.util.safeApiCall
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -38,7 +39,10 @@ class PaymentRepositoryImpl @Inject constructor(
                 dao.upsertAll(result.data.map { it.toEntity() })
                 emit(Resource.Success(result.data.map { it.asDomain() }))
             }
-            is Resource.Error -> emit(result)
+            is Resource.Error -> {
+                val cached = dao.observeAll().first()
+                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.asDomain() })) else emit(result)
+            }
             Resource.Loading -> {}
         }
     }

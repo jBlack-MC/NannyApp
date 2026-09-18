@@ -27,6 +27,14 @@ fun User.toEntity() = UserEntity(
     dateOfBirth = dateOfBirth, address = address, gender = gender.name.lowercase(), createdAt = createdAt,
 )
 
+fun UserEntity.asDomain() = User(
+    id = id, fullName = fullName, email = email, phone = phone,
+    role = UserRole.fromApi(role),
+    status = if (status == "suspended") AccountStatus.SUSPENDED else AccountStatus.ACTIVE,
+    emailVerified = emailVerified, profileImageUrl = profileImage,
+    dateOfBirth = dateOfBirth, address = address, gender = Gender.fromApi(gender), createdAt = createdAt,
+)
+
 private fun csv(value: String?): List<String> = value?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
 
 fun NannyProfileDto.asDomain() = NannyProfile(
@@ -135,6 +143,16 @@ fun ReviewDto.asDomain() = Review(
     rating = rating, comment = comment, createdAt = createdAt,
 )
 
+fun ReviewDto.toEntity() = ReviewEntity(
+    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
+    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
+)
+
+fun ReviewEntity.asDomain() = Review(
+    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
+    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
+)
+
 fun ChatMessageDto.asDomain(myUserId: Int) = ChatMessage(
     id = id, senderId = senderId, receiverId = receiverId, content = content, isRead = isRead,
     createdAt = createdAt, isMine = senderId == myUserId,
@@ -167,6 +185,10 @@ fun NotificationEntity.asDomain() = AppNotification(
 )
 
 fun SavedNannyDto.asDomain() = SavedNanny(id = id, nannyId = nannyId, nanny = nanny?.asDomain(), createdAt = createdAt)
+
+fun SavedNannyDto.toEntity() = SavedNannyEntity(id = id, nannyId = nannyId, createdAt = createdAt)
+
+fun SavedNannyEntity.asDomain() = SavedNanny(id = id, nannyId = nannyId, nanny = null, createdAt = createdAt)
 
 fun DayAvailabilityDto.asDomain() = DayAvailability(
     dayOfWeek = dayOfWeek, isAvailable = isAvailable, timeStart = timeStart, timeEnd = timeEnd,
@@ -207,27 +229,3 @@ fun AdminDashboardStatsDto.asDomain() = AdminDashboardStats(
     bookingsByStatus = bookingsByStatus.entries.associate { BookingStatus.fromApi(it.key) to it.value },
     topLocations = topLocations.entries.map { it.key to it.value },
 )
-
-
-
-
-fun UserEntity.asDomain() = User(
-    id = id, fullName = fullName, email = email, phone = phone,
-    role = UserRole.fromApi(role),
-    status = if (status == "suspended") AccountStatus.SUSPENDED else AccountStatus.ACTIVE,
-    emailVerified = emailVerified, profileImageUrl = profileImage,
-    dateOfBirth = dateOfBirth, address = address, gender = Gender.fromApi(gender), createdAt = createdAt,
-)
-
-
-fun ReviewDto.toEntity() = ReviewEntity(
-    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
-    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
-)
-
-
-fun ReviewEntity.asDomain() = Review(
-    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
-    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
-)
-

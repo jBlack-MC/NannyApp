@@ -1,6 +1,6 @@
 # Nanny-App
 
-![Nanny-App logo](logo.jpeg)
+![Nanny-App logo](NannyApp.Web/assets/Icon_Logo.png)
 
 A three-role childcare booking marketplace connecting **parents** with verified **nannies**, moderated by an **admin**.
 
