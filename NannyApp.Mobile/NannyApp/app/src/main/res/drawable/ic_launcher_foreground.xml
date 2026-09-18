@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <inset xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/nanny_app_icon"
+    android:drawable="@drawable/logo_launcher"
     android:insetLeft="8%"
     android:insetRight="8%"
     android:insetTop="8%"
