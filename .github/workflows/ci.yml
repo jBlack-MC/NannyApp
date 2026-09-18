@@ -56,18 +56,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android SDK packages
-        env:
-          ANDROID_COMPILE_SDK: '34'
-          ANDROID_BUILD_TOOLS: '34.0.0'
-        run: |
-          yes | sdkmanager --licenses
-          sdkmanager --install \
-            "platform-tools" \
-            "platforms;android-${ANDROID_COMPILE_SDK}" \
-            "build-tools;${ANDROID_BUILD_TOOLS}"
+        uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-34 build-tools;34.0.0
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
