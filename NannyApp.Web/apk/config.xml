@@ -11,6 +11,8 @@
     <name>Nanny-App</name>
     <description>Find vetted nannies, book childcare and manage bookings.</description>
     <author email="team@nanny.app" href="https://nanny.app">Team Knights</author>
+    <!-- The approved logo-only artwork is copied to this path before build. -->
+    <icon src="assets/Icon_Logo.png" />
 
     <!-- Point this at your running server.
          - Android emulator -> http://10.0.2.2/nannyapp/index.php
