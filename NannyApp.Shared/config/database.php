@@ -10,11 +10,11 @@
 
 declare(strict_types=1);
 
-if (!defined('DB_HOST')) define('DB_HOST', '127.0.0.1');
-if (!defined('DB_PORT')) define('DB_PORT', '3306');
-if (!defined('DB_NAME')) define('DB_NAME', 'nanny_app');
-if (!defined('DB_USER')) define('DB_USER', 'root');
-if (!defined('DB_PASS')) define('DB_PASS', '');
+if (!defined('DB_HOST')) define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: '127.0.0.1');
+if (!defined('DB_PORT')) define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: '3306');
+if (!defined('DB_NAME')) define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: 'nanny_app');
+if (!defined('DB_USER')) define('DB_USER', getenv('NANNYAPP_DB_USER') ?: 'root');
+if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
 
 // Where uploaded files (profile photos, verification docs, etc.) live —
 // outside any single app's webroot so web + app share the exact same files.
@@ -42,8 +42,8 @@ function db(): PDO
             ]);
         } catch (PDOException $e) {
             http_response_code(500);
-            exit('Database connection failed. Have you imported NannyApp.Shared/database/schema.sql and is MySQL running? '
-                . '(' . htmlspecialchars($e->getMessage()) . ')');
+            error_log('NannyApp database connection failed: ' . $e->getMessage());
+            exit('Database connection failed. Check the server configuration and database migration status.');
         }
     }
 

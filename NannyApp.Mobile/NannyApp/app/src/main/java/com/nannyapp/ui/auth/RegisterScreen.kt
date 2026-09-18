@@ -69,7 +69,7 @@ fun RegisterScreen(
                 SectionLabel("Nanny profile")
                 LabeledField("Bio", state.bio, singleLine = false) { viewModel.update { s -> s.copy(bio = it) } }
                 LabeledField("Years of experience", state.experienceYears) { viewModel.update { s -> s.copy(experienceYears = it) } }
-                LabeledField("Hourly rate (USD)", state.hourlyRate) { viewModel.update { s -> s.copy(hourlyRate = it) } }
+                LabeledField("Hourly rate (R)", state.hourlyRate) { viewModel.update { s -> s.copy(hourlyRate = it) } }
                 LabeledField("Location", state.location) { viewModel.update { s -> s.copy(location = it) } }
                 LabeledField("Skills (comma separated)", state.skills) { viewModel.update { s -> s.copy(skills = it) } }
                 LabeledField("Languages (comma separated)", state.languages) { viewModel.update { s -> s.copy(languages = it) } }

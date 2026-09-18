@@ -46,6 +46,8 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     onAvailability = { nav.navigate(Routes.NANNY_AVAILABILITY) },
                     onEditProfile = { nav.navigate(Routes.NANNY_PROFILE_EDIT) },
                     onEarnings = { nav.navigate(Routes.NANNY_EARNINGS) },
+                    onPortfolio = { nav.navigate(Routes.NANNY_PORTFOLIO) },
+                    onReviews = { nav.navigate(Routes.NANNY_REVIEWS) },
                     onNotifications = { nav.navigate(Routes.NOTIFICATIONS) },
                 )
             }
@@ -93,7 +95,10 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                 NotificationsScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.PROFILE) {
-                ProfileScreen(onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } })
+                ProfileScreen(
+                    onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } },
+                    onSupport = { nav.navigate(Routes.SUPPORT) },
+                )
             }
             composable(Routes.SUPPORT) {
                 SupportScreen(onNewTicket = { nav.navigate(Routes.SUPPORT_NEW_TICKET) })

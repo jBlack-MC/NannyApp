@@ -66,6 +66,20 @@ either way.
 Adding a second client in the future just means pointing its config at this
 folder instead of re-implementing DB access or file storage.
 
+## Current gaps to close before production
+
+- The shared database has migration files but no automated migration runner or
+  schema-version table. Follow [database/MIGRATION_ORDER.md](database/MIGRATION_ORDER.md)
+  and add migration tracking before frequent releases.
+- `schema.sql` is a local bootstrap script: it drops the database and seeds demo
+  accounts/content. Never use it on staging or production.
+- SMTP delivery for verification/password-reset messages, production backups and
+  restore drills, push-notification delivery, and payment gateway webhooks are
+  deployment/operations work, not configured by the shared folder yet.
+- Store Android APK release metadata and checksums using
+  [releases/README.md](releases/README.md); do not commit signed binaries or
+  keystores.
+
 ## Going to production
 
 - Set the `NANNYAPP_S3_*` env vars above so uploads go to object storage

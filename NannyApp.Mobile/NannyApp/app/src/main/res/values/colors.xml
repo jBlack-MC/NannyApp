@@ -1,4 +1,5 @@
 <resources>
     <color name="nanny_primary">#1E5F9E</color>
     <color name="nanny_primary_dark">#123F70</color>
+    <color name="icon_background">#000000</color>
 </resources>

@@ -38,7 +38,7 @@ fun NannyAppBrand(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (light) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer),
+                    .background(Color.Black),
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(

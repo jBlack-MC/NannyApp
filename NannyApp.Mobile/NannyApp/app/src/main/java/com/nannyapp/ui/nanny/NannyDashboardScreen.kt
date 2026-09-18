@@ -20,6 +20,8 @@ fun NannyDashboardScreen(
     onAvailability: () -> Unit,
     onEditProfile: () -> Unit,
     onEarnings: () -> Unit,
+    onPortfolio: () -> Unit,
+    onReviews: () -> Unit,
     onNotifications: () -> Unit,
     viewModel: NannyDashboardViewModel = hiltViewModel(),
 ) {
@@ -71,6 +73,12 @@ fun NannyDashboardScreen(
                     SecondaryButton(text = "Edit profile", onClick = onEditProfile, modifier = Modifier.weight(1f))
                     Spacer(Modifier.width(8.dp))
                     SecondaryButton(text = "Earnings", onClick = onEarnings, modifier = Modifier.weight(1f))
+                }
+                Spacer(Modifier.height(8.dp))
+                Row {
+                    SecondaryButton(text = "Portfolio", onClick = onPortfolio, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(8.dp))
+                    SecondaryButton(text = "My reviews", onClick = onReviews, modifier = Modifier.weight(1f))
                 }
 
                 if (state.pendingRequests.isNotEmpty()) {

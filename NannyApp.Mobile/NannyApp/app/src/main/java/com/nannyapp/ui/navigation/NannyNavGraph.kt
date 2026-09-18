@@ -24,7 +24,7 @@ import com.nannyapp.ui.support.SupportScreen
 
 /**
  * Central Navigation system (request #37): Splash -> auth check -> role-scoped
- * home. Parent/Nanny/Admin each get their own bottom-nav shell (RoleScaffold)
+ * home. Parent and nanny accounts each get their own bottom-nav shell (RoleScaffold)
  * hosting a nested NavHost so global destinations (messages/notifications/
  * profile/support) stay reachable from every role without duplicating routes.
  */

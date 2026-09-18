@@ -25,7 +25,11 @@ import com.nannyapp.ui.components.*
  * profile-completion percentage (request #31). */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(onLoggedOut: () -> Unit, viewModel: ProfileViewModel = hiltViewModel()) {
+fun ProfileScreen(
+    onLoggedOut: () -> Unit,
+    onSupport: () -> Unit,
+    viewModel: ProfileViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsState()
     var showLogoutConfirm by remember { mutableStateOf(false) }
     var showPasswordSheet by remember { mutableStateOf(false) }
@@ -86,6 +90,9 @@ fun ProfileScreen(onLoggedOut: () -> Unit, viewModel: ProfileViewModel = hiltVie
 
                 Spacer(Modifier.height(12.dp))
                 SecondaryButton(text = "Change password", onClick = { showPasswordSheet = true }, modifier = Modifier.fillMaxWidth())
+
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(text = "Help & support", onClick = onSupport, modifier = Modifier.fillMaxWidth())
 
                 Spacer(Modifier.height(24.dp))
                 HorizontalDivider()
