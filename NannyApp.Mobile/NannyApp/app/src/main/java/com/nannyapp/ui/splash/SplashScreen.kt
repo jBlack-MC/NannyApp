@@ -76,7 +76,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = painterResource(R.drawable.nanny_app_icon),
+                model = painterResource(R.drawable.logo),
                 contentDescription = null,
                 modifier = Modifier
                     .size(250.dp)
