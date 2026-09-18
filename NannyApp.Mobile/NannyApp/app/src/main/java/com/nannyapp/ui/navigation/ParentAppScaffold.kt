@@ -45,6 +45,8 @@ fun ParentAppScaffold(rootNav: NavHostController) {
                     onNannyClick = { id -> nav.navigate(Routes.nannyDetail(id)) },
                     onBookingClick = { id -> nav.navigate(Routes.bookingDetail(id)) },
                     onSaved = { nav.navigate(Routes.SAVED_NANNIES) },
+                    onChildren = { nav.navigate(Routes.CHILDREN) },
+                    onPayments = { nav.navigate(Routes.PARENT_PAYMENTS) },
                     onMessages = { nav.navigate(Routes.MESSAGES) },
                     onNotifications = { nav.navigate(Routes.NOTIFICATIONS) },
                 )
@@ -113,7 +115,10 @@ fun ParentAppScaffold(rootNav: NavHostController) {
                 NotificationsScreen(onBack = { nav.popBackStack() })
             }
             composable(Routes.PROFILE) {
-                ProfileScreen(onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } })
+                ProfileScreen(
+                    onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } },
+                    onSupport = { nav.navigate(Routes.SUPPORT) },
+                )
             }
             composable(Routes.SUPPORT) {
                 SupportScreen(onNewTicket = { nav.navigate(Routes.SUPPORT_NEW_TICKET) })

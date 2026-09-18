@@ -26,6 +26,8 @@ fun ParentDashboardScreen(
     onNannyClick: (Int) -> Unit,
     onBookingClick: (Int) -> Unit,
     onSaved: () -> Unit,
+    onChildren: () -> Unit,
+    onPayments: () -> Unit,
     onMessages: () -> Unit,
     onNotifications: () -> Unit,
     viewModel: ParentDashboardViewModel = hiltViewModel(),
@@ -67,6 +69,12 @@ fun ParentDashboardScreen(
 
                 Spacer(Modifier.height(16.dp))
                 PrimaryButton(text = "Find Care", onClick = onFindNannies, modifier = Modifier.fillMaxWidth())
+
+                Spacer(Modifier.height(12.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    SecondaryButton(text = "My children", onClick = onChildren, modifier = Modifier.weight(1f))
+                    SecondaryButton(text = "Payments", onClick = onPayments, modifier = Modifier.weight(1f))
+                }
 
                 Spacer(Modifier.height(20.dp))
                 Text("Your bookings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)

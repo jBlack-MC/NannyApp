@@ -54,7 +54,7 @@ fun SplashScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
+        modifier = Modifier.fillMaxSize().background(Color.Black),
     ) {
         SplashBackgroundWaves()
         val motion = rememberInfiniteTransition(label = "splash-motion")
