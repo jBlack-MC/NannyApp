@@ -8,7 +8,7 @@ plugins {
 
 android {
     namespace = "com.nannyapp"
-    compileSdk = 37
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.nannyapp"
