@@ -42,13 +42,18 @@ class NannyDetailViewModel @Inject constructor(
                 _state.value = _state.value.copy(loading = false, error = detail.message)
                 return@launch
             }
+            val nanny = (detail as? Resource.Success)?.data
+            if (nanny == null) {
+                _state.value = _state.value.copy(loading = false, error = "Unable to load nanny details right now.")
+                return@launch
+            }
             val reviews = nannyRepository.getNannyReviews(nannyId)
             val savedList = savedNannyRepository.getSavedNannies().first { it !is Resource.Loading }
             val isSaved = (savedList as? Resource.Success)?.data?.any { it.nannyId == nannyId } ?: false
 
             _state.value = _state.value.copy(
                 loading = false,
-                nanny = (detail as Resource.Success).data,
+                nanny = nanny,
                 reviews = (reviews as? Resource.Success)?.data.orEmpty(),
                 isSaved = isSaved,
             )

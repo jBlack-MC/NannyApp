@@ -9,19 +9,31 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.nannyapp.work.NotificationSyncWorker
+import dagger.hilt.EntryPoint
 import dagger.hilt.android.HiltAndroidApp
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
 import java.util.concurrent.TimeUnit
-import javax.inject.Inject
 
 @HiltAndroidApp
 class NannyApplication : Application(), Configuration.Provider {
 
-    @Inject lateinit var workerFactory: HiltWorkerFactory
+    @EntryPoint
+    @InstallIn(SingletonComponent::class)
+    interface WorkManagerFactoryEntryPoint {
+        fun workerFactory(): HiltWorkerFactory
+    }
 
     override val workManagerConfiguration: Configuration
-        get() = Configuration.Builder()
-            .setWorkerFactory(workerFactory)
-            .build()
+        get() {
+            val factory = EntryPointAccessors
+                .fromApplication(this, WorkManagerFactoryEntryPoint::class.java)
+                .workerFactory()
+            return Configuration.Builder()
+                .setWorkerFactory(factory)
+                .build()
+        }
 
     override fun onCreate() {
         super.onCreate()

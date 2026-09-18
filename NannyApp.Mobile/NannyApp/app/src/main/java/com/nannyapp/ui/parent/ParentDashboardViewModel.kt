@@ -54,7 +54,11 @@ class ParentDashboardViewModel @Inject constructor(
                 _state.value = _state.value.copy(loading = false, error = profileResult.message)
                 return@launch
             }
-            val user = (profileResult as Resource.Success).data
+            val user = (profileResult as? Resource.Success)?.data
+            if (user == null) {
+                _state.value = _state.value.copy(loading = false, error = "Unable to load your profile right now.")
+                return@launch
+            }
             val completion = userRepository.profileCompletionPercent(user)
 
             val bookings = bookingRepository.getBookings(UserRole.PARENT).first { it !is Resource.Loading }
