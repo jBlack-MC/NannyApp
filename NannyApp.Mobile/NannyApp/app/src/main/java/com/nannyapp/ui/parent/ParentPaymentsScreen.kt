@@ -30,7 +30,7 @@ fun ParentPaymentsScreen(onBack: () -> Unit, viewModel: ParentPaymentsViewModel 
                         Column(Modifier.padding(14.dp)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(payment.bookingRef ?: "Booking #${payment.bookingId}", fontWeight = FontWeight.SemiBold)
-                                Text("$${"%.2f".format(payment.amount)}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Text("R${"%.2f".format(payment.amount)}", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                             }
                             Spacer(Modifier.height(4.dp))
                             Text("${payment.method} · ${payment.status.name.lowercase().replaceFirstChar { it.uppercase() }}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

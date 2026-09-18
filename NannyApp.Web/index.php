@@ -128,14 +128,15 @@ require __DIR__ . '/includes/header.php';
             <p class="h-eyebrow">Trusted childcare, on your schedule</p>
             <h1>Find professional childcare with confidence.</h1>
             <p class="muted">NannyApp helps families discover verified nannies, compare profiles, and book care securely from one polished platform.</p>
-            <div class="hero-actions">
-                <a class="btn btn-primary" href="<?= $findCareUrl ?>">Find Care</a>
-                <a class="btn" href="<?= url('auth/register.php') ?>">Become a Nanny</a>
-            </div>
+                <div class="hero-actions">
+                    <a class="btn btn-primary" href="<?= $findCareUrl ?>">Find Care</a>
+                    <a class="btn" href="<?= url('auth/register.php') ?>">Become a Nanny</a>
+                    <a class="btn" href="<?= url('download-app.php') ?>">Download Android App</a>
+                </div>
             <div class="hero-points">
                 <span>Background Checked</span>
                 <span>Verified Reviews</span>
-                <span>Secure Payments</span>
+                <span>Clear Booking Records</span>
             </div>
         </div>
         <div class="home-hero-media card appear-up">
@@ -226,8 +227,8 @@ require __DIR__ . '/includes/header.php';
             </article>
             <article class="card reveal-item feature-card">
                 <span class="service-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-                <h3>Secure Payments</h3>
-                <p class="muted">Book and pay through protected workflows with clear records and confirmations.</p>
+                <h3>Clear Booking Records</h3>
+                <p class="muted">Keep every booking, payment status, and confirmation in one easy-to-follow place.</p>
             </article>
         </div>
     </div>

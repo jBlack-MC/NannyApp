@@ -46,7 +46,7 @@ fun BookingDetailScreen(
                     DetailRow("Duration", "${b.durationHours} hours")
                     DetailRow("Address", b.bookingAddress ?: b.location ?: "-")
                     if (!b.notes.isNullOrBlank()) DetailRow("Notes", b.notes)
-                    DetailRow("Amount", "$${"%.2f".format(b.amount)}")
+                    DetailRow("Amount", "R${"%.2f".format(b.amount)}")
                     DetailRow("Payment status", b.paymentStatus.name.lowercase().replaceFirstChar { it.uppercase() })
                     if (b.payoutStatus.name != "NONE") DetailRow("Payout status", b.payoutStatus.name.lowercase().replaceFirstChar { it.uppercase() })
 

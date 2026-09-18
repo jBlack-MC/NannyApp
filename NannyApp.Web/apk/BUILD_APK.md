@@ -4,6 +4,12 @@ The Nanny-App backend is **PHP + MySQL**, so the Android app is a thin native
 **WebView wrapper** around the live site (the standard way to ship a PHP app as
 an APK). Two supported routes — pick one.
 
+> **Mobile UI source of truth:** the APK displays `NannyApp.Web`. Update the
+> responsive PHP pages and CSS in that project for changes to the app landing
+> page, navigation, and parent/nanny screens. `NannyApp.Mobile/NannyApp` is a
+> separate native prototype and is not the UI packaged by the Cordova or
+> Capacitor instructions below.
+
 > **Admin is intentionally unavailable inside this app.** The server detects
 > requests carrying the `NannyAppCordova` user-agent marker (set below via
 > `AppendUserAgent`) or an installed-PWA cookie and blocks admin login/pages
@@ -51,6 +57,15 @@ cordova build android            # debug APK
 
 The APK is written to:
 `nanny-apk/platforms/android/app/build/outputs/apk/debug/app-debug.apk`
+
+## Publishing the download on the website
+
+The public **Download App** link points to `download-app.php`. For a production
+release, copy the signed APK to a private location and set `NANNYAPP_APK_PATH`
+to that absolute file path (or use the local fallback
+`NannyApp.Shared/releases/NannyApp-latest.apk`). The endpoint sends it with an
+APK download header; do not put signed APKs under `assets/` or another browsable
+web folder.
 
 **Important — make the server reachable from the device:**
 - Start XAMPP (Apache + MySQL) on your PC.

@@ -1,3 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.NannyApp" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.NannyApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/nanny_primary</item>
+        <item name="android:statusBarColor">@color/nanny_primary_dark</item>
+    </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenBackground">@color/nanny_primary</item>
+        <item name="postSplashScreenTheme">@style/Theme.NannyApp</item>
+    </style>
 </resources>

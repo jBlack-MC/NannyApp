@@ -71,10 +71,8 @@ $isActive = static function (string $path, bool $prefix = false) use ($requestPa
 
 <div class="splash" id="splash" role="status" aria-live="polite" aria-label="Loading <?= APP_NAME ?>">
     <div class="splash-inner">
-        <img class="splash-logo" src="<?= url('assets/Icon_Logo.png') ?>" alt="<?= APP_NAME ?>">
-        <span class="splash-name"><?= APP_NAME ?></span>
-        <span class="splash-tagline">Connecting Families With Trusted Childcare</span>
-        <span class="splash-bar"><span class="splash-bar-fill"></span></span>
+        <img class="splash-logo" src="<?= url('assets/Icon_Logo.png') ?>" alt="">
+        <span class="splash-dots" aria-hidden="true"><i></i><i></i><i></i></span>
     </div>
 </div>
 <?php require __DIR__ . '/navbar.php'; ?>

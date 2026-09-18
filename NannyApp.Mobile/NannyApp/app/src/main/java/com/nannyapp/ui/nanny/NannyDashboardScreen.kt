@@ -30,11 +30,22 @@ fun NannyDashboardScreen(
             state.loading -> LoadingView(modifier = Modifier.padding(padding))
             state.error != null -> ErrorState(message = state.error!!, modifier = Modifier.padding(padding), onRetry = viewModel::load)
             else -> Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-                Text("Welcome back, ${state.profile?.fullName?.substringBefore(' ') ?: "there"} 👋", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(4.dp))
-                VerificationBadge(state.profile?.isVerified == true)
-                if (state.profile?.isVerified != true) {
-                    Text("Your account is pending verification. Complete your portfolio to speed this up.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(Modifier.padding(20.dp)) {
+                        Text("Welcome back, ${state.profile?.fullName?.substringBefore(' ') ?: "there"}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Spacer(Modifier.height(6.dp))
+                        if (state.profile?.isVerified == true) {
+                            VerificationBadge(true)
+                            Spacer(Modifier.height(6.dp))
+                            Text("Your profile is ready for families to discover.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .78f))
+                        } else {
+                            Text("Complete your portfolio to help us verify your profile.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .78f))
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(16.dp))
@@ -43,7 +54,7 @@ fun NannyDashboardScreen(
                         Metric("Pending requests", state.pendingRequests.size.toString()),
                         Metric("Completed jobs", state.completedCount.toString()),
                         Metric("Rating", "%.1f".format(state.profile?.averageRating ?: 0.0)),
-                        Metric("Total earnings", "$${"%.0f".format(state.earnings?.totalEarnings ?: 0.0)}"),
+                        Metric("Total earnings", "R${"%.0f".format(state.earnings?.totalEarnings ?: 0.0)}"),
                     ),
                 )
 

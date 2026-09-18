@@ -25,9 +25,9 @@ fun MetricGrid(
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val columns = if (maxWidth < 360.dp) 1 else 2
-        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             metrics.chunked(columns).forEach { row ->
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
                     row.forEach { metric ->
                         StatCard(metric.label, metric.value, Modifier.weight(1f))
                     }
