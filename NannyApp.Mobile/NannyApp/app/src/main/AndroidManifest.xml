@@ -37,19 +37,5 @@
             </intent-filter>
         </activity>
 
-        <provider
-            android:name="androidx.startup.InitializationProvider"
-            android:authorities="${applicationId}.androidx-startup"
-            android:exported="false"
-            tools:node="merge">
-            <!-- We initialize WorkManager ourselves in NannyApplication (Configuration.Provider)
-                 so it can use HiltWorkerFactory; remove the default auto-initializer to avoid
-                 "WorkManager is already initialized" at startup. -->
-            <meta-data
-                android:name="androidx.work.WorkManagerInitializer"
-                android:value="androidx.startup"
-                tools:node="remove" />
-        </provider>
-
     </application>
 </manifest>
