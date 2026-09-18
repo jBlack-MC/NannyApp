@@ -6,6 +6,8 @@ config/paystack.php
 !/assets/nanny_app_logo.svg
 /local.properties
 /.gradle
+/.gradle-user-home/
+/NannyApp.Mobile/
 /build
 /app/build
 *.iml

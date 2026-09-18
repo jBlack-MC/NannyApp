@@ -51,17 +51,4 @@ object Routes {
     const val PROFILE = "profile"
     const val SUPPORT = "support"
     const val SUPPORT_NEW_TICKET = "support_new_ticket"
-
-    // Admin
-    const val ADMIN_DASHBOARD = "admin_dashboard"
-    const val ADMIN_USERS = "admin_users"
-    const val ADMIN_USER_DETAIL = "admin_user_detail/{userId}"
-    fun adminUserDetail(id: Int) = "admin_user_detail/$id"
-    const val ADMIN_VERIFICATIONS = "admin_verifications"
-    const val ADMIN_VERIFICATION_DETAIL = "admin_verification_detail/{nannyId}"
-    fun adminVerificationDetail(id: Int) = "admin_verification_detail/$id"
-    const val ADMIN_BOOKINGS = "admin_bookings"
-    const val ADMIN_PAYMENTS = "admin_payments"
-    const val ADMIN_REPORTS = "admin_reports"
-    const val ADMIN_SUPPORT = "admin_support"
 }

@@ -87,14 +87,6 @@ fun ParentAppScaffold(rootNav: NavHostController) {
                     onBookingCreated = { nav.navigate(Routes.PARENT_BOOKINGS) { popUpTo(Routes.PARENT_DASHBOARD) } },
                 )
             }
-            composable("payment_webview") { entry ->
-                val url = nav.previousBackStackEntry?.savedStateHandle?.get<String>("checkoutUrl") ?: ""
-                PaymentWebViewScreen(
-                    checkoutUrl = url,
-                    onBack = { nav.popBackStack(Routes.PARENT_DASHBOARD, false) },
-                    onVerified = { nav.navigate(Routes.PARENT_BOOKINGS) { popUpTo(Routes.PARENT_DASHBOARD) } },
-                )
-            }
             composable(Routes.BOOKING_DETAIL, arguments = listOf(navArgument("bookingId") { type = NavType.IntType })) {
                 BookingDetailScreen(
                     onBack = { nav.popBackStack() },
