@@ -4,6 +4,9 @@
 .vscode/
 .DS_Store
 Thumbs.db
+.env
+.env.*
+!.env.production.example
 
 # Android build output (per-project .gitignore also covers this under NannyApp.Mobile/NannyApp)
 build/

@@ -45,6 +45,12 @@ try {
     $bookingId = (int) db()->lastInsertId();
     db()->prepare('UPDATE bookings SET booking_ref = :ref WHERE id = :id')
         ->execute(['ref' => generate_booking_ref($bookingId), 'id' => $bookingId]);
+    // Launch phase: payment is reconciled manually by web admins.
+    $rate = db()->prepare('SELECT hourly_rate FROM nanny_profiles WHERE user_id = :id');
+    $rate->execute(['id' => $nannyId]);
+    $amount = $duration * (float) ($rate->fetchColumn() ?: 0);
+    db()->prepare('INSERT INTO payments (booking_id, amount, method, status) VALUES (:bid, :amount, "manual", "pending")')
+        ->execute(['bid' => $bookingId, 'amount' => $amount]);
     db()->commit();
 } catch (Throwable $e) {
     db()->rollBack();

@@ -135,3 +135,15 @@ interface AvailabilityDao {
     @Insert
     suspend fun insertAll(items: List<AvailabilityEntity>)
 }
+
+@Dao
+interface ReviewDao {
+    @Query("SELECT * FROM cached_review WHERE nannyId = :nannyId ORDER BY createdAt DESC")
+    fun observeForNanny(nannyId: Int): Flow<List<ReviewEntity>>
+
+    @Upsert
+    suspend fun upsertAll(items: List<ReviewEntity>)
+
+    @Upsert
+    suspend fun upsert(item: ReviewEntity)
+}

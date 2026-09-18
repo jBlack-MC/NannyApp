@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.PaymentApi
 import com.nannyapp.data.db.dao.PaymentDao
@@ -13,7 +13,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 /**
- * Payments are always initialized/verified server-side against Paystack —
+ * Payments are always initialized/verified server-side against Paystack â€”
  * the Android app never sees a secret key (request #23/#35). The backend
  * returns an authorization_url which we open in a Custom Tab / WebView
  * purely to complete the hosted checkout, then we call verify.php.
@@ -29,17 +29,18 @@ class PaymentRepositoryImpl @Inject constructor(
             .map { PaymentInit(it.authorizationUrl, it.reference, it.accessCode) }
 
     override suspend fun verifyPayment(reference: String): Resource<Payment> =
-        safeApiCall { api.verifyPayment(reference) }.map { it.toDomain() }
+        safeApiCall { api.verifyPayment(reference) }.map { it.asDomain() }
 
     override fun getPaymentsForRole(): Flow<Resource<List<Payment>>> = flow {
         emit(Resource.Loading)
         when (val result = safeApiCall { api.getPayments() }) {
             is Resource.Success -> {
                 dao.upsertAll(result.data.map { it.toEntity() })
-                emit(Resource.Success(result.data.map { it.toDomain() }))
+                emit(Resource.Success(result.data.map { it.asDomain() }))
             }
             is Resource.Error -> emit(result)
             Resource.Loading -> {}
         }
     }
 }
+

@@ -63,8 +63,8 @@ Paystack secret key lives **only** on the server (`config/paystack.php`, gitigno
 
 | Endpoint | Method | Notes |
 |---|---|---|
-| `initialize.php` | POST | `booking_id`. Creates a `pending` `payments` row, calls Paystack `/transaction/initialize`, returns `{authorizationUrl, reference}`. |
-| `verify.php` | GET | `?reference=`. Calls Paystack `/transaction/verify`; on success sets `status=paid, payout_status=held`. |
+| `initialize.php` | POST | Disabled during the manual-payment launch phase (`410 Gone`). |
+| `verify.php` | GET | Disabled during the manual-payment launch phase (`410 Gone`). |
 | `list.php` | GET | Payments visible to the logged-in parent/nanny. |
 
 ## Reviews — `/api/reviews/`

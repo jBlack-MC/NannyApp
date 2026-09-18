@@ -79,9 +79,9 @@ fun NannyCard(
                 }
                 if (nanny.skills.isNotEmpty()) {
                     Spacer(Modifier.height(8.dp))
-                    Row {
+                    Row(modifier = Modifier.fillMaxWidth()) {
                         nanny.skills.take(2).forEach { skill ->
-                            SkillChip(skill)
+                            SkillChip(skill, modifier = Modifier.weight(1f, fill = false))
                             Spacer(Modifier.width(6.dp))
                         }
                     }
@@ -103,6 +103,8 @@ fun SkillChip(label: String, modifier: Modifier = Modifier) {
     Text(
         label,
         style = MaterialTheme.typography.labelSmall,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(50))
             .padding(horizontal = 8.dp, vertical = 3.dp),
@@ -136,8 +138,8 @@ fun BookingCard(
                 }
                 Spacer(Modifier.width(10.dp))
                 Column(Modifier.weight(1f)) {
-                    Text(booking.nannyName ?: counterpartLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                    Text(booking.bookingRef ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(booking.nannyName ?: counterpartLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(booking.bookingRef ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 BookingStatusChip(booking.status)
             }

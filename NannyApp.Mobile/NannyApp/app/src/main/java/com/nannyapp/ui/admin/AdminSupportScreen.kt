@@ -31,7 +31,7 @@ fun AdminSupportScreen(onBack: () -> Unit, viewModel: AdminSupportViewModel = hi
                 state.tickets.isEmpty() -> EmptyState(title = "No tickets", message = "Nothing here for this filter.")
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(state.tickets, key = { it.id }) { ticket ->
-                        ElevatedCard(Modifier.fillMaxWidth(), onClick = { editing = ticket }) {
+                        ElevatedCard(onClick = { editing = ticket }, modifier = Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(ticket.subject, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))

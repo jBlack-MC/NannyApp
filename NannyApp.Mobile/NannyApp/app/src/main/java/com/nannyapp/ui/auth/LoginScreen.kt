@@ -1,6 +1,8 @@
 package com.nannyapp.ui.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -89,6 +91,6 @@ fun LoginScreen(
 // an extra dependency just for this screen.
 @Composable
 private fun Modifier.verticalScrollFix(): Modifier {
-    val scrollState = androidx.compose.foundation.rememberScrollState()
-    return this.then(androidx.compose.foundation.verticalScroll(scrollState))
+    val scrollState = rememberScrollState()
+    return this.then(Modifier.verticalScroll(scrollState))
 }

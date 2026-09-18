@@ -7,11 +7,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.nannyapp.ui.components.PrimaryButton
+import com.nannyapp.ui.components.NannyAppBrand
 import com.nannyapp.ui.components.SecondaryButton
 import com.nannyapp.ui.components.TextActionButton
 
@@ -32,10 +32,8 @@ fun WelcomeScreen(
             modifier = Modifier.fillMaxWidth().height(260.dp),
             contentScale = androidx.compose.ui.layout.ContentScale.Crop,
         )
-        Column(Modifier.padding(24.dp)) {
-            Text("NannyApp", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
-            Spacer(Modifier.height(4.dp))
-            Text("Trusted childcare, on your schedule.", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+            NannyAppBrand(showTagline = true)
             Spacer(Modifier.height(28.dp))
             PrimaryButton(text = "Find Care", onClick = onFindCare, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(12.dp))

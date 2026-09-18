@@ -1,6 +1,7 @@
 package com.nannyapp.ui.notifications
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -55,4 +56,4 @@ fun NotificationsScreen(onBack: () -> Unit, viewModel: NotificationsViewModel = 
 }
 
 @Composable
-private fun Modifier.clickable_(onClick: () -> Unit): Modifier = this.then(androidx.compose.foundation.clickable(onClick = onClick))
+private fun Modifier.clickable_(onClick: () -> Unit): Modifier = this.then(Modifier.clickable(onClick = onClick))

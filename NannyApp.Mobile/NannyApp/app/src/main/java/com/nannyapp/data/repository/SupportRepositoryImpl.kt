@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.SupportApi
 import com.nannyapp.data.api.dto.SubmitTicketRequestDto
@@ -16,10 +16,11 @@ import javax.inject.Singleton
 class SupportRepositoryImpl @Inject constructor(private val api: SupportApi) : SupportRepository {
 
     override suspend fun submitTicket(category: SupportCategory, subject: String, message: String, name: String, email: String): Resource<SupportTicket> =
-        safeApiCall { api.submitTicket(SubmitTicketRequestDto(category.toApi(), subject, message, name, email)) }.map { it.toDomain() }
+        safeApiCall { api.submitTicket(SubmitTicketRequestDto(category.toApi(), subject, message, name, email)) }.map { it.asDomain() }
 
     override fun getMyTickets(): Flow<Resource<List<SupportTicket>>> = flow {
         emit(Resource.Loading)
-        emit(safeApiCall { api.getMyTickets() }.map { list -> list.map { it.toDomain() } })
+        emit(safeApiCall { api.getMyTickets() }.map { list -> list.map { it.asDomain() } })
     }
 }
+

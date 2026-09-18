@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.AuthApi
 import com.nannyapp.data.api.dto.*
@@ -37,7 +37,7 @@ class AuthRepositoryImpl @Inject constructor(
             } else {
                 flow {
                     val id = sessionManager.currentUserId()
-                    if (id == null) emit(null) else emitAll(userDao.observe(id).map { it?.toDomain() })
+                    if (id == null) emit(null) else emitAll(userDao.observe(id).map { it?.asDomain() })
                 }
             }
         }
@@ -47,7 +47,7 @@ class AuthRepositoryImpl @Inject constructor(
         return when (result) {
             is Resource.Success -> {
                 val dto = result.data
-                val user = dto.user.toDomain()
+                val user = dto.user.asDomain()
                 sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe)
                 userDao.upsert(user.toEntity())
                 Resource.Success(user)
@@ -73,8 +73,8 @@ class AuthRepositoryImpl @Inject constructor(
         val result = safeApiCall { api.register(dto) }
         return when (result) {
             is Resource.Success -> {
-                val user = result.data.user.toDomain()
-                sessionManager.saveSession(result.data.token, user.id, user.role, user.fullName, user.email, true)
+                val user = result.data.user.asDomain()
+                sessionManager.saveSession(result.data.token, user.id, user.role, user.fullName, user.email, rememberMe = true)
                 userDao.upsert(user.toEntity())
                 Resource.Success(user)
             }

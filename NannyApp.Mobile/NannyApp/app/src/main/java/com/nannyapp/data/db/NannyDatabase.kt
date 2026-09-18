@@ -31,4 +31,5 @@ abstract class NannyDatabase : RoomDatabase() {
     abstract fun chatMessageDao(): ChatMessageDao
     abstract fun notificationDao(): NotificationDao
     abstract fun availabilityDao(): AvailabilityDao
+    abstract fun reviewDao(): ReviewDao
 }

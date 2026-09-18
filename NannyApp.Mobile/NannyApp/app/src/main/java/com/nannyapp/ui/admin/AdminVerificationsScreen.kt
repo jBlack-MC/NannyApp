@@ -26,7 +26,7 @@ fun AdminVerificationsScreen(onBack: () -> Unit, viewModel: AdminVerificationsVi
             state.pending.isEmpty() -> EmptyState(title = "All caught up", message = "No nannies are waiting for verification.", modifier = Modifier.padding(padding))
             else -> LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.pending, key = { it.userId }) { nanny ->
-                    ElevatedCard(Modifier.fillMaxWidth(), onClick = { reviewing = nanny }) {
+                    ElevatedCard(onClick = { reviewing = nanny }, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(14.dp)) {
                             Text(nanny.fullName, fontWeight = FontWeight.SemiBold)
                             Text("${nanny.location ?: "-"} · ${nanny.experienceYears} yrs experience", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

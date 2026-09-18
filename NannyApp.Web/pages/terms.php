@@ -52,10 +52,9 @@ require __DIR__ . '/../includes/header.php';
 
         <h2>5. Payments</h2>
         <ul class="muted">
-            <li>All payments are processed through our secure payment gateway. NannyApp does not store full card details.</li>
-            <li>Payment is due at the time of booking. Funds are held and released to the Nanny upon completion of the session.</li>
-            <li>Refunds are processed in accordance with our Refund Policy. NannyApp takes a service fee on each transaction; this fee is non-refundable in cases of Parent-initiated cancellations outside the cancellation window.</li>
-            <li>Subscription plan fees (if applicable) are billed monthly and are non-refundable for the current billing period.</li>
+            <li>Online card payments are not available during the launch phase. Payment instructions are provided after the Nanny accepts a booking.</li>
+            <li>Payments confirmed by our operations team are recorded as held and may only be released to the Nanny after completion of the session, or resolved by an administrator in a dispute.</li>
+            <li>Refunds are assessed against the booking record and the applicable cancellation policy. Contact support promptly if there is a dispute.</li>
         </ul>
 
         <h2>6. Verification</h2>

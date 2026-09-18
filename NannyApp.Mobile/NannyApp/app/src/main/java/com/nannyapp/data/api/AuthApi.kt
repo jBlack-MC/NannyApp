@@ -1,11 +1,10 @@
-package com.nannyapp.data.api
+﻿package com.nannyapp.data.api
 
 import com.nannyapp.data.api.dto.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.POST
 
-/** Maps to /api/auth/*.php — see backend_docs/API.md */
 interface AuthApi {
     @POST("auth/login.php")
     suspend fun login(@Body body: LoginRequestDto): Response<ApiEnvelope<LoginResponseDto>>

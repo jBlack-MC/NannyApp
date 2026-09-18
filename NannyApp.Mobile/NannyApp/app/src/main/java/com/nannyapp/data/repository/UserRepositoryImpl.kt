@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.UserApi
 import com.nannyapp.data.db.dao.UserDao
@@ -20,14 +20,14 @@ class UserRepositoryImpl @Inject constructor(
 
     override suspend fun getProfile(): Resource<User> {
         val result = safeApiCall { api.getProfile() }
-        if (result is Resource.Success) userDao.upsert(result.data.toDomain().toEntity())
-        return result.map { it.toDomain() }
+        if (result is Resource.Success) userDao.upsert(result.data.asDomain().toEntity())
+        return result.map { it.asDomain() }
     }
 
     override suspend fun updateProfile(user: User): Resource<User> {
         val result = safeApiCall { api.updateProfile(user.toDto()) }
-        if (result is Resource.Success) userDao.upsert(result.data.toDomain().toEntity())
-        return result.map { it.toDomain() }
+        if (result is Resource.Success) userDao.upsert(result.data.asDomain().toEntity())
+        return result.map { it.asDomain() }
     }
 
     override suspend fun changePassword(current: String, new: String): Resource<Unit> =
@@ -55,3 +55,4 @@ class UserRepositoryImpl @Inject constructor(
         return if (fields.isEmpty()) 0 else (filled * 100) / fields.size
     }
 }
+

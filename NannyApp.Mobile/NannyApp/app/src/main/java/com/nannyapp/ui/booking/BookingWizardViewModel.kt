@@ -7,7 +7,6 @@ import com.nannyapp.domain.model.*
 import com.nannyapp.domain.repository.BookingRepository
 import com.nannyapp.domain.repository.ChildRepository
 import com.nannyapp.domain.repository.NannyRepository
-import com.nannyapp.domain.repository.PaymentRepository
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -28,7 +27,6 @@ data class BookingWizardUiState(
     val submitting: Boolean = false,
     val error: String? = null,
     val createdBooking: Booking? = null,
-    val paymentUrl: String? = null,
 )
 
 @HiltViewModel
@@ -36,7 +34,6 @@ class BookingWizardViewModel @Inject constructor(
     private val nannyRepository: NannyRepository,
     private val childRepository: ChildRepository,
     private val bookingRepository: BookingRepository,
-    private val paymentRepository: PaymentRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -82,19 +79,12 @@ class BookingWizardViewModel @Inject constructor(
         return error == null
     }
 
-    /** Creates the booking (status=pending), then kicks off Paystack init via the backend. */
+    /** Creates a pending booking. Payment is arranged manually for the launch phase. */
     fun confirmAndPay() {
         viewModelScope.launch {
             _state.value = _state.value.copy(submitting = true, error = null)
             when (val result = bookingRepository.createBooking(_state.value.wizard)) {
-                is Resource.Success -> {
-                    _state.value = _state.value.copy(createdBooking = result.data)
-                    when (val paymentInit = paymentRepository.initializePayment(result.data.id)) {
-                        is Resource.Success -> _state.value = _state.value.copy(submitting = false, paymentUrl = paymentInit.data.authorizationUrl)
-                        is Resource.Error -> _state.value = _state.value.copy(submitting = false, error = paymentInit.message)
-                        Resource.Loading -> {}
-                    }
-                }
+                is Resource.Success -> _state.value = _state.value.copy(submitting = false, createdBooking = result.data)
                 is Resource.Error -> _state.value = _state.value.copy(submitting = false, error = result.message)
                 Resource.Loading -> {}
             }

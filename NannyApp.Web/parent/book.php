@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 4) {
         } catch (Throwable) {}
 
         // Payment record
-        $pdo->prepare('INSERT INTO payments (booking_id, amount, status) VALUES (?,?,"pending")')
+        $pdo->prepare('INSERT INTO payments (booking_id, amount, method, status) VALUES (?,?,"manual","pending")')
             ->execute([$bookingId, $wz['amount']]);
 
         $pdo->commit();

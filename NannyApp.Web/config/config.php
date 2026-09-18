@@ -7,18 +7,20 @@
 declare(strict_types=1);
 
 // --- App ---------------------------------------------------------------
-define('APP_NAME', 'Nanny-App');
+define('APP_NAME', getenv('NANNYAPP_NAME') ?: 'Nanny-App');
+define('SUPPORT_EMAIL', getenv('NANNYAPP_SUPPORT_EMAIL') ?: 'support@example.invalid');
+define('SUPPORT_PHONE', getenv('NANNYAPP_SUPPORT_PHONE') ?: 'Not configured');
 define('APP_TAGLINE', 'Care • Connect • Comfort');
 
 // Base URL of the app (folder under htdocs). No trailing slash.
-define('BASE_URL', '/nannyapp');
+define('BASE_URL', rtrim(getenv('NANNYAPP_BASE_URL') ?: '/nannyapp', '/'));
 
 // --- Database (XAMPP defaults) ----------------------------------------
-define('DB_HOST', '127.0.0.1');
-define('DB_PORT', '3306');
-define('DB_NAME', 'nanny_app');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: '127.0.0.1');
+define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: '3306');
+define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: 'nanny_app');
+define('DB_USER', getenv('NANNYAPP_DB_USER') ?: 'root');
+define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
 
 // --- Error reporting (off in production; errors go to server log only) ---
 error_reporting(E_ALL);

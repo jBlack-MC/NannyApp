@@ -16,7 +16,7 @@ if (empty($faqs)) {
         ['question' => 'How do I book a nanny?',
          'answer'   => 'Create a free account, browse verified nannies near you, then click "Book Now". Our 5-step booking wizard guides you through choosing the date, time, address, children details and completing payment securely.'],
         ['question' => 'How do payments work?',
-         'answer'   => 'All payments are processed securely via Paystack. Your card is charged only after the nanny confirms the booking. Money is held safely and only released to the nanny once the session is completed.'],
+         'answer'   => 'Online card payments are not available during our launch phase. After a nanny confirms your booking, our team provides approved manual payment instructions. Received payments are recorded and held until the session is completed.'],
         ['question' => 'How do I become a nanny?',
          'answer'   => 'Register and choose the "Nanny" role. Complete your profile with your bio, experience, qualifications and ID. Our team reviews and verifies applications within 1–3 business days. Once verified, you appear in parent search results.'],
         ['question' => 'Can I cancel or reschedule a booking?',

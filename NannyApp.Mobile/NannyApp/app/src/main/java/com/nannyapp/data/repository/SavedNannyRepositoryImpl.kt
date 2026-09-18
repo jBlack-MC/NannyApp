@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.NannyApi
 import com.nannyapp.domain.model.SavedNanny
@@ -15,7 +15,7 @@ class SavedNannyRepositoryImpl @Inject constructor(private val api: NannyApi) : 
 
     override fun getSavedNannies(): Flow<Resource<List<SavedNanny>>> = flow {
         emit(Resource.Loading)
-        emit(safeApiCall { api.getSaved() }.map { list -> list.map { it.toDomain() } })
+        emit(safeApiCall { api.getSaved() }.map { list -> list.map { it.asDomain() } })
     }
 
     override suspend fun toggleSave(nannyId: Int, save: Boolean): Resource<Boolean> {
@@ -23,3 +23,4 @@ class SavedNannyRepositoryImpl @Inject constructor(private val api: NannyApi) : 
         return result.map { it["saved"] ?: save }
     }
 }
+

@@ -9,7 +9,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $bookingId = (int) ($_POST['booking_id'] ?? 0);
     $action    = $_POST['action'] ?? '';
 
-    if ($action === 'release' && $bookingId) {
+    if ($action === 'record_received' && $bookingId) {
+        $upd = db()->prepare(
+            "UPDATE payments SET status='paid', payout_status='held'
+             WHERE booking_id=? AND status='pending' AND method='manual'"
+        );
+        $upd->execute([$bookingId]);
+        $info = db()->prepare('SELECT nanny_id FROM bookings WHERE id=?');
+        $info->execute([$bookingId]);
+        if ($upd->rowCount() && ($b = $info->fetch())) {
+            notify((int) $b['nanny_id'], 'Payment recorded', 'A manual payment has been recorded and is held pending completion of the booking.', 'nanny/earnings.php');
+        }
+        flash($upd->rowCount() ? 'Manual payment recorded and held for this booking.' : 'No pending manual payment was found for this booking.', $upd->rowCount() ? 'success' : 'error');
+    } elseif ($action === 'release' && $bookingId) {
         db()->prepare("UPDATE bookings SET status='completed', parent_confirmed_at=NOW() WHERE id=? AND status IN ('in_progress','disputed')")
             ->execute([$bookingId]);
         $upd = db()->prepare(
@@ -103,7 +115,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e($r['parent_name']) ?></td>
                     <td><?= e($r['nanny_name']) ?></td>
                     <td>R<?= number_format((float)$r['amount'], 2) ?></td>
-                    <td><?= status_badge($r['status']) ?></td>
+                    <td><?= status_badge($r['status']) ?><div class="muted text-xs"><?= e(ucfirst($r['method'] ?? 'manual')) ?></div></td>
                     <td><?= $r['payout_status'] ? status_badge($r['payout_status']) : '<span class="muted">—</span>' ?></td>
                     <td>
                         <?= status_badge($r['booking_status']) ?>
@@ -113,7 +125,13 @@ require __DIR__ . '/../includes/header.php';
                     </td>
                     <td class="muted"><?= e(date('d M Y', strtotime($r['created_at']))) ?></td>
                     <td>
-                        <?php if (in_array($r['booking_status'], ['in_progress','disputed'], true) && $r['payout_status'] === 'held'): ?>
+                        <?php if ($r['status'] === 'pending' && $r['method'] === 'manual' && in_array($r['booking_status'], ['confirmed','in_progress','disputed','completed'], true)): ?>
+                            <form method="post" class="form-zero">
+                                <?= csrf_field() ?>
+                                <input type="hidden" name="booking_id" value="<?= (int)$r['booking_id'] ?>">
+                                <button class="btn btn-sm btn-primary" name="action" value="record_received" data-confirm="Confirm that the manual payment has been received and place it on hold?">Record payment</button>
+                            </form>
+                        <?php elseif (in_array($r['booking_status'], ['in_progress','disputed'], true) && $r['payout_status'] === 'held'): ?>
                             <div class="booking-actions-row">
                                 <form method="post" class="form-zero">
                                     <?= csrf_field() ?>

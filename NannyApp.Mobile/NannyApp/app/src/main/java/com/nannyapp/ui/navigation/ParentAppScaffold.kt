@@ -84,10 +84,7 @@ fun ParentAppScaffold(rootNav: NavHostController) {
             composable(Routes.BOOKING_WIZARD, arguments = listOf(navArgument("nannyId") { type = NavType.IntType })) {
                 BookingWizardScreen(
                     onBack = { nav.popBackStack() },
-                    onOpenPayment = { url, _ ->
-                        nav.currentBackStackEntry?.savedStateHandle?.set("checkoutUrl", url)
-                        nav.navigate("payment_webview")
-                    },
+                    onBookingCreated = { nav.navigate(Routes.PARENT_BOOKINGS) { popUpTo(Routes.PARENT_DASHBOARD) } },
                 )
             }
             composable("payment_webview") { entry ->

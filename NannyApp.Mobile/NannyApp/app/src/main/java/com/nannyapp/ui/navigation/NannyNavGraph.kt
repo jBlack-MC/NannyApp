@@ -9,7 +9,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import com.nannyapp.domain.model.UserRole
-import com.nannyapp.ui.admin.*
 import com.nannyapp.ui.auth.*
 import com.nannyapp.ui.booking.*
 import com.nannyapp.ui.messaging.ChatScreen
@@ -39,7 +38,6 @@ fun NannyNavGraph() {
                 onNavigateToWelcome = { navController.navigate(Routes.WELCOME) { popUpTo(Routes.SPLASH) { inclusive = true } } },
                 onNavigateToParentHome = { navController.navigate(Routes.PARENT_DASHBOARD) { popUpTo(Routes.SPLASH) { inclusive = true } } },
                 onNavigateToNannyHome = { navController.navigate(Routes.NANNY_DASHBOARD) { popUpTo(Routes.SPLASH) { inclusive = true } } },
-                onNavigateToAdminHome = { navController.navigate(Routes.ADMIN_DASHBOARD) { popUpTo(Routes.SPLASH) { inclusive = true } } },
             )
         }
 
@@ -59,7 +57,7 @@ fun NannyNavGraph() {
                     val dest = when (role) {
                         UserRole.PARENT -> Routes.PARENT_DASHBOARD
                         UserRole.NANNY -> Routes.NANNY_DASHBOARD
-                        UserRole.ADMIN -> Routes.ADMIN_DASHBOARD
+                        UserRole.ADMIN -> Routes.WELCOME
                     }
                     navController.navigate(dest) { popUpTo(Routes.WELCOME) { inclusive = true } }
                 },
@@ -106,7 +104,5 @@ fun NannyNavGraph() {
         // ---- Nanny role shell ----
         composable(Routes.NANNY_DASHBOARD) { RoleScaffold(role = UserRole.NANNY, rootNav = navController) }
 
-        // ---- Admin role shell ----
-        composable(Routes.ADMIN_DASHBOARD) { RoleScaffold(role = UserRole.ADMIN, rootNav = navController) }
     }
 }

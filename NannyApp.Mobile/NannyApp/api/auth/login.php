@@ -36,6 +36,12 @@ if ($user['status'] === 'suspended') {
     json_error('Your account has been suspended. Contact support for help.', 403);
 }
 
+// Administration is intentionally web-only. Do this before issuing an API
+// token so an admin account cannot be used by the packaged mobile client.
+if ($user['role'] === 'admin') {
+    json_error('Administrator accounts are available through the web portal only.', 403);
+}
+
 $token = issue_api_token((int) $user['id'], $_SERVER['HTTP_USER_AGENT'] ?? null);
 
 json_response(true, [

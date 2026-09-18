@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.ChildApi
 import com.nannyapp.data.db.dao.ChildDao
@@ -24,12 +24,12 @@ class ChildRepositoryImpl @Inject constructor(
         when (val result = safeApiCall { api.getChildren() }) {
             is Resource.Success -> {
                 dao.upsertAll(result.data.map { it.toEntity() })
-                emit(Resource.Success(result.data.map { it.toDomain() }))
+                emit(Resource.Success(result.data.map { it.asDomain() }))
             }
             is Resource.Error -> {
                 // fall back to cache when offline, per request #33 offline states
                 val cached = dao.observeAllCached().first()
-                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.toDomain() })) else emit(result)
+                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.asDomain() })) else emit(result)
             }
             Resource.Loading -> {}
         }
@@ -38,13 +38,13 @@ class ChildRepositoryImpl @Inject constructor(
     override suspend fun addChild(child: Child): Resource<Child> {
         val result = safeApiCall { api.addChild(child.toDto()) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun updateChild(child: Child): Resource<Child> {
         val result = safeApiCall { api.updateChild(child.toDto()) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun deleteChild(childId: Int): Resource<Unit> {
@@ -53,3 +53,4 @@ class ChildRepositoryImpl @Inject constructor(
         return result
     }
 }
+

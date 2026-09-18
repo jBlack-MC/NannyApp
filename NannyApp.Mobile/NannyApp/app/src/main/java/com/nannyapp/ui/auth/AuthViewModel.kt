@@ -32,7 +32,14 @@ class SplashViewModel @Inject constructor(
         viewModelScope.launch {
             val role = sessionManager.currentRole()
             val loggedIn = sessionManager.currentToken() != null
-            _state.value = if (loggedIn && role != null) SessionCheck.LoggedIn(role) else SessionCheck.LoggedOut
+            // Older app installs may still have an admin session stored locally.
+            // Remove it rather than exposing a native administration route.
+            if (loggedIn && role == UserRole.ADMIN) {
+                sessionManager.clearSession()
+                _state.value = SessionCheck.LoggedOut
+            } else {
+                _state.value = if (loggedIn && role != null) SessionCheck.LoggedIn(role) else SessionCheck.LoggedOut
+            }
         }
     }
 }

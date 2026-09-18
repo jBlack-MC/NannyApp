@@ -42,9 +42,9 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="stats stats-wide">
-    <div class="stat"><span class="stat-ico">💳</span><b>R<?= number_format((float)$t['total_paid'], 0) ?></b>Total paid</div>
-    <div class="stat"><span class="stat-ico">⏳</span><b>R<?= number_format((float)$t['total_pending'], 0) ?></b>Pending</div>
-    <div class="stat"><span class="stat-ico">🧾</span><b><?= (int)$t['paid_count'] ?></b>Completed payments</div>
+    <div class="stat"><span class="stat-ico">💳</span><b>R<?= number_format((float)$t['total_paid'], 0) ?></b>Payments recorded</div>
+    <div class="stat"><span class="stat-ico">⏳</span><b>R<?= number_format((float)$t['total_pending'], 0) ?></b>Awaiting manual payment</div>
+    <div class="stat"><span class="stat-ico">🧾</span><b><?= (int)$t['paid_count'] ?></b>Recorded payments</div>
     <div class="stat"><span class="stat-ico">📋</span><b><?= (int)$t['total_count'] ?></b>Total transactions</div>
 </div>
 
@@ -100,7 +100,7 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="card card-note-info">
-    <h3>🔒 Secure, held payments</h3>
-    <p class="muted">When a nanny accepts a booking your card is charged, but the money is held in escrow — not the nanny's yet. It's only released once you confirm the session actually happened (or automatically after 48 hours). If a nanny never arrives, cancel the booking or report the problem from <a href="<?= url('parent/bookings.php') ?>">My bookings</a> and you'll be refunded.</p>
+    <h3>Manual payment launch</h3>
+    <p class="muted">Online card payments are not available yet. After your nanny accepts, follow the payment instructions provided by our team. We record received payments here and hold them until the session is completed and confirmed. If there is a problem, use <a href="<?= url('parent/bookings.php') ?>">My bookings</a> to cancel or report it.</p>
 </div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

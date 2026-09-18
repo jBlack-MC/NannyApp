@@ -55,7 +55,7 @@ require __DIR__ . '/../includes/header.php';
         <p class="muted">We share your information only as follows:</p>
         <ul class="muted">
             <li><strong>Between parents and nannies:</strong> when a booking is created, the relevant parent and nanny can see each other's name, profile photograph, and contact details necessary to carry out the booking.</li>
-            <li><strong>Payment processors:</strong> we share transaction data with our payment gateway partner solely to process payments securely.</li>
+            <li><strong>Payment records:</strong> during the manual-payment launch phase, we record payment status and references needed to manage bookings and payouts.</li>
             <li><strong>Background check providers:</strong> nanny identity and document information is shared with our verification partners for the purpose of conducting background checks.</li>
             <li><strong>Legal requirements:</strong> we may disclose information if required by South African law, court order, or to protect the safety of our users.</li>
         </ul>

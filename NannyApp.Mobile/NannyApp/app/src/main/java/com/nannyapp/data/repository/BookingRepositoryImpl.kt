@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.BookingApi
 import com.nannyapp.data.api.dto.*
@@ -30,11 +30,11 @@ class BookingRepositoryImpl @Inject constructor(
         when (val result = safeApiCall { api.getBookings() }) {
             is Resource.Success -> {
                 dao.upsertAll(result.data.map { it.toEntity() })
-                emit(Resource.Success(result.data.map { it.toDomain() }))
+                emit(Resource.Success(result.data.map { it.asDomain() }))
             }
             is Resource.Error -> {
                 val cached = dao.observeAll().first()
-                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.toDomain() })) else emit(result)
+                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.asDomain() })) else emit(result)
             }
             Resource.Loading -> {}
         }
@@ -43,7 +43,7 @@ class BookingRepositoryImpl @Inject constructor(
     override suspend fun getBookingDetail(bookingId: Int): Resource<Booking> {
         val result = safeApiCall { api.getBookingDetail(bookingId) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun createBooking(wizard: BookingWizardState): Resource<Booking> {
@@ -60,19 +60,19 @@ class BookingRepositoryImpl @Inject constructor(
         )
         val result = safeApiCall { api.createBooking(dto) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun cancelBooking(bookingId: Int): Resource<Unit> =
         safeApiCall { api.cancelBooking(BookingActionRequestDto(bookingId)) }
 
     override suspend fun rescheduleBooking(bookingId: Int, newDateTimeIso: String): Resource<Booking> =
-        safeApiCall { api.rescheduleBooking(RescheduleRequestDto(bookingId, newDateTimeIso)) }.map { it.toDomain() }
+        safeApiCall { api.rescheduleBooking(RescheduleRequestDto(bookingId, newDateTimeIso)) }.map { it.asDomain() }
 
     override suspend fun acceptBooking(bookingId: Int): Resource<Booking> {
         val result = safeApiCall { api.acceptBooking(BookingActionRequestDto(bookingId)) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun rejectBooking(bookingId: Int): Resource<Unit> =
@@ -82,21 +82,22 @@ class BookingRepositoryImpl @Inject constructor(
         // Server enforces the 5-attempt lockout from nanny/bookings.php; we just relay its response.
         val result = safeApiCall { api.checkIn(CheckInRequestDto(bookingId, pin)) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun checkOut(bookingId: Int): Resource<Booking> {
         val result = safeApiCall { api.checkOut(BookingActionRequestDto(bookingId)) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun confirmCompletion(bookingId: Int): Resource<Booking> {
         val result = safeApiCall { api.confirmCompletion(BookingActionRequestDto(bookingId)) }
         if (result is Resource.Success) dao.upsert(result.data.toEntity())
-        return result.map { it.toDomain() }
+        return result.map { it.asDomain() }
     }
 
     override suspend fun disputeBooking(bookingId: Int, reason: String): Resource<Unit> =
         safeApiCall { api.disputeBooking(DisputeRequestDto(bookingId, reason)) }
 }
+

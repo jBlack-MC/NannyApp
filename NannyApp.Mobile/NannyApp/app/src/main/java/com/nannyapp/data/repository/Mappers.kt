@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.dto.*
 import com.nannyapp.data.db.entity.*
@@ -6,7 +6,7 @@ import com.nannyapp.domain.model.*
 
 /** Central DTO <-> domain <-> Room entity mapping so this logic lives in one place. */
 
-fun UserDto.toDomain() = User(
+fun UserDto.asDomain() = User(
     id = id, fullName = fullName, email = email, phone = phone,
     role = UserRole.fromApi(role),
     status = if (status == "suspended") AccountStatus.SUSPENDED else AccountStatus.ACTIVE,
@@ -29,7 +29,7 @@ fun User.toEntity() = UserEntity(
 
 private fun csv(value: String?): List<String> = value?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() } ?: emptyList()
 
-fun NannyProfileDto.toDomain() = NannyProfile(
+fun NannyProfileDto.asDomain() = NannyProfile(
     userId = userId, fullName = fullName, profileImageUrl = photoUrl, bannerImageUrl = bannerImage,
     bio = bio, gender = Gender.fromApi(gender), experienceYears = experienceYears, hourlyRate = hourlyRate,
     location = location, skills = csv(skills), languages = csv(languages), qualifications = qualifications,
@@ -38,7 +38,7 @@ fun NannyProfileDto.toDomain() = NannyProfile(
     averageRating = averageRating, reviewCount = reviewCount, profileViews = profileViews, memberSince = memberSince,
 )
 
-fun NannyProfileEntity.toDomain() = NannyProfile(
+fun NannyProfileEntity.asDomain() = NannyProfile(
     userId = userId, fullName = fullName, profileImageUrl = photoUrl, bannerImageUrl = bannerImage,
     bio = bio, gender = Gender.fromApi(gender), experienceYears = experienceYears, hourlyRate = hourlyRate,
     location = location, skills = csv(skills), languages = csv(languages), qualifications = qualifications,
@@ -56,7 +56,7 @@ fun NannyProfileDto.toEntity() = NannyProfileEntity(
     lastSyncedAt = System.currentTimeMillis(),
 )
 
-fun ChildDto.toDomain() = Child(
+fun ChildDto.asDomain() = Child(
     id = id, parentId = parentId, name = name, age = age, gender = gender, allergies = allergies,
     medicalConditions = medicalConditions, specialNeeds = specialNeeds,
     favouriteActivities = favouriteActivities, notesForNannies = notesForNannies,
@@ -74,13 +74,13 @@ fun ChildDto.toEntity() = ChildEntity(
     favouriteActivities = favouriteActivities, notesForNannies = notesForNannies,
 )
 
-fun ChildEntity.toDomain() = Child(
+fun ChildEntity.asDomain() = Child(
     id = id, parentId = parentId, name = name, age = age, gender = gender, allergies = allergies,
     medicalConditions = medicalConditions, specialNeeds = specialNeeds,
     favouriteActivities = favouriteActivities, notesForNannies = notesForNannies,
 )
 
-fun BookingDto.toDomain() = Booking(
+fun BookingDto.asDomain() = Booking(
     id = id, bookingRef = bookingRef, parentId = parentId, parentName = parentName, nannyId = nannyId,
     nannyName = nannyName, nannyPhotoUrl = nannyPhotoUrl, dateTime = dateTime, durationHours = duration,
     location = location, notes = notes, childrenDetails = childrenDetails, bookingAddress = bookingAddress,
@@ -101,7 +101,7 @@ fun BookingDto.toEntity() = BookingEntity(
     paymentStatus = paymentStatus, payoutStatus = payoutStatus, createdAt = createdAt,
 )
 
-fun BookingEntity.toDomain() = Booking(
+fun BookingEntity.asDomain() = Booking(
     id = id, bookingRef = bookingRef, parentId = parentId, parentName = parentName, nannyId = nannyId,
     nannyName = nannyName, nannyPhotoUrl = nannyPhotoUrl, dateTime = dateTime, durationHours = duration,
     location = location, notes = notes, childrenDetails = childrenDetails, bookingAddress = bookingAddress,
@@ -112,7 +112,7 @@ fun BookingEntity.toDomain() = Booking(
     createdAt = createdAt,
 )
 
-fun PaymentDto.toDomain() = Payment(
+fun PaymentDto.asDomain() = Payment(
     id = id, bookingId = bookingId, bookingRef = bookingRef, amount = amount, method = method,
     transactionId = transactionId, status = PaymentStatus.fromApi(status),
     payoutStatus = PayoutStatus.fromApi(payoutStatus), releasedAt = releasedAt, createdAt = createdAt,
@@ -124,18 +124,18 @@ fun PaymentDto.toEntity() = PaymentEntity(
     createdAt = createdAt,
 )
 
-fun PaymentEntity.toDomain() = Payment(
+fun PaymentEntity.asDomain() = Payment(
     id = id, bookingId = bookingId, bookingRef = bookingRef, amount = amount, method = method,
     transactionId = transactionId, status = PaymentStatus.fromApi(status),
     payoutStatus = PayoutStatus.fromApi(payoutStatus), releasedAt = releasedAt, createdAt = createdAt,
 )
 
-fun ReviewDto.toDomain() = Review(
+fun ReviewDto.asDomain() = Review(
     id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName, nannyId = nannyId,
     rating = rating, comment = comment, createdAt = createdAt,
 )
 
-fun ChatMessageDto.toDomain(myUserId: Int) = ChatMessage(
+fun ChatMessageDto.asDomain(myUserId: Int) = ChatMessage(
     id = id, senderId = senderId, receiverId = receiverId, content = content, isRead = isRead,
     createdAt = createdAt, isMine = senderId == myUserId,
 )
@@ -144,17 +144,17 @@ fun ChatMessageDto.toEntity() = ChatMessageEntity(
     id = id, senderId = senderId, receiverId = receiverId, content = content, isRead = isRead, createdAt = createdAt,
 )
 
-fun ChatMessageEntity.toDomain(myUserId: Int) = ChatMessage(
+fun ChatMessageEntity.asDomain(myUserId: Int) = ChatMessage(
     id = id, senderId = senderId, receiverId = receiverId, content = content, isRead = isRead,
     createdAt = createdAt, isMine = senderId == myUserId,
 )
 
-fun ConversationDto.toDomain() = Conversation(
+fun ConversationDto.asDomain() = Conversation(
     withUserId = withUserId, withUserName = withUserName, withUserPhotoUrl = withUserPhotoUrl,
     lastMessage = lastMessage, lastMessageAt = lastMessageAt, unreadCount = unreadCount,
 )
 
-fun NotificationDto.toDomain() = AppNotification(
+fun NotificationDto.asDomain() = AppNotification(
     id = id, title = title, message = message, url = url, isRead = isRead, createdAt = createdAt,
 )
 
@@ -162,13 +162,13 @@ fun NotificationDto.toEntity() = NotificationEntity(
     id = id, title = title, message = message, url = url, isRead = isRead, createdAt = createdAt,
 )
 
-fun NotificationEntity.toDomain() = AppNotification(
+fun NotificationEntity.asDomain() = AppNotification(
     id = id, title = title, message = message, url = url, isRead = isRead, createdAt = createdAt,
 )
 
-fun SavedNannyDto.toDomain() = SavedNanny(id = id, nannyId = nannyId, nanny = nanny?.toDomain(), createdAt = createdAt)
+fun SavedNannyDto.asDomain() = SavedNanny(id = id, nannyId = nannyId, nanny = nanny?.asDomain(), createdAt = createdAt)
 
-fun DayAvailabilityDto.toDomain() = DayAvailability(
+fun DayAvailabilityDto.asDomain() = DayAvailability(
     dayOfWeek = dayOfWeek, isAvailable = isAvailable, timeStart = timeStart, timeEnd = timeEnd,
     slots = slots.mapNotNull { s -> runCatching { AvailabilitySlot.fromApi(s) }.getOrNull() }.toSet(),
 )
@@ -178,32 +178,56 @@ fun DayAvailability.toDto() = DayAvailabilityDto(
     slots = slots.map { it.toApi() },
 )
 
-fun PortfolioItemDto.toDomain() = PortfolioItem(
+fun PortfolioItemDto.asDomain() = PortfolioItem(
     id = id, type = PortfolioType.fromApi(type), title = title, fileUrl = filePath,
     adminVerified = adminVerified, createdAt = createdAt,
 )
 
-fun EarningsSummaryDto.toDomain() = EarningsSummary(
+fun EarningsSummaryDto.asDomain() = EarningsSummary(
     totalEarnings = totalEarnings, heldEarnings = heldEarnings, releasedEarnings = releasedEarnings,
-    completedJobs = completedJobs, recentPayments = recentPayments.map { it.toDomain() },
+    completedJobs = completedJobs, recentPayments = recentPayments.map { it.asDomain() },
     earningsByDay = earningsByDay.entries.map { it.key to it.value },
 )
 
-fun SupportTicketDto.toDomain() = SupportTicket(
+fun SupportTicketDto.asDomain() = SupportTicket(
     id = id, userId = userId, name = name, email = email, category = SupportCategory.fromApi(category),
     subject = subject, message = message, status = SupportStatus.fromApi(status), adminNotes = adminNotes,
     createdAt = createdAt, updatedAt = updatedAt,
 )
 
-fun AdminDashboardStatsDto.toDomain() = AdminDashboardStats(
+fun AdminDashboardStatsDto.asDomain() = AdminDashboardStats(
     totalUsers = totalUsers, totalParents = totalParents, totalNannies = totalNannies,
     verifiedNannies = verifiedNannies, totalBookings = totalBookings, pendingBookings = pendingBookings,
     totalRevenue = totalRevenue, pendingVerifications = pendingVerifications, pendingDocuments = pendingDocuments,
-    openSupportTickets = openSupportTickets, recentUsers = recentUsers.map { it.toDomain() },
-    recentBookings = recentBookings.map { it.toDomain() },
-    topEarningNannies = topEarningNannies.map { it.nanny.toDomain() to it.totalEarnings },
+    openSupportTickets = openSupportTickets, recentUsers = recentUsers.map { it.asDomain() },
+    recentBookings = recentBookings.map { it.asDomain() },
+    topEarningNannies = topEarningNannies.map { it.nanny.asDomain() to it.totalEarnings },
     revenueByDay = revenueByDay.entries.map { it.key to it.value },
     registrationsByDay = registrationsByDay.entries.map { it.key to it.value },
     bookingsByStatus = bookingsByStatus.entries.associate { BookingStatus.fromApi(it.key) to it.value },
     topLocations = topLocations.entries.map { it.key to it.value },
 )
+
+
+
+
+fun UserEntity.asDomain() = User(
+    id = id, fullName = fullName, email = email, phone = phone,
+    role = UserRole.fromApi(role),
+    status = if (status == "suspended") AccountStatus.SUSPENDED else AccountStatus.ACTIVE,
+    emailVerified = emailVerified, profileImageUrl = profileImage,
+    dateOfBirth = dateOfBirth, address = address, gender = Gender.fromApi(gender), createdAt = createdAt,
+)
+
+
+fun ReviewDto.toEntity() = ReviewEntity(
+    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
+    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
+)
+
+
+fun ReviewEntity.asDomain() = Review(
+    id = id, bookingId = bookingId, reviewerId = reviewerId, reviewerName = reviewerName,
+    nannyId = nannyId, rating = rating, comment = comment, createdAt = createdAt,
+)
+

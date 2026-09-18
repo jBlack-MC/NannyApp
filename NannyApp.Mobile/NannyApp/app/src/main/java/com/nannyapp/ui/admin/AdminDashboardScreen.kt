@@ -35,30 +35,20 @@ fun AdminDashboardScreen(
                 Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
                     Text("Overview", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                     Spacer(Modifier.height(12.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Total users", s.totalUsers.toString(), modifier = Modifier.weight(1f))
-                        StatCard("Total bookings", s.totalBookings.toString(), modifier = Modifier.weight(1f))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Parents", s.totalParents.toString(), modifier = Modifier.weight(1f))
-                        StatCard("Nannies", s.totalNannies.toString(), modifier = Modifier.weight(1f))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Verified nannies", s.verifiedNannies.toString(), modifier = Modifier.weight(1f))
-                        StatCard("Pending verifications", s.pendingVerifications.toString(), modifier = Modifier.weight(1f))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Pending bookings", s.pendingBookings.toString(), modifier = Modifier.weight(1f))
-                        StatCard("Pending documents", s.pendingDocuments.toString(), modifier = Modifier.weight(1f))
-                    }
-                    Spacer(Modifier.height(10.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Total revenue", "$${"%.0f".format(s.totalRevenue)}", modifier = Modifier.weight(1f))
-                        StatCard("Open tickets", s.openSupportTickets.toString(), modifier = Modifier.weight(1f))
-                    }
+                    MetricGrid(
+                        metrics = listOf(
+                            Metric("Total users", s.totalUsers.toString()),
+                            Metric("Total bookings", s.totalBookings.toString()),
+                            Metric("Parents", s.totalParents.toString()),
+                            Metric("Nannies", s.totalNannies.toString()),
+                            Metric("Verified nannies", s.verifiedNannies.toString()),
+                            Metric("Pending verifications", s.pendingVerifications.toString()),
+                            Metric("Pending bookings", s.pendingBookings.toString()),
+                            Metric("Pending documents", s.pendingDocuments.toString()),
+                            Metric("Total revenue", "$${"%.0f".format(s.totalRevenue)}"),
+                            Metric("Open tickets", s.openSupportTickets.toString()),
+                        ),
+                    )
 
                     Spacer(Modifier.height(24.dp))
                     Text("Manage", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)

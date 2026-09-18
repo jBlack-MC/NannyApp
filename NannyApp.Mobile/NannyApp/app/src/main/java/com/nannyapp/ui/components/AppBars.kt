@@ -25,7 +25,10 @@ fun AppTopBar(
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
-        title = { Text(title, style = MaterialTheme.typography.titleLarge) },
+        title = {
+            if (title == "NannyApp") NannyAppBrand()
+            else Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+        },
         modifier = modifier,
         navigationIcon = {
             if (onBack != null) {
@@ -63,7 +66,7 @@ fun AppBottomNavigation(
     currentRoute: String?,
     onItemClick: (BottomNavItem) -> Unit,
 ) {
-    NavigationBar {
+    NavigationBar(tonalElevation = 3.dp) {
         items.forEach { item ->
             NavigationBarItem(
                 selected = currentRoute == item.route,

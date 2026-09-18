@@ -1,4 +1,4 @@
-package com.nannyapp.data.repository
+﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.NotificationApi
 import com.nannyapp.data.db.dao.NotificationDao
@@ -19,7 +19,7 @@ class NotificationRepositoryImpl @Inject constructor(
 ) : NotificationRepository {
 
     override fun getNotifications(): Flow<Resource<List<AppNotification>>> = flow {
-        dao.observeAll().collect { list -> emit(Resource.Success(list.map { it.toDomain() })) }
+        dao.observeAll().collect { list -> emit(Resource.Success(list.map { it.asDomain() })) }
     }
 
     override fun unreadCount(): Flow<Int> = dao.observeUnreadCount()
@@ -40,3 +40,4 @@ class NotificationRepositoryImpl @Inject constructor(
         return result.map { }
     }
 }
+

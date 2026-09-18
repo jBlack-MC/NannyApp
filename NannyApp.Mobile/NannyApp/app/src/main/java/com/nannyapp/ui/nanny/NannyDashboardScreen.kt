@@ -38,15 +38,14 @@ fun NannyDashboardScreen(
                 }
 
                 Spacer(Modifier.height(16.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("Pending requests", state.pendingRequests.size.toString(), modifier = Modifier.weight(1f))
-                    StatCard("Completed jobs", state.completedCount.toString(), modifier = Modifier.weight(1f))
-                }
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("Rating", "%.1f".format(state.profile?.averageRating ?: 0.0), modifier = Modifier.weight(1f))
-                    StatCard("Total earnings", "$${"%.0f".format(state.earnings?.totalEarnings ?: 0.0)}", modifier = Modifier.weight(1f))
-                }
+                MetricGrid(
+                    metrics = listOf(
+                        Metric("Pending requests", state.pendingRequests.size.toString()),
+                        Metric("Completed jobs", state.completedCount.toString()),
+                        Metric("Rating", "%.1f".format(state.profile?.averageRating ?: 0.0)),
+                        Metric("Total earnings", "$${"%.0f".format(state.earnings?.totalEarnings ?: 0.0)}"),
+                    ),
+                )
 
                 Spacer(Modifier.height(20.dp))
                 Text("Quick actions", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)

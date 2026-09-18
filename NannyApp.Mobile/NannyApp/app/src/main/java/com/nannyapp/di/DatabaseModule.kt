@@ -30,4 +30,5 @@ object DatabaseModule {
     @Provides fun provideChatMessageDao(db: NannyDatabase) = db.chatMessageDao()
     @Provides fun provideNotificationDao(db: NannyDatabase) = db.notificationDao()
     @Provides fun provideAvailabilityDao(db: NannyDatabase) = db.availabilityDao()
+    @Provides fun provideReviewDao(db: NannyDatabase) = db.reviewDao()
 }

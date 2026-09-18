@@ -17,15 +17,13 @@ import com.nannyapp.ui.components.*
 @Composable
 fun BookingWizardScreen(
     onBack: () -> Unit,
-    onOpenPayment: (String, Int) -> Unit,
+    onBookingCreated: () -> Unit,
     viewModel: BookingWizardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(state.paymentUrl) {
-        val url = state.paymentUrl
-        val bookingId = state.createdBooking?.id
-        if (url != null && bookingId != null) onOpenPayment(url, bookingId)
+    LaunchedEffect(state.createdBooking?.id) {
+        if (state.createdBooking != null) onBookingCreated()
     }
 
     Scaffold(topBar = { AppTopBar(title = "Book a Nanny", onBack = onBack) }) { padding ->
@@ -61,7 +59,7 @@ fun BookingWizardScreen(
                 if (state.step < state.totalSteps) {
                     PrimaryButton(text = "Continue", onClick = { if (viewModel.validateStep()) viewModel.nextStep() }, modifier = Modifier.weight(1f))
                 } else {
-                    PrimaryButton(text = "Confirm & Pay", onClick = viewModel::confirmAndPay, loading = state.submitting, modifier = Modifier.weight(1f))
+                    PrimaryButton(text = "Send booking request", onClick = viewModel::confirmAndPay, loading = state.submitting, modifier = Modifier.weight(1f))
                 }
             }
         }
@@ -159,8 +157,8 @@ private fun StepPayment(state: BookingWizardUiState) {
     Text("Payment", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(10.dp))
     Text(
-        "We'll create your booking and open a secure Paystack checkout to pay $${"%.2f".format(state.wizard.estimatedAmount)}. " +
-            "Your payment is held in escrow until the job is completed and confirmed.",
+        "We'll send your booking request now. Once the nanny accepts, we will contact you with " +
+            "manual payment instructions for $${"%.2f".format(state.wizard.estimatedAmount)}. Do not send payment until then.",
         style = MaterialTheme.typography.bodyMedium,
     )
 }

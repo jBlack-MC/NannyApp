@@ -17,7 +17,9 @@ fun RoleScaffold(role: UserRole, rootNav: NavHostController) {
     when (role) {
         UserRole.PARENT -> ParentAppScaffold(rootNav)
         UserRole.NANNY -> NannyAppScaffold(rootNav)
-        UserRole.ADMIN -> AdminAppScaffold(rootNav)
+        // Administrators use the web portal; this branch is only defensive
+        // for an unexpected role value and has no mobile destination.
+        UserRole.ADMIN -> Unit
     }
 }
 
@@ -34,13 +36,5 @@ fun nannyBottomItems() = listOf(
     BottomNavItem(Routes.NANNY_BOOKINGS, "Bookings", Icons.Filled.CalendarMonth),
     BottomNavItem(Routes.NANNY_EARNINGS, "Earnings", Icons.Filled.Payments),
     BottomNavItem(Routes.MESSAGES, "Messages", Icons.Filled.ChatBubble),
-    BottomNavItem(Routes.PROFILE, "Profile", Icons.Filled.Person),
-)
-
-fun adminBottomItems() = listOf(
-    BottomNavItem(Routes.ADMIN_DASHBOARD, "Home", Icons.Filled.Dashboard),
-    BottomNavItem(Routes.ADMIN_BOOKINGS, "Bookings", Icons.Filled.CalendarMonth),
-    BottomNavItem(Routes.ADMIN_PAYMENTS, "Payments", Icons.Filled.Payments),
-    BottomNavItem(Routes.ADMIN_SUPPORT, "Support", Icons.Filled.SupportAgent),
     BottomNavItem(Routes.PROFILE, "Profile", Icons.Filled.Person),
 )

@@ -53,11 +53,13 @@ fun ParentDashboardScreen(
                 Spacer(Modifier.height(20.dp))
                 Text("Your bookings", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(8.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    StatCard("Pending", (state.bookingStats[BookingStatus.PENDING] ?: 0).toString(), modifier = Modifier.weight(1f))
-                    StatCard("Confirmed", (state.bookingStats[BookingStatus.CONFIRMED] ?: 0).toString(), modifier = Modifier.weight(1f))
-                    StatCard("Completed", (state.bookingStats[BookingStatus.COMPLETED] ?: 0).toString(), modifier = Modifier.weight(1f))
-                }
+                MetricGrid(
+                    metrics = listOf(
+                        Metric("Pending", (state.bookingStats[BookingStatus.PENDING] ?: 0).toString()),
+                        Metric("Confirmed", (state.bookingStats[BookingStatus.CONFIRMED] ?: 0).toString()),
+                        Metric("Completed", (state.bookingStats[BookingStatus.COMPLETED] ?: 0).toString()),
+                    ),
+                )
 
                 if (state.upcomingBooking != null) {
                     Spacer(Modifier.height(20.dp))
