@@ -75,7 +75,7 @@ private fun StepNanny(state: BookingWizardUiState) {
         Column(Modifier.padding(16.dp)) {
             Text(nanny.fullName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             RatingView(nanny.averageRating, nanny.reviewCount)
-            Text("$${"%.0f".format(nanny.hourlyRate)}/hr · ${nanny.location ?: ""}", style = MaterialTheme.typography.bodyMedium)
+            Text("R${"%.0f".format(nanny.hourlyRate)}/hr · ${nanny.location ?: ""}", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -102,7 +102,7 @@ private fun StepTimeDuration(state: BookingWizardUiState, viewModel: BookingWiza
     Slider(value = state.wizard.durationHours.toFloat(), onValueChange = { viewModel.setDuration(it.toDouble()) }, valueRange = 1f..12f, steps = 21)
     Text("${state.wizard.durationHours} hours", style = MaterialTheme.typography.titleMedium)
     Spacer(Modifier.height(8.dp))
-    Text("Estimated total: $${"%.2f".format(state.wizard.estimatedAmount)}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+    Text("Estimated total: R${"%.2f".format(state.wizard.estimatedAmount)}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
 }
 
 @Composable
@@ -142,14 +142,14 @@ private fun StepSummary(state: BookingWizardUiState) {
     SummaryRow("Nanny", w.nanny?.fullName ?: "")
     SummaryRow("Date & time", w.dateTimeIso ?: "")
     SummaryRow("Duration", "${w.durationHours} hours")
-    SummaryRow("Hourly rate", "$${"%.2f".format(w.nanny?.hourlyRate ?: 0.0)}")
+    SummaryRow("Hourly rate", "R${"%.2f".format(w.nanny?.hourlyRate ?: 0.0)}")
     SummaryRow("Children", "${w.selectedChildIds.size} selected")
     SummaryRow("Address", w.address)
     if (w.notes.isNotBlank()) SummaryRow("Notes", w.notes)
     Spacer(Modifier.height(12.dp))
     HorizontalDivider()
     Spacer(Modifier.height(12.dp))
-    SummaryRow("Total amount", "$${"%.2f".format(w.estimatedAmount)}", emphasize = true)
+    SummaryRow("Total amount", "R${"%.2f".format(w.estimatedAmount)}", emphasize = true)
 }
 
 @Composable
@@ -158,7 +158,7 @@ private fun StepPayment(state: BookingWizardUiState) {
     Spacer(Modifier.height(10.dp))
     Text(
         "We'll send your booking request now. Once the nanny accepts, we will contact you with " +
-            "manual payment instructions for $${"%.2f".format(state.wizard.estimatedAmount)}. Do not send payment until then.",
+            "manual payment instructions for R${"%.2f".format(state.wizard.estimatedAmount)}. Do not send payment until then.",
         style = MaterialTheme.typography.bodyMedium,
     )
 }

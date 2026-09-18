@@ -26,12 +26,12 @@ fun NannyEarningsScreen(onBack: () -> Unit, viewModel: NannyEarningsViewModel = 
             state.summary != null -> {
                 val s = state.summary!!
                 Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
-                    Text("$${"%.2f".format(s.totalEarnings)}", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text("R${"%.2f".format(s.totalEarnings)}", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                     Text("Total earnings", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(16.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        StatCard("Held (in escrow)", "$${"%.2f".format(s.heldEarnings)}", modifier = Modifier.weight(1f))
-                        StatCard("Released", "$${"%.2f".format(s.releasedEarnings)}", modifier = Modifier.weight(1f))
+                        StatCard("Pending release", "R${"%.2f".format(s.heldEarnings)}", modifier = Modifier.weight(1f))
+                        StatCard("Released", "R${"%.2f".format(s.releasedEarnings)}", modifier = Modifier.weight(1f))
                     }
                     Spacer(Modifier.height(10.dp))
                     StatCard("Completed jobs", s.completedJobs.toString())
@@ -50,7 +50,7 @@ fun NannyEarningsScreen(onBack: () -> Unit, viewModel: NannyEarningsViewModel = 
                             Column(Modifier.padding(12.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(p.bookingRef ?: "Booking #${p.bookingId}", fontWeight = FontWeight.SemiBold)
-                                    Text("$${"%.2f".format(p.amount)}", fontWeight = FontWeight.Bold)
+                                    Text("R${"%.2f".format(p.amount)}", fontWeight = FontWeight.Bold)
                                 }
                                 Text(p.payoutStatus.name.lowercase().replaceFirstChar { it.uppercase() }, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }

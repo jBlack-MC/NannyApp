@@ -43,7 +43,7 @@ fun NannyCard(
                 AsyncImage(
                     model = nanny.profileImageUrl,
                     contentDescription = nanny.fullName,
-                    modifier = Modifier.fillMaxWidth().height(140.dp).clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)),
+                    modifier = Modifier.fillMaxWidth().height(168.dp).clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)),
                     contentScale = ContentScale.Crop,
                 )
                 IconButton(
@@ -58,7 +58,7 @@ fun NannyCard(
                     )
                 }
             }
-            Column(Modifier.padding(14.dp)) {
+            Column(Modifier.padding(16.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(nanny.fullName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     Spacer(Modifier.width(6.dp))
@@ -89,7 +89,7 @@ fun NannyCard(
                 }
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "$${"%.0f".format(nanny.hourlyRate)}/hr",
+                    "R${"%.0f".format(nanny.hourlyRate)}/hr",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -126,7 +126,7 @@ fun BookingCard(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Box(
                     modifier = Modifier.size(44.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceVariant),
@@ -150,7 +150,7 @@ fun BookingCard(
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(booking.dateTime, style = MaterialTheme.typography.bodySmall)
-                Text("${booking.durationHours}h · $${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                Text("${booking.durationHours}h · R${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -169,7 +169,7 @@ fun StatCard(
         colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
     ) {
-        Column(Modifier.padding(14.dp)) {
+        Column(Modifier.padding(16.dp)) {
             if (icon != null) {
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.height(6.dp))

@@ -310,6 +310,13 @@
     gap: 10px;
     grid-template-columns: 1fr auto;
 }
+.download-app-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 32px;
+}
+.download-app-card h1 { margin: 0; }
 
 @media (max-width: 1024px) {
     .home-hero-inner,
@@ -328,14 +335,49 @@
 }
 
 @media (max-width: 640px) {
-    .grid-4,
-    .home-gallery-grid,
-    .home-stats-grid,
-    .home-newsletter {
-        grid-template-columns: 1fr;
-    }
+    .home-main { padding-top: var(--topbar-h, 68px); }
     .home-hero {
         min-height: auto;
-        padding-top: 22px;
+        padding: 20px 0 0;
+        background: linear-gradient(160deg, #12528b 0%, #1e5f9e 58%, #2f8fd4 100%);
     }
+    .home-hero::before { background: linear-gradient(160deg, rgba(10, 51, 89, .22), rgba(20, 94, 150, .05)); }
+    .home-hero-overlay { opacity: .12; background-position: 62% center; }
+    .home-hero-inner { gap: 22px; padding-inline: 18px; }
+    .home-hero-copy { text-align: left; }
+    .home-hero-copy h1 { font-size: clamp(2rem, 10vw, 2.7rem); line-height: 1.08; margin-bottom: 14px; }
+    .home-hero-copy .muted { font-size: 1rem; line-height: 1.6; }
+    .hero-actions { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 22px; }
+    .hero-actions .btn { width: 100%; min-height: 52px; justify-content: center; }
+    .hero-points { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
+    .hero-points span { min-height: 38px; justify-content: center; padding: 7px 9px; text-align: center; font-size: .72rem; }
+    .hero-points span:last-child { grid-column: 1 / -1; }
+    .home-hero-media.card { margin: 0 -2px; padding: 6px; border-radius: 20px 20px 0 0; background: rgba(255,255,255,.94); box-shadow: 0 -10px 30px rgba(5,35,64,.18); }
+    .home-hero-image { display: block; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 15px 15px 0 0; }
+    .home-stats { margin-top: 0; padding: 14px 18px 4px; }
+    .home-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .home-stats-grid .card { min-height: 104px; padding: 14px 10px; }
+    .section-pad { padding-block: 34px; }
+    .section-title-wrap { margin-bottom: 16px; }
+    .section-title-wrap h2, .section-head h2 { font-size: 1.6rem; line-height: 1.2; }
+    .home-split { gap: 14px; }
+    .about-card { order: 2; }
+    .about-media { order: 1; padding: 6px; }
+    .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .service-card, .feature-card { min-height: 196px; padding: 15px 12px; }
+    .service-card h3, .feature-card h3 { font-size: .96rem; line-height: 1.25; }
+    .service-card .muted, .feature-card .muted { font-size: .8rem; line-height: 1.45; }
+    .service-icon { width: 40px; height: 40px; margin-bottom: 9px; border-radius: 11px; }
+    .service-icon svg { width: 19px; height: 19px; }
+    #nannies .grid-3, .pricing-grid { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(274px, 82vw); grid-template-columns: none; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; gap: 12px; padding: 2px 18px 12px; margin-inline: -18px; scrollbar-width: none; }
+    #nannies .grid-3::-webkit-scrollbar, .pricing-grid::-webkit-scrollbar { display: none; }
+    #nannies .nanny-card, .pricing-grid .price-card { scroll-snap-align: start; }
+    .nanny-avatar { width: 72px; height: 72px; }
+    .home-gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .home-gallery-item { padding: 5px; }
+    .home-gallery-item img { border-radius: 10px; }
+    .home-newsletter { grid-template-columns: 1fr; }
+    .home-cta .dashboard-header { gap: 18px; }
+    .download-app-card { padding: 22px 18px; }
+}
 }

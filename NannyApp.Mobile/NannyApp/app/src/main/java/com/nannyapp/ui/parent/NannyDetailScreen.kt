@@ -69,7 +69,7 @@ fun NannyDetailScreen(
                         Spacer(Modifier.height(4.dp))
                         Text("${nanny.location ?: "Location not set"} · ${nanny.experienceYears} yrs experience", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(4.dp))
-                        Text("$${"%.0f".format(nanny.hourlyRate)}/hr", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                        Text("R${"%.0f".format(nanny.hourlyRate)}/hr", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
 
                         if (!nanny.bio.isNullOrBlank()) {
                             SectionHeader("About")

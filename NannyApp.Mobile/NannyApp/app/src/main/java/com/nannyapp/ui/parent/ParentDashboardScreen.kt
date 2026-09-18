@@ -41,13 +41,31 @@ fun ParentDashboardScreen(
             else -> Column(
                 Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp),
             ) {
-                Text("Welcome back, ${state.user?.fullName?.substringBefore(' ') ?: "there"} 👋", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Spacer(Modifier.height(4.dp))
-                Text("Profile ${state.profileCompletion}% complete", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Spacer(Modifier.height(4.dp))
-                LinearProgressIndicator(progress = { state.profileCompletion / 100f }, modifier = Modifier.fillMaxWidth())
+                Surface(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = MaterialTheme.shapes.large,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Column(Modifier.padding(20.dp)) {
+                        Text("Welcome back, ${state.user?.fullName?.substringBefore(' ') ?: "there"}", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        Spacer(Modifier.height(6.dp))
+                        Text("Your family's care, all in one place.", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = .78f))
+                        Spacer(Modifier.height(18.dp))
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text("Profile readiness", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                            Text("${state.profileCompletion}%", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer)
+                        }
+                        Spacer(Modifier.height(7.dp))
+                        LinearProgressIndicator(
+                            progress = { state.profileCompletion / 100f },
+                            modifier = Modifier.fillMaxWidth(),
+                            color = MaterialTheme.colorScheme.primary,
+                            trackColor = MaterialTheme.colorScheme.surface.copy(alpha = .7f),
+                        )
+                    }
+                }
 
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(16.dp))
                 PrimaryButton(text = "Find Care", onClick = onFindNannies, modifier = Modifier.fillMaxWidth())
 
                 Spacer(Modifier.height(20.dp))

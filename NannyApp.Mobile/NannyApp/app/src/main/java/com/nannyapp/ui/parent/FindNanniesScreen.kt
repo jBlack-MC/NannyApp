@@ -78,12 +78,12 @@ private fun FilterSheetContent(viewModel: FindNanniesViewModel) {
         Row {
             OutlinedTextField(
                 value = f.minRate?.toString() ?: "", onValueChange = { v -> viewModel.updateFilters { it.copy(minRate = v.toDoubleOrNull()) } },
-                label = { Text("Min $/hr") }, singleLine = true, modifier = Modifier.weight(1f),
+                label = { Text("Min R/hr") }, singleLine = true, modifier = Modifier.weight(1f),
             )
             Spacer(Modifier.width(8.dp))
             OutlinedTextField(
                 value = f.maxRate?.toString() ?: "", onValueChange = { v -> viewModel.updateFilters { it.copy(maxRate = v.toDoubleOrNull()) } },
-                label = { Text("Max $/hr") }, singleLine = true, modifier = Modifier.weight(1f),
+                label = { Text("Max R/hr") }, singleLine = true, modifier = Modifier.weight(1f),
             )
         }
         Spacer(Modifier.height(12.dp))

@@ -107,20 +107,21 @@ p{margin:0 0 1em}
 .skip-link:focus{left:12px;color:#fff}
 
 /* ---------- splash screen ---------- */
-.splash{position:fixed;inset:0;z-index:300;display:grid;place-items:center;background:#fff;
+.splash{position:fixed;inset:0;z-index:300;display:grid;place-items:center;overflow:hidden;background:
+    radial-gradient(circle at -12% 4%,rgba(59,155,224,.5) 0 17%,transparent 17.3%),
+    radial-gradient(circle at 112% 96%,rgba(59,155,224,.38) 0 18%,transparent 18.3%),
+    linear-gradient(145deg,#e8f6ff 0%,#fff 32%,#f2faff 100%);
     transition:opacity .5s ease,visibility .5s ease}
+.splash::before,.splash::after{content:"";position:absolute;pointer-events:none;border-radius:50%;border:36px solid rgba(59,155,224,.18);width:72vmax;height:72vmax}
+.splash::before{top:-57vmax;left:-42vmax}.splash::after{right:-49vmax;bottom:-58vmax}
 .splash.hide{opacity:0;visibility:hidden}
-.splash-inner{display:flex;flex-direction:column;align-items:center;gap:16px;animation:splashRise .6s cubic-bezier(.4,0,.2,1) both}
-.splash-logo{width:96px;height:96px;border-radius:24px;object-fit:cover;box-shadow:var(--shadow-lg);
+.splash-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:44px;animation:splashRise .6s cubic-bezier(.4,0,.2,1) both}
+.splash-logo{width:min(52vw,260px);height:min(52vw,260px);object-fit:contain;
     animation:splashPulse 1.8s ease-in-out infinite}
-.splash-name{font-family:var(--font-display);font-weight:700;font-size:1.6rem;color:var(--ink);letter-spacing:-.02em}
-.splash-tagline{font-size:.82rem;color:var(--muted);letter-spacing:.01em;text-align:center;margin-top:-8px}
-.splash-bar{width:160px;height:6px;border-radius:999px;background:var(--blue-100);overflow:hidden}
-.splash-bar-fill{display:block;height:100%;width:40%;border-radius:999px;
-    background:linear-gradient(90deg,var(--blue-700),var(--blue-500));animation:splashLoad 1.4s ease-in-out infinite}
+.splash-dots{display:flex;align-items:center;gap:16px}.splash-dots i{display:block;width:10px;height:10px;border-radius:50%;background:var(--blue-400);opacity:.6}.splash-dots i:nth-child(2){width:16px;height:16px;background:var(--blue-700);opacity:1;animation:splashDot 1.2s ease-in-out infinite}
 @keyframes splashRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes splashPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-@keyframes splashLoad{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+@keyframes splashDot{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
 
 /* ---------- 3. Layout grids ---------- */
 .grid{display:grid;gap:24px;align-items:stretch}
