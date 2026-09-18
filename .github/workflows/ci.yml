@@ -27,6 +27,7 @@ jobs:
           php-version: '8.3'
 
       - name: Lint PHP files
+        shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r -d '' file; do
