@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.compose.ui.res.painterResource
 import com.nannyapp.domain.model.UserRole
 import com.nannyapp.R
 import com.nannyapp.ui.auth.SessionCheck
@@ -76,7 +75,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
-                model = painterResource(R.drawable.logo),
+                model = R.drawable.logo,
                 contentDescription = null,
                 modifier = Modifier
                     .size(250.dp)

@@ -14,7 +14,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import androidx.compose.ui.res.painterResource
 import com.nannyapp.R
 
 /** A compact, local brand mark that is legible in app bars and on small phones. */
@@ -28,7 +27,7 @@ fun NannyAppBrand(
     if (showTagline && !light) {
         Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
             AsyncImage(
-                model = painterResource(R.drawable.logo),
+                model = R.drawable.logo,
                 contentDescription = null,
                 modifier = Modifier.size(196.dp),
                 contentScale = ContentScale.Fit,
@@ -44,7 +43,7 @@ fun NannyAppBrand(
                 contentAlignment = Alignment.Center,
             ) {
                 AsyncImage(
-                    model = painterResource(R.drawable.logo),
+                    model = R.drawable.logo,
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize().padding(4.dp),
                     contentScale = ContentScale.Fit,
