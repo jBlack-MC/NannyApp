@@ -1,5 +1,7 @@
 # Pilot code, platform and resilience review
 
+Remediation update 2026-09-28: finding 2 (review target) is fixed with synthetic HTTP/database regressions; finding 13 has explicit release URL validation and an unsigned build check; finding 14 has corrected WorkManager initialization, inspected merged manifest and passing lint. Real host/release/device verification remains open. Original findings below preserve the audit snapshot.
+
 Status update 2026-09-28: the review is complete. Finding 1's destructive deployment instruction has been corrected; non-destructive bootstrap/migration automation and restore testing remain outstanding. Other findings remain open. Original evidence and line references below describe the 2026-09-27 snapshot.
 
 Status update 2026-09-28: review delivery is complete. Finding 1's destructive runbook instruction has now been corrected in PRODUCTION_LAUNCH.md; non-destructive bootstrap/migration automation and restore testing remain outstanding. Other findings remain open. The original line references and evidence below describe the reviewed 2026-09-27 snapshot.
@@ -16,9 +18,13 @@ Paths below are repository-relative; `api/` means `NannyApp.Mobile/NannyApp/api/
 
 3. **High, security — changing a password leaves stolen sessions usable.** `api/user/change_password.php:17` updates the password hash without revoking API or remember tokens. A stolen bearer token remains usable after the victim changes the password. **Fix:** transactionally revoke both token types as password recovery now does; explicitly decide whether to issue a replacement session to the current client.
 
+   **Resolved 2026-09-28:** shared transactional password replacement revokes API/remember tokens and reset links. Web sessions fail their password fingerprint check; Android clears the current account and returns to sign-in. Locked credential rechecks and conditional remember-token writes prevent stale logins recreating sessions. Synthetic HTTP/concurrency/rollback regressions pass.
+
 4. **High, booking/ledger corruption — state transitions race.** `api/bookings/accept.php:10,15,18` reads pending and subsequently updates by ID alone. `api/bookings/cancel.php:8,17,18` separately changes booking and payment state. Accept reads pending; cancel writes cancelled/refunded; accept then writes confirmed: the result is a confirmed booking with a refunded ledger. A failure between cancellation's two writes also splits state. **Fix:** lock the booking in a transaction shared by every transition, recheck its allowed source state and update the ledger in the same transaction. Alternatively use conditional writes with checked affected-row counts where sufficient.
 
 5. **High, ledger corruption — automatic release can release a disputed booking.** `NannyApp.Mobile/NannyApp/includes/functions.php`, `auto_release_stale_payments():493`, selects eligible rows at line 498, conditionally changes the booking at 509 and updates payments at 512 without requiring the booking update to succeed. The web copy has the same pattern in `NannyApp.Web/includes/functions.php`, function at 479 and booking update at 495. If `api/bookings/dispute.php:23` changes the selected booking to disputed between selection and update, the conditional booking update affects zero rows but its payment still becomes released. **Fix:** lock/recheck the booking and ledger together and require a successful transition before release. This currently corrupts the manual-payment ledger; it does not demonstrate a bank transfer.
+
+   **Automatic-release path repaired 2026-09-28:** web/API now share a conditional booking update and ledger write in one transaction. Ineligible candidates cannot release payments, and ledger failures roll back completion. Other manual transition/dispute races remain open under finding 4; this is not full P08/P09 completion.
 
 6. **High, correctness — booking creation trusts invalid eligibility and child IDs.** `api/bookings/create.php:10–16,27–31,49–53` checks a positive nanny ID but not whether it belongs to an eligible nanny. An existing parent account can satisfy the user foreign key and receive a booking with a zero-rate payment because its nanny profile is absent. Nonexistent or other-parent child IDs are silently removed from the query result, allowing a booking with no authorized children. **Fix:** verify an active, verified nanny with a valid profile/rate, require a bounded array of distinct integer child IDs and require every requested child to belong to this parent. Validate future appointment times, finite bounded duration and field lengths.
 
@@ -30,7 +36,7 @@ Paths below are repository-relative; `api/` means `NannyApp.Mobile/NannyApp/api/
 
 10. **Medium, broken messaging — incoming messages are omitted.** `api/messages/thread.php:8,11` binds both OR branches as sender=current user, receiver=other user. The reverse direction is never selected. A synthetic SQLite reproduction with both directions returned only outbound messages. **Fix:** bind `b2` to the other user and `a2` to the current user; test both directions and exclusion of unrelated messages.
 
-11. **Medium, misleading failure — successful empty responses fail on Android.** `android/java/com/nannyapp/util/NetworkResult.kt`, `safeApiCall():24`, rejects a successful null `data`. `api/bookings/cancel.php:23` and `api/user/change_password.php:20` return exactly that, while their Android contracts expect `Unit`. Cancellation/password change succeeds on the server but Android reports an error; booking detail may remain stale. **Fix:** explicitly support successful Unit responses while preserving strict data requirements for data-returning calls, or consistently emit `{}` for every Unit endpoint. Add cross-language contract tests.
+11. **Partially resolved 2026-09-28:** password change now returns `{}`; booking cancellation remains open. **Medium, misleading failure — successful empty responses fail on Android.** `android/java/com/nannyapp/util/NetworkResult.kt`, `safeApiCall():24`, rejects a successful null `data`. `api/bookings/cancel.php:23` returns exactly that, while its Android contract expects `Unit`. Password change previously had the same defect and now emits `{}`. Cancellation succeeds on the server but Android reports an error; booking detail may remain stale. **Fix:** explicitly support successful Unit responses while preserving strict data requirements for data-returning calls, or consistently emit `{}` for every Unit endpoint. Add cross-language contract tests.
 
 12. **Medium, blocked UI — booking actions never stop loading after success.** `android/java/com/nannyapp/ui/booking/BookingDetailViewModel.kt`, `runAction():52–54`, sets `actionInProgress=true` then calls `load()`. Neither success nor error in `load():43–44` clears it. After a successful accept/check-out/completion, controls consuming that flag remain disabled until the screen is recreated. **Fix:** await the refresh in the action coroutine and clear the flag in `finally`.
 
@@ -82,7 +88,7 @@ Deployment and integration details are in [PILOT_DEPLOYMENT.md](PILOT_DEPLOYMENT
 ## Fix first
 
 1. Remove the destructive deployment instruction and configure the real release API URL before shipping.
-2. Fix review-target authorization and revoke sessions on password change.
+2. Completed: review-target authorization and password-change session revocation. Continue with booking validation and atomic transitions.
 3. Make booking transitions, availability checks and payment state atomic; validate eligibility and child ownership.
 4. Fix Android success contracts/loading, incoming chat and historical price display.
 5. Repair worker initialization, bounded uploads, cache-write handling and document cleanup; add idempotent creation and notification delivery before increasing pilot traffic.

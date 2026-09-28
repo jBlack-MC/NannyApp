@@ -33,6 +33,7 @@ data class ProfileUiState(
     val confirmNewPassword: String = "",
     val passwordError: String? = null,
     val passwordChanged: Boolean = false,
+    val passwordSaving: Boolean = false,
 )
 
 @HiltViewModel
@@ -80,13 +81,15 @@ class ProfileViewModel @Inject constructor(
 
     fun changePassword() {
         val s = _state.value
+        if (s.passwordSaving) return
+        if (s.newPassword.toByteArray(Charsets.UTF_8).size > 72) { _state.value = s.copy(passwordError = "New password is too long (maximum 72 bytes)."); return }
         if (s.newPassword.length < 8) { _state.value = s.copy(passwordError = "New password must be at least 8 characters."); return }
         if (s.newPassword != s.confirmNewPassword) { _state.value = s.copy(passwordError = "Passwords do not match."); return }
+        _state.value = _state.value.copy(passwordError = null, passwordSaving = true)
         viewModelScope.launch {
-            _state.value = _state.value.copy(passwordError = null)
             when (val result = userRepository.changePassword(s.currentPassword, s.newPassword)) {
-                is Resource.Success -> _state.value = _state.value.copy(passwordChanged = true, currentPassword = "", newPassword = "", confirmNewPassword = "")
-                is Resource.Error -> _state.value = _state.value.copy(passwordError = result.message)
+                is Resource.Success -> _state.value = _state.value.copy(passwordChanged = true, passwordSaving = false, loggedOut = true, user = null, currentPassword = "", newPassword = "", confirmNewPassword = "")
+                is Resource.Error -> _state.value = _state.value.copy(passwordError = result.message, passwordSaving = false)
                 Resource.Loading -> {}
             }
         }

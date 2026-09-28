@@ -60,6 +60,12 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         withContext(Dispatchers.IO) { database.clearAllTables() }
     }
 
+    // A delayed password-change response must not clear a newer account's login.
+    suspend fun clearSessionIfCurrent(token: String?) = cacheBoundary.access(token) {
+        context.dataStore.edit { it.clear() }
+        withContext(Dispatchers.IO) { database.clearAllTables() }
+    }
+
     suspend fun <T> withCurrentSession(token: String?, block: suspend () -> T): T? = cacheBoundary.access(token, block)
 
     suspend fun currentToken(): String? = context.dataStore.data.first()[Keys.AUTH_TOKEN]

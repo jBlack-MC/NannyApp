@@ -1,8 +1,15 @@
 # Nanny-App
 
+## Automated checks
+
+Run `python tests/docker-checks.py` from the repository root for an isolated PHP/MariaDB security test environment with automatic cleanup. For non-Docker and Android commands, see [Automation](docs/AUTOMATION.md). CI runs on pushes and pull requests; private repositories require `FREE_CI_CONFIRMED=true` after the owner disables paid overages. No workflow deploys or publishes an app.
+
+Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. The [free-only deployment plan](docs/FREE_DEPLOYMENT_PLAN.md) remains authoritative; Kubernetes is not needed for this stage.
+
+
 ![Nanny-App logo](NannyApp.Web/assets/Icon_Logo.png)
 
-Nanny-App is a childcare booking marketplace that connects parents with verified nannies, supported by an admin moderation layer and escrow-style payment protection. The project is designed as a full-stack platform with a PHP web app, a native Android app, and a shared backend/data layer used by both.
+Nanny-App is a childcare booking marketplace that connects parents with verified nannies, supported by an admin moderation layer and a manually reconciled payment ledger. The project is designed as a full-stack platform with a PHP web app, a native Android app, and a shared backend/data layer used by both.
 
 **Module:** XISD6329 — Work Integrated Learning 3B
 
@@ -17,7 +24,7 @@ Nanny-App enables families to:
 - browse and filter verified nannies
 - create child profiles and booking requests
 - manage booking flow, check-ins, and session completion
-- confirm appointments and release funds only after a verified session
+- confirm session completion and record payment-release decisions
 - communicate in-app with nannies and receive notifications
 
 Nanny-App also gives nannies:
@@ -34,7 +41,7 @@ And admins can:
 - oversee payments and disputes
 - handle support issues and broadcast notices
 
-The platform intentionally uses an escrow payment model so funds are held until the session is confirmed or a dispute is resolved.
+Payments are manual/offline in the current pilot. Held, released and refunded are ledger states; the app does not charge cards, transfer funds or provide automated escrow.
 
 ---
 
@@ -50,11 +57,11 @@ This repository is split into three main parts:
 
 ### How the system fits together
 
-- The web app and mobile app both read and write the same MySQL database.
+- The PHP web app and PHP API share the database; Android accesses it through the API.
 - Both systems use the same upload logic and storage abstraction managed through the shared layer.
 - The shared layer defines the canonical database schema and migration sequence.
 - In local development, uploads can stay on disk. In production, the system supports S3-compatible object storage.
-- Each client can run in standalone mode if the shared folder is not checked out next to it.
+- Both PHP frontends require the adjacent `NannyApp.Shared` folder for security, email, database and storage services.
 
 ```text
 Nanny-App
@@ -78,12 +85,12 @@ Nanny-App
 - browse verified nannies by location, rate, experience, and skills
 - search and filter nanny listings
 - complete booking workflow with child details and scheduling
-- prevent overlapping bookings for the same nanny
+- check booking overlap (concurrent-request hardening remains open in the code review)
 - receive a one-time check-in PIN for a verified in-person arrival
-- confirm session completion to release payment
-- cancel bookings before check-in with automatic refund handling
+- confirm session completion to update the manual payment ledger
+- cancel eligible bookings and record refund decisions for manual reconciliation
 - manage saved nannies and favourites
-- view payment history and escrow payout status
+- view payment history and manual payout status
 - review completed sessions with ratings and written feedback
 - message nannies in-app
 - access notifications and account settings
@@ -184,8 +191,8 @@ NannyApp/
 
 ### Requirements
 
-- PHP 8.0+
-- MySQL 5.7+ or MariaDB 10.4+
+- PHP 8.3 for the automated test environment
+- MariaDB 10.11 for container tests; validate migrations before using another database engine/version
 - Apache / XAMPP or similar local stack
 - Android Studio for native app development
 
@@ -200,8 +207,8 @@ Choose the project you want to work on:
 ### Recommended local setup
 
 1. Place the project folder in your local web server directory.
-2. Ensure the shared project is available next to the app(s) if using the shared database and storage layer.
-3. Create the MySQL database using the provided schema and migration scripts.
+2. Keep `NannyApp.Shared` next to both PHP frontends; it is required.
+3. For isolated regression checks, use `python tests/docker-checks.py`. For application setup, follow the migration-order guide; never import the drop-and-seed schema into an existing database.
 4. Configure DB credentials and storage settings.
 5. Run the web app in a browser or open the Android app in Android Studio.
 
@@ -211,7 +218,7 @@ Choose the project you want to work on:
 
 The shared database folder is the canonical schema source for the project.
 
-- `schema.sql` is the bootstrap schema.
+- `schema.sql` is a destructive development reset/seed script, not a production upgrade.
 - Migration files are imported in order as the system evolves.
 - Do not use the base schema drop-and-seed file on production or staging.
 - Keep migration ordering and release sequencing consistent.
@@ -240,6 +247,8 @@ Default seeded accounts use the password `Password123!`.
 
 ## Deployment and production guidance
 
+Start with the [documentation index](docs/README.md) and [free-only plan](docs/FREE_DEPLOYMENT_PLAN.md). Earlier AWS/VPS plans are inactive.
+
 Before production:
 
 - set real database credentials and avoid committing secrets
@@ -247,7 +256,7 @@ Before production:
 - keep shared storage protected from public web access
 - configure email delivery for verification and password resets
 - add operational procedures for backups, monitoring, and release management
-- verify remote payment and webhook handling before launch
+- keep payments manual; provider charging/webhooks remain unimplemented and are not required for the current pilot
 
 The project includes detailed guidance in the documentation folder and in the project-specific READMEs.
 
@@ -268,7 +277,7 @@ The platform has built-in protections, but production hardening still matters:
 
 ## Roadmap and current status
 
-The project already includes a working multi-role booking marketplace, escrow-style financial flow, admin oversight, and both web and mobile distribution paths. The remaining work is mostly around production hardening, migration discipline, deployment automation, and operational readiness.
+The project includes web and Android booking workflows, a manual-payment ledger and web administration. Remaining authorization, booking concurrency, release and operational work is tracked in the code review and launch checklist.
 
 Planned areas of improvement include:
 

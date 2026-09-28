@@ -9,6 +9,17 @@ import org.junit.Test
 import java.io.IOException
 
 class SessionCacheBoundaryTest {
+    @Test fun delayedPasswordChangeCannotClearNewAccountSession() = runBlocking {
+        var token: String? = "account-a"
+        val boundary = SessionCacheBoundary { token }
+        val requestToken = token
+        boundary.transition { token = "account-b" }
+        boundary.access(requestToken) { token = null }
+        assertEquals("account-b", token)
+        boundary.access("account-b") { token = null }
+        assertNull(token)
+    }
+
     @Test fun accountSwitchRejectsLateResponseAndClearsData() = runBlocking {
         var token: String? = "synthetic-A"
         val rows = mutableListOf("A-child", "A-payment")

@@ -41,6 +41,62 @@ function verified_active_user(?array $user): bool
     return $user !== null && (int) ($user['email_verified'] ?? 0) === 1 && ($user['status'] ?? '') === 'active';
 }
 
+/** Serialize token issuance with credential rotation; never issue from a stale login snapshot. */
+function lock_current_credentials(PDO $pdo, int $userId, string $expectedHash): bool
+{
+    if (!$pdo->inTransaction()) throw new LogicException('Credential checks require a transaction.');
+    $stmt = $pdo->prepare('SELECT password_hash, status, email_verified FROM users WHERE id = ? FOR UPDATE');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+    return $user && verified_active_user($user) && hash_equals($user['password_hash'], $expectedHash);
+}
+
+function store_remember_token_if_current(int $userId, string $expectedHash, string $token): bool
+{
+    $stmt = db()->prepare("UPDATE users SET remember_token=? WHERE id=? AND password_hash=? AND status='active' AND email_verified=1");
+    $stmt->execute([$token, $userId, $expectedHash]);
+    return $stmt->rowCount() === 1;
+}
+
+/** Caller owns the transaction and has locked the user row. */
+function replace_password_and_revoke_sessions(PDO $pdo, int $userId, string $password): void
+{
+    if (!$pdo->inTransaction()) throw new LogicException('Credential changes require a transaction.');
+    $pdo->prepare('UPDATE users SET password_hash = ?, remember_token = NULL WHERE id = ?')->execute([password_hash($password, PASSWORD_DEFAULT), $userId]);
+    $pdo->prepare('UPDATE password_resets SET used = 1 WHERE user_id = ?')->execute([$userId]);
+    $pdo->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([$userId]);
+}
+
+/** Recheck the current password under the same lock used by password recovery. */
+function change_password_in_transaction(PDO $pdo, int $userId, string $current, string $password): bool
+{
+    if (!$pdo->inTransaction()) throw new LogicException('Credential changes require a transaction.');
+    if (strlen($password) < 8 || strlen($password) > 72 || str_contains($password, "\0")) return false;
+    $stmt = $pdo->prepare('SELECT password_hash, status, email_verified FROM users WHERE id = ? FOR UPDATE');
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+    if (!$user || !verified_active_user($user) || !password_verify($current, $user['password_hash'])) return false;
+    replace_password_and_revoke_sessions($pdo, $userId, $password);
+    return true;
+}
+
+function change_account_password(int $userId, string $current, string $password): bool
+{
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        if (!change_password_in_transaction($pdo, $userId, $current, $password)) {
+            $pdo->rollBack();
+            return false;
+        }
+        $pdo->commit();
+        return true;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $e;
+    }
+}
+
 function consume_password_reset(string $token, string $password): bool
 {
     if (strlen($password) < 8 || !preg_match('/^[a-f0-9]{64}$/', $token)) return false;
@@ -56,9 +112,7 @@ function consume_password_reset(string $token, string $password): bool
         $stmt = $pdo->prepare('SELECT id FROM password_resets WHERE user_id = ? AND token = ? AND used = 0 AND expires_at > NOW() FOR UPDATE');
         $stmt->execute([$uid, $token]);
         if (!$stmt->fetch()) { $pdo->rollBack(); return false; }
-        $pdo->prepare('UPDATE users SET password_hash = ?, remember_token = NULL WHERE id = ?')->execute([password_hash($password, PASSWORD_DEFAULT), $uid]);
-        $pdo->prepare('UPDATE password_resets SET used = 1 WHERE user_id = ?')->execute([$uid]);
-        $pdo->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([$uid]);
+        replace_password_and_revoke_sessions($pdo, (int) $uid, $password);
         $pdo->commit();
         return true;
     } catch (Throwable $e) {

@@ -1,5 +1,22 @@
 # Production readiness audit
 
+## Automation update - 2026-09-28
+
+- [x] Docker synthetic PHP/MariaDB/HTTP/SMTP/Resend, Apache, PWA/cache and install/download checks pass locally.
+- [x] Android debug build, JVM tests and lint pass (0 errors, 52 warnings); WorkManager initializer conflict fixed.
+- [x] Explicit release API URL required; missing URL fails and an unsigned synthetic-URL release compiles. Real signed release/device validation remains open.
+- [x] Review target bound to the authorized completed booking; mismatched-target, invalid-rating, ownership/status, successful-rating and duplicate regressions pass.
+- [x] Ordinary password changes atomically revoke bearer/remember sessions and reset links; concurrent stale logins cannot recreate tokens. Synthetic API/web/concurrency/rollback checks pass; Android debug build, 7 JVM tests and lint pass (0 errors, 52 warnings).
+- [ ] Enable private-repository CI after verifying free-only billing, run remote jobs, and configure required checks if the repository plan supports them.
+
+See [AUTOMATION.md](AUTOMATION.md). Public hosting, real mail/storage verification and outstanding booking security defects are not completed by these checks.
+
+## Booking ledger update - 2026-09-28
+
+- [x] Automatic completion and payment release share one transactional helper across web/API. Eligibility is rechecked during the write; ledger failures roll back completion.
+- [x] Synthetic disputed/recent candidates, competing release workers and injected payment-write failure regressions pass in the full Docker suite.
+- [ ] Booking creation validation, serialized overlap checks and all manual status/ledger transitions remain open (P08/P09). In particular, disputes raised after release still need an explicit ledger policy; notification delivery is not yet durable.
+
 ## Budget constraint: free services only
 
 Follow [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md). AWS provisioning and paid store/domain enrollment are inactive. Use local tests, evaluate a free PHP/database host with its HTTPS subdomain, keep uploads private using the local storage driver, and distribute through direct Android download and the web app. Hosting/email/privacy compatibility remains unverified; this is not launch approval.

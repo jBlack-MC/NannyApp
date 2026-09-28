@@ -1,5 +1,11 @@
 # Security regressions
 
+## Automated execution
+
+`python tests/docker-checks.py` builds a filtered source-only test image, runs the full Linux suite with disposable MariaDB and cleans up the test stack. CI uses this same entry point. `python tests/run-checks.py --php /path/to/php` runs checks without Docker; add `--backend` only with a dedicated test database. Details: [Automation](../../docs/AUTOMATION.md).
+
+The Apache test now supports Debian Apache as well as Windows XAMPP. Backend coverage also includes review-target authorization, rating validation and completed-booking ownership.
+
 Only synthetic users, documents, tokens and email addresses are used. No test
 imports `schema.sql` or connects to the application's configured database.
 
@@ -25,7 +31,9 @@ Coverage: owner/admin/unrelated/anonymous local document access; authorization
 before S3 signing and public-CDN bypass prevention; pending-registration tokens
 on real protected endpoints; signup/resend/recovery delivery and failure/retry;
 verification/reset expiry and reuse; active web session and bearer revocation;
-parallel single-use reset consumption and rollback; cookieless, session-rotation,
+ordinary API/web password changes, old-session/reset-link revocation, stale-login
+rejection, invalid password payloads and profile-write rollback; automatic payment-release eligibility, competing workers and injected ledger-write rollback; parallel password
+changes and single-use reset consumption and rollback; cookieless, session-rotation,
 expiry, failure-closed and independent-process atomic rate limiting.
 
 S3 signing uses synthetic keys and an `.invalid` endpoint. No bucket is contacted.
