@@ -143,7 +143,8 @@ private fun PasswordChangeContent(viewModel: ProfileViewModel) {
         if (state.passwordError != null) Text(state.passwordError!!, color = MaterialTheme.colorScheme.error)
         if (state.passwordChanged) Text("Password changed successfully.", color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(12.dp))
-        PrimaryButton(text = "Update password", onClick = viewModel::changePassword, modifier = Modifier.fillMaxWidth())
+        Text("Changing your password signs you out on every device.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PrimaryButton(text = "Update password", onClick = viewModel::changePassword, loading = state.passwordSaving, modifier = Modifier.fillMaxWidth())
         Spacer(Modifier.height(16.dp))
     }
 }

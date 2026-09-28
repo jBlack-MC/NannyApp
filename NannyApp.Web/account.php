@@ -33,16 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old['date_of_birth'] = trim($_POST['date_of_birth'] ?? '');
     $old['address']       = trim($_POST['address'] ?? '');
     $old['gender']        = $_POST['gender'] ?? '';
-    $newPassword          = $_POST['password'] ?? '';
-    $currentPassword      = $_POST['current_password'] ?? '';
+    $newPassword = $_POST['password'] ?? '';
+    $currentPassword = $_POST['current_password'] ?? '';
+    if (!is_string($newPassword) || !is_string($currentPassword)) {
+        $errors[] = 'Passwords must be text.';
+        $newPassword = $currentPassword = '';
+    }
 
     if ($old['full_name'] === '')                          $errors[] = 'Full name is required.';
     if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
     if ($newPassword !== '') {
-        if ($currentPassword === '')                       $errors[] = 'Enter your current password to set a new one.';
+        if (auth_rate_limited('password-change', (string) $me['id'])) $errors[] = 'Too many attempts. Please try later.';
+        elseif ($currentPassword === '')                       $errors[] = 'Enter your current password to set a new one.';
         elseif (!password_verify($currentPassword, $me['password_hash']))
                                                            $errors[] = 'Current password is incorrect.';
-        elseif (strlen($newPassword) < 8)                 $errors[] = 'New password must be at least 8 characters.';
+        elseif (strlen($newPassword) < 8 || strlen($newPassword) > 72 || str_contains($newPassword, "\0"))
+                                                           $errors[] = 'New password must be 8 to 72 bytes without null characters.';
     }
 
     if (!$errors) {
@@ -70,32 +76,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old['address']  ?: null,
             in_array($old['gender'], ['male','female','non-binary','prefer_not_to_say']) ? $old['gender'] : null,
         ];
-        if ($newPassword !== '') { $sql .= ', password_hash=?'; $params[] = password_hash($newPassword, PASSWORD_DEFAULT); }
         if ($newImage !== null)  { $sql .= ', profile_image=?';  $params[] = $newImage; }
         $sql .= ' WHERE id=?';
         $params[] = $me['id'];
-        db()->prepare($sql)->execute($params);
+        $pdo = db();
+        $pdo->beginTransaction();
+        try {
+            if ($newPassword !== '' && !change_password_in_transaction($pdo, (int) $me['id'], $currentPassword, $newPassword)) {
+                throw new InvalidArgumentException('Current password changed or account is no longer active. Please sign in again.');
+            }
+            db()->prepare($sql)->execute($params);
 
-        if ($isParent) {
-            db()->prepare(
-                'INSERT INTO parent_profiles (user_id, emergency_contact, emergency_contact_name, emergency_contact_relationship, number_of_children)
-                 VALUES (?,?,?,?,?)
-                 ON DUPLICATE KEY UPDATE
-                     emergency_contact=VALUES(emergency_contact),
-                     emergency_contact_name=VALUES(emergency_contact_name),
-                     emergency_contact_relationship=VALUES(emergency_contact_relationship),
-                     number_of_children=VALUES(number_of_children)'
-            )->execute([
-                $me['id'],
-                trim($_POST['emergency_contact'] ?? '') ?: null,
-                trim($_POST['emergency_contact_name'] ?? '') ?: null,
-                trim($_POST['emergency_contact_relationship'] ?? '') ?: null,
-                (int) ($_POST['number_of_children'] ?? 0),
-            ]);
+            if ($isParent) {
+                db()->prepare(
+                    'INSERT INTO parent_profiles (user_id, emergency_contact, emergency_contact_name, emergency_contact_relationship, number_of_children)
+                     VALUES (?,?,?,?,?)
+                     ON DUPLICATE KEY UPDATE
+                         emergency_contact=VALUES(emergency_contact),
+                         emergency_contact_name=VALUES(emergency_contact_name),
+                         emergency_contact_relationship=VALUES(emergency_contact_relationship),
+                         number_of_children=VALUES(number_of_children)'
+                )->execute([
+                    $me['id'],
+                    trim($_POST['emergency_contact'] ?? '') ?: null,
+                    trim($_POST['emergency_contact_name'] ?? '') ?: null,
+                    trim($_POST['emergency_contact_relationship'] ?? '') ?: null,
+                    (int) ($_POST['number_of_children'] ?? 0),
+                ]);
+            }
+
+            $pdo->commit();
+        } catch (Throwable $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            $errors[] = $e instanceof InvalidArgumentException ? $e->getMessage() : 'Could not save your settings. Please try again.';
+            if ($newImage !== null) storage_delete($newImage);
         }
-
-        flash('Your settings have been saved.');
-        redirect('account.php');
+        if (!$errors && $newPassword !== '') {
+            $_SESSION = [];
+            session_regenerate_id(true);
+            setcookie('na_remember', '', ['expires' => time() - 3600, 'path' => '/', 'secure' => is_https_request(), 'httponly' => true, 'samesite' => 'Lax']);
+            flash('Password updated. Please sign in again on each device.');
+            redirect('auth/login.php');
+        }
+        if (!$errors) {
+            flash('Your settings have been saved.');
+            redirect('account.php');
+        }
     }
 }
 

@@ -19,6 +19,17 @@ if (($argv[1] ?? '') === 'reset-worker') {
     echo consume_password_reset(str_repeat('d',64), 'Synthetic-new-password-2') ? 'consumed' : 'rejected';
     exit;
 }
+if (($argv[1] ?? '') === 'change-worker') {
+    $pdo->exec("USE `$schema`");
+    echo change_account_password(2, 'Synthetic-old-password', 'Synthetic-concurrent-password') ? 'changed' : 'rejected';
+    exit;
+}
+if (($argv[1] ?? '') === 'release-worker') {
+    $pdo->exec("USE `$schema`");
+    require __DIR__ . '/../../NannyApp.Shared/config/booking_release.php';
+    echo release_stale_booking($pdo, 90, 48) ? 'released' : 'skipped';
+    exit;
+}
 $pdo->exec("CREATE DATABASE `$schema`");
 $pdo->exec("USE `$schema`");
 try {
@@ -32,6 +43,21 @@ try {
     foreach ([1=>'nanny',2=>'parent',3=>'admin',4=>'nanny'] as $id=>$role) {
         $pdo->prepare('INSERT INTO users (id,full_name,email,role,status,email_verified,password_hash,remember_token,profile_image) VALUES (?,?,?,?,?,?,?,?,?)')->execute([$id,'Synthetic User',"user$id@example.invalid",$role,'active',$id===4?0:1,$hash,hash('sha256',"synthetic-remember-$id"),"avatars/$id.jpg"]);
     }
+    $jobs=[];
+    for ($i=0;$i<4;$i++) {
+        $pipes=[];
+        $process=proc_open([PHP_BINARY,__FILE__,'change-worker',$schema],[1=>['pipe','w'],2=>['pipe','w']],$pipes);
+        $jobs[]=[$process,$pipes];
+    }
+    $changed=0;
+    foreach ($jobs as [$process,$pipes]) {
+        $out=stream_get_contents($pipes[1]); $err=stream_get_contents($pipes[2]);
+        foreach ($pipes as $pipe) fclose($pipe);
+        if (proc_close($process)!==0) throw new RuntimeException($err);
+        if ($out==='changed') $changed++;
+    }
+    check($changed===1,'parallel password changes recheck old password under lock');
+    $pdo->prepare('UPDATE users SET password_hash=? WHERE id=2')->execute([$hash]);
     $pdo->exec("INSERT INTO nanny_portfolio VALUES (1,1,'uploads/docs/synthetic.pdf'),(2,1,'portfolio/synthetic.jpg')");
     $users = $pdo->query('SELECT * FROM users ORDER BY id')->fetchAll();
     foreach (['uploads/docs/synthetic.pdf','portfolio/synthetic.jpg'] as $path) {
@@ -103,6 +129,45 @@ try {
         check(strlen($deliveredToken)===64,'delivered verification token retained');
     }
 
+    // Minimal booking/review fixtures for real API authorization regression.
+    $pdo->exec("CREATE TABLE bookings (id INT PRIMARY KEY, parent_id INT, nanny_id INT, status VARCHAR(20)) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE reviews (id INT AUTO_INCREMENT PRIMARY KEY, booking_id INT UNIQUE, reviewer_id INT, nanny_id INT, rating INT, comment TEXT) ENGINE=InnoDB");
+    $pdo->exec("ALTER TABLE nanny_profiles ADD average_rating DECIMAL(3,2) DEFAULT 0");
+    $pdo->exec("INSERT INTO nanny_profiles (user_id) VALUES (1),(4)");
+    $pdo->exec("INSERT INTO bookings VALUES (10,2,1,'completed'),(11,2,1,'pending'),(12,999,1,'completed')");
+
+    require __DIR__ . '/../../NannyApp.Shared/config/booking_release.php';
+    $pdo->exec('ALTER TABLE bookings ADD checked_out_at DATETIME, ADD parent_confirmed_at DATETIME');
+    $pdo->exec('CREATE TABLE payments (booking_id INT PRIMARY KEY, status VARCHAR(20), payout_status VARCHAR(20), released_at DATETIME) ENGINE=InnoDB');
+    $pdo->exec("INSERT INTO bookings (id,status,checked_out_at) VALUES (90,'in_progress',DATE_SUB(NOW(),INTERVAL 49 HOUR)),(91,'disputed',DATE_SUB(NOW(),INTERVAL 49 HOUR)),(92,'in_progress',NOW()),(93,'in_progress',DATE_SUB(NOW(),INTERVAL 49 HOUR))");
+    $pdo->exec("INSERT INTO payments (booking_id,status,payout_status) VALUES (90,'paid','held'),(91,'paid','held'),(92,'paid','held'),(93,'paid','held')");
+    check(!release_stale_booking($pdo,91,48),'stale candidate now disputed cannot release payment');
+    check(!release_stale_booking($pdo,92,48),'release rechecks grace deadline');
+    check((int)$pdo->query("SELECT COUNT(*) FROM payments WHERE booking_id IN (91,92) AND payout_status='held'")->fetchColumn()===2,'ineligible payments remain held');
+    $jobs=[];
+    for ($i=0;$i<4;$i++) {
+        $pipes=[];
+        $process=proc_open([PHP_BINARY,__FILE__,'release-worker',$schema],[1=>['pipe','w'],2=>['pipe','w']],$pipes);
+        $jobs[]=[$process,$pipes];
+    }
+    $released=0;
+    foreach ($jobs as [$process,$pipes]) {
+        $out=stream_get_contents($pipes[1]); $err=stream_get_contents($pipes[2]);
+        foreach ($pipes as $pipe) fclose($pipe);
+        if (proc_close($process)!==0) throw new RuntimeException($err);
+        if ($out==='released') $released++;
+    }
+    check($released===1,'parallel automatic release completes exactly once');
+    check($pdo->query("SELECT payout_status FROM payments WHERE booking_id=90")->fetchColumn()==='released','successful completion releases held ledger');
+    $pdo->exec("CREATE TRIGGER fail_release BEFORE UPDATE ON payments FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='synthetic write failure'");
+    try { release_stale_booking($pdo,93,48); check(false,'release should fail'); } catch (PDOException $e) {}
+    check(!$pdo->inTransaction(),'failed release cleans up transaction');
+    check($pdo->query('SELECT status FROM bookings WHERE id=93')->fetchColumn()==='in_progress','ledger failure rolls back booking completion');
+    check($pdo->query('SELECT parent_confirmed_at FROM bookings WHERE id=93')->fetchColumn()===null,'ledger failure rolls back confirmation timestamp');
+    $pdo->exec('DROP TRIGGER fail_release');
+    $pdo->exec('DELETE FROM bookings WHERE id>=90');
+    $pdo->exec('DROP TABLE payments');
+
     // Exercise the real HTTP controllers, using only this generated schema/storage.
     $pdo->exec('ALTER TABLE api_tokens ADD expires_at DATETIME, ADD last_used_at DATETIME, ADD device_info VARCHAR(255)');
     $pdo->exec("ALTER TABLE users MODIFY id INT AUTO_INCREMENT, MODIFY status VARCHAR(20) DEFAULT 'active'");
@@ -121,18 +186,34 @@ try {
     if (getenv('NANNYAPP_TEST_SENDMAIL')) array_push($serverCommand,'-d','sendmail_path='.getenv('NANNYAPP_TEST_SENDMAIL'));
     array_push($serverCommand,'-S','127.0.0.1:13381',__DIR__.'/router.php');
     $server=proc_open($serverCommand,[1=>['pipe','w'],2=>['pipe','w']],$serverPipes);
-    function request_test(string $path, ?array $body=null, string $auth='', string $cookie='', string $remember=''): array {
-        $headers="Content-Type: application/json\r\n";
+    function request_test(string $path, ?array $body=null, string $auth='', string $cookie='', string $remember='', bool $form=false): array {
+        $headers=$form ? "Content-Type: application/x-www-form-urlencoded\r\n" : "Content-Type: application/json\r\n";
         if($auth!=='') $headers.="Authorization: Bearer $auth\r\n";
         if($cookie!=='') $headers.="Cookie: PHPSESSID=$cookie\r\n";
         if($remember!=='') $headers.="Cookie: na_remember=$remember\r\n";
-        $ctx=stream_context_create(['http'=>['method'=>$body===null?'GET':'POST','header'=>$headers,'content'=>$body===null?'':json_encode($body),'ignore_errors'=>true,'follow_location'=>0,'timeout'=>5]]);
+        $ctx=stream_context_create(['http'=>['method'=>$body===null?'GET':'POST','header'=>$headers,'content'=>$body===null?'':($form?http_build_query($body):json_encode($body)),'ignore_errors'=>true,'follow_location'=>0,'timeout'=>5]]);
         $data=@file_get_contents('http://127.0.0.1:13381'.$path,false,$ctx);
         preg_match('/\s(\d{3})\s/',$http_response_header[0]??'',$match);
         return [(int)($match[1]??0),$data,$http_response_header??[]];
     }
     try {
         for($i=0;$i<50;$i++){ if(request_test('/ready')[0]===200) break; usleep(100000); }
+
+        $review = ['bookingId'=>10,'nannyId'=>4,'rating'=>5,'comment'=>'Synthetic review'];
+        check(request_test('/api/reviews/create.php',$review,'synthetic-token-2')[0]===409,'review rejects mismatched nanny');
+        check((int)$pdo->query('SELECT COUNT(*) FROM reviews')->fetchColumn()===0,'mismatched review creates no record');
+        check((float)$pdo->query('SELECT average_rating FROM nanny_profiles WHERE user_id=4')->fetchColumn()===0.0,'unrelated nanny rating unchanged');
+        $review['nannyId']=1;
+        foreach ([0,6,2.5,[],null] as $badRating) {
+            check(request_test('/api/reviews/create.php',array_replace($review,['rating'=>$badRating]),'synthetic-token-2')[0]===400,'review rejects invalid rating');
+        }
+        foreach ([11,12] as $ineligibleBooking) {
+            check(request_test('/api/reviews/create.php',array_replace($review,['bookingId'=>$ineligibleBooking]),'synthetic-token-2')[0]===409,'review requires own completed booking');
+        }
+        check(request_test('/api/reviews/create.php',$review,'synthetic-token-2')[0]===200,'review accepts assigned nanny');
+        check((int)$pdo->query('SELECT nanny_id FROM reviews WHERE booking_id=10')->fetchColumn()===1,'review persists server-derived nanny');
+        check((float)$pdo->query('SELECT average_rating FROM nanny_profiles WHERE user_id=1')->fetchColumn()===5.0,'assigned nanny rating updated');
+        check(request_test('/api/reviews/create.php',$review,'synthetic-token-2')[0]===409,'duplicate review rejected');
 
         if (getenv('NANNYAPP_TEST_SMTP_PORT')) {
             $registered=request_test('/api/auth/register.php',['email'=>'signup@example.invalid','fullName'=>'Synthetic Signup','phone'=>'0000000000','password'=>'Synthetic-password','role'=>'parent']);
@@ -177,6 +258,52 @@ try {
         check(request_test('/web/media.php?f=uploads/docs/synthetic.pdf',null,'','',hash('sha256','synthetic-remember-1'))[0]===403,'old remember cookie rejected after recovery');
         $webReset=request_test('/web/auth/reset.php?token='.str_repeat('f',64));
         check(str_contains($webReset[1] ?: '', 'invalid or has expired'),'web rejects API-consumed reset token');
+        // Ordinary password changes must revoke every prior session and recovery link.
+        $oldSession=request_test('/session?id=2')[1];
+        $remember=hash('sha256','synthetic-password-change-remember');
+        $pdo->prepare('UPDATE users SET remember_token=? WHERE id=2')->execute([$remember]);
+        $pdo->exec("INSERT INTO password_resets (user_id,token,expires_at) VALUES (2,REPEAT('8',64),DATE_ADD(NOW(),INTERVAL 1 HOUR))");
+        $change=['current_password'=>'Synthetic-old-password','new_password'=>'Synthetic-API-changed-password'];
+        check(request_test('/api/user/change_password.php',null,'synthetic-token-2')[0]===405,'password change rejects GET');
+        foreach ([[],null,str_repeat('x',73),"valid-length\0invalid"] as $badPassword) {
+            check(request_test('/api/user/change_password.php',array_replace($change,['new_password'=>$badPassword]),'synthetic-token-2')[0]===400,'password change validates new-password shape/length');
+        }
+        check(request_test('/api/user/change_password.php',array_replace($change,['current_password'=>'wrong']),'synthetic-token-2')[0]===400,'wrong current password rejected');
+        $result=request_test('/api/user/change_password.php',$change,'synthetic-token-2');
+        check($result[0]===200 && json_decode($result[1])->data instanceof stdClass,'password change returns non-null Unit payload');
+        check(request_test('/api/user/profile.php',null,'synthetic-token-2')[0]===401,'password change revokes old bearer');
+        check(request_test('/web/account.php',null,'',$oldSession)[0]===302,'password change revokes existing web session');
+        check(request_test('/web/account.php',null,'','',$remember)[0]===302,'password change revokes remember cookie');
+        check(!consume_password_reset(str_repeat('8',64),'Synthetic-replay-password'),'password change invalidates outstanding reset link');
+        check(password_verify($change['new_password'],$pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn()),'new password stored');
+        $pdo->beginTransaction();
+        check(!lock_current_credentials($pdo,2,$hash),'stale login snapshot cannot issue bearer after password change');
+        $pdo->rollBack();
+        check(!store_remember_token_if_current(2,$hash,hash('sha256','stale-cookie')),'stale login cannot recreate remember cookie');
+        check(request_test('/api/auth/login.php',['email'=>'user2@example.invalid','password'=>'Synthetic-old-password'])[0]===401,'old password cannot sign in');
+        check(request_test('/api/auth/login.php',['email'=>'user2@example.invalid','password'=>$change['new_password']])[0]===200,'new password can establish a fresh login');
+        $pdo->exec('DELETE FROM api_tokens WHERE user_id=2');
+
+
+        // A failed profile write must roll back the web password and revocations too.
+        $details=json_decode(request_test('/session?id=2&details=1')[1],true);
+        $otherSession=request_test('/session?id=2')[1];
+        $pdo->prepare('UPDATE users SET remember_token=? WHERE id=2')->execute([$remember]);
+        $pdo->prepare('INSERT INTO api_tokens (user_id,token_hash,expires_at) VALUES (2,?,DATE_ADD(NOW(),INTERVAL 1 HOUR))')->execute([hash('sha256','synthetic-web-change-token')]);
+        $form=['csrf'=>$details['csrf'],'full_name'=>'Synthetic User','email'=>'user2@example.invalid',
+            'current_password'=>$change['new_password'],'password'=>'Synthetic-Web-changed-password'];
+        $beforeHash=$pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn();
+        $pdo->exec("CREATE TRIGGER synthetic_profile_failure BEFORE INSERT ON parent_profiles FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='Synthetic profile failure'");
+        check(request_test('/web/account.php',$form,'',$details['session'],'',true)[0]===200,'web profile failure renders controlled error');
+        check($pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn()===$beforeHash,'web profile failure rolls back password');
+        check((int)$pdo->query('SELECT COUNT(*) FROM api_tokens WHERE user_id=2')->fetchColumn()===1,'web profile failure preserves old bearer');
+        $pdo->exec('DROP TRIGGER synthetic_profile_failure');
+        check(request_test('/web/account.php',$form,'',$details['session'],'',true)[0]===302,'web password change redirects to sign-in');
+        check(password_verify($form['password'],$pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn()),'web password change stores new password');
+        check(request_test('/api/user/profile.php',null,'synthetic-web-change-token')[0]===401,'web password change revokes bearer');
+        check(request_test('/web/account.php',null,'',$otherSession)[0]===302,'web password change revokes other browser session');
+        check(request_test('/web/account.php',null,'','',$remember)[0]===302,'web password change revokes remember cookie');
+
         for($i=0;$i<3;$i++) check(request_test('/api/auth/forgot.php',['email'=>'missing@example.invalid'])[0]===200,'cookieless recovery request accepted');
         check(request_test('/api/auth/forgot.php',['email'=>'missing@example.invalid'])[0]===429,'real cookieless recovery throttle');
         check(request_test('/api/auth/forgot.php')[0]===405,'recovery GET rejected');
@@ -188,6 +315,11 @@ try {
     $pdo->exec("INSERT INTO password_resets (user_id,token,expires_at) VALUES (1,REPEAT('9',64),DATE_ADD(NOW(),INTERVAL 1 HOUR))");
     $beforeHash=$pdo->query('SELECT password_hash FROM users WHERE id=1')->fetchColumn();
     $pdo->exec('DROP TABLE api_tokens');
+    $changeHash=$pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn();
+    try { change_account_password(2,'Synthetic-Web-changed-password','Synthetic-must-rollback'); throw new RuntimeException('Expected change revocation failure'); }
+    catch (PDOException) {}
+    check($pdo->query('SELECT password_hash FROM users WHERE id=2')->fetchColumn()===$changeHash,'ordinary password change rolls back when revocation fails');
+
     try { consume_password_reset(str_repeat('9',64),'Synthetic-rollback-password'); throw new RuntimeException('Expected revocation failure'); }
     catch (PDOException) {}
     check($pdo->query('SELECT password_hash FROM users WHERE id=1')->fetchColumn()===$beforeHash,'revocation failure rolls back password change');

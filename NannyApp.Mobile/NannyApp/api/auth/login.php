@@ -41,7 +41,19 @@ if ($user['role'] === 'admin') {
     json_error('Administrator accounts are available through the web portal only.', 403);
 }
 
-$token = issue_api_token((int) $user['id'], $_SERVER['HTTP_USER_AGENT'] ?? null);
+$pdo = db();
+$pdo->beginTransaction();
+try {
+    if (!lock_current_credentials($pdo, (int) $user['id'], $user['password_hash'])) {
+        $pdo->rollBack();
+        json_error('Your credentials changed. Please sign in again.', 401);
+    }
+    $token = issue_api_token((int) $user['id'], $_SERVER['HTTP_USER_AGENT'] ?? null);
+    $pdo->commit();
+} catch (Throwable) {
+    if ($pdo->inTransaction()) $pdo->rollBack();
+    json_error('Could not sign in. Please try again.', 503);
+}
 
 json_response(true, [
     'token' => $token,

@@ -1,6 +1,9 @@
 ﻿package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.UserApi
+import com.nannyapp.data.preferences.SessionManager
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import com.nannyapp.data.db.dao.UserDao
 import com.nannyapp.domain.model.User
 import com.nannyapp.domain.repository.UserRepository
@@ -16,6 +19,7 @@ import javax.inject.Singleton
 class UserRepositoryImpl @Inject constructor(
     private val api: UserApi,
     private val userDao: UserDao,
+    private val sessionManager: SessionManager,
 ) : UserRepository {
 
     override suspend fun getProfile(): Resource<User> {
@@ -30,8 +34,14 @@ class UserRepositoryImpl @Inject constructor(
         return result.map { it.asDomain() }
     }
 
-    override suspend fun changePassword(current: String, new: String): Resource<Unit> =
-        safeApiCall { api.changePassword(mapOf("current_password" to current, "new_password" to new)) }
+    override suspend fun changePassword(current: String, new: String): Resource<Unit> {
+        val token = sessionManager.currentToken()
+        val result = safeApiCall { api.changePassword(mapOf("current_password" to current, "new_password" to new)) }
+        if (result is Resource.Success) {
+            withContext(NonCancellable) { sessionManager.clearSessionIfCurrent(token) }
+        }
+        return result
+    }
 
     override suspend fun uploadProfileImage(bytes: ByteArray, fileName: String): Resource<String> {
         val body = bytes.toRequestBody("image/*".toMediaTypeOrNull())

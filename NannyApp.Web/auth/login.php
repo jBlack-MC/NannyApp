@@ -45,9 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (!empty($_POST['remember'])) {
                     $token = bin2hex(random_bytes(32));
                     try {
-                        db()->prepare('UPDATE users SET remember_token=? WHERE id=?')
-                           ->execute([$token, $user['id']]);
-                        setcookie('na_remember', $token, time() + 60 * 60 * 24 * 30, '/', '', false, true);
+                        if (store_remember_token_if_current((int) $user['id'], $user['password_hash'], $token)) {
+                            setcookie('na_remember', $token, ['expires' => time() + 60 * 60 * 24 * 30, 'path' => '/', 'secure' => is_https_request(), 'httponly' => true, 'samesite' => 'Lax']);
+                        }
                     } catch (Throwable) {}
                 }
                 flash('Welcome back, ' . $user['full_name'] . '!');

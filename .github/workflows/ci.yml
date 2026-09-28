@@ -17,15 +17,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Run isolated database, HTTP, mail, download and cache tests
-        run: docker compose -f compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+        run: python3 tests/docker-checks.py
       - name: Clean disposable containers
         if: always()
-        run: docker compose -f compose.test.yml down --volumes --remove-orphans
+        run: docker compose -p nannyapp-tests -f compose.test.yml down --volumes --remove-orphans
   android:
     name: Android build, unit tests and lint
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     defaults:
       run:
         working-directory: NannyApp.Mobile/NannyApp

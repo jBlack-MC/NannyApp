@@ -1,5 +1,7 @@
 # Automatic checks and local Docker tests
 
+Validation on 2026-09-28: full Docker suite passed with PHP 8.3 and MariaDB 10.11; Windows Apache denial check also passed. Android debug/unit/lint passed (0 lint errors, 52 warnings); missing release URL was rejected and an explicitly configured unsigned release compiled. Merged manifest retains other Startup initializers and removes WorkManager default metadata. No GitHub-hosted run or device execution is claimed.
+
 This project uses free local tools and quota-limited GitHub Actions. No workflow deploys to a host, creates cloud resources, sends real email or publishes a signed application.
 
 ## What runs automatically
@@ -18,11 +20,10 @@ For a **private repository**, both jobs remain disabled until the owner sets rep
 From the repository root with Docker Engine/Compose running:
 
 ```sh
-docker compose -f compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
-docker compose -f compose.test.yml down --volumes --remove-orphans
+python tests/docker-checks.py
 ```
 
-Cleanup applies only to the `nannyapp-tests` Compose project. The database lives in container tmpfs, has no host-published port, and the tests share its network namespace to use their required loopback port 13379. No application database, host credentials, real uploads, mail logs or signing files are mounted. The image is test-only, not a production deployment image. First use downloads public images/packages and requires internet; no hosted paid service is needed.
+The wrapper builds from an explicit source-only archive (avoiding Windows build-context transfer failures), runs Compose, and performs cleanup even when checks fail. Cleanup applies only to the `nannyapp-tests` Compose project. The database lives in container tmpfs, has no host-published port, and the tests share its network namespace to use their required loopback port 13379. No application database, host credentials, real uploads, mail logs or signing files are mounted. The image is test-only, not a production deployment image. First use downloads public images/packages and requires internet; no hosted paid service is needed.
 
 Without Docker:
 

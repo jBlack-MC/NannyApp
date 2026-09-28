@@ -20,3 +20,7 @@ local.properties
 **/storage/email_logs/*
 !**/storage/email_logs/README.md
 *.log
+
+# Python test-runner bytecode
+__pycache__/
+*.py[cod]

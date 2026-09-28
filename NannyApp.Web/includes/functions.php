@@ -478,6 +478,8 @@ function generate_check_in_code(): string
  */
 function auto_release_stale_payments(int $graceHours = 48): void
 {
+    require_once __DIR__ . '/../../NannyApp.Shared/config/booking_release.php';
+    if ($graceHours < 1 || db()->inTransaction()) return;
     try {
         $stmt = db()->prepare(
             "SELECT id FROM bookings
@@ -491,20 +493,14 @@ function auto_release_stale_payments(int $graceHours = 48): void
 
         foreach ($ids as $id) {
             $id = (int) $id;
-            db()->prepare(
-                "UPDATE bookings SET status='completed', parent_confirmed_at=NOW() WHERE id=? AND status='in_progress'"
-            )->execute([$id]);
-            db()->prepare(
-                "UPDATE payments SET payout_status='released', released_at=NOW()
-                 WHERE booking_id=? AND status='paid' AND payout_status='held'"
-            )->execute([$id]);
+            if (!release_stale_booking(db(), $id, $graceHours)) continue;
 
             $info = db()->prepare('SELECT parent_id, nanny_id, date_time FROM bookings WHERE id=?');
             $info->execute([$id]);
             if ($b = $info->fetch()) {
                 notify((int) $b['nanny_id'], 'Payment released',
                     'Your booking on ' . date('D d M, H:i', strtotime($b['date_time']))
-                        . ' was auto-confirmed after 48 hours and payment has been released to you.',
+                        . ' was auto-confirmed after ' . $graceHours . ' hours and payment has been released to you.',
                     'nanny/earnings.php');
             }
         }
