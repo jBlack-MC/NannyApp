@@ -78,12 +78,13 @@ function current_user(): ?array
         $token = (string) $_COOKIE['na_remember'];
         if (preg_match('/^[a-f0-9]{64}$/', $token)) {
             try {
-                $stmt = db()->prepare('SELECT id FROM users WHERE remember_token = ? AND email_verified = 1 AND status = "active" LIMIT 1');
+                $stmt = db()->prepare('SELECT id, password_hash FROM users WHERE remember_token = ? AND email_verified = 1 AND status = "active" LIMIT 1');
                 $stmt->execute([$token]);
                 $remembered = $stmt->fetch();
                 if ($remembered) {
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = (int) $remembered['id'];
+                    $_SESSION['auth_password'] = hash('sha256', $remembered['password_hash']);
                 } else {
                     setcookie('na_remember', '', time() - 3600, '/', '', false, true);
                 }
@@ -103,6 +104,10 @@ function current_user(): ?array
         $stmt = db()->prepare('SELECT * FROM users WHERE id = ?');
         $stmt->execute([$_SESSION['user_id']]);
         $cache = $stmt->fetch() ?: null;
+    }
+    if ($cache && (!verified_active_user($cache) || !hash_equals(hash('sha256', $cache['password_hash']), (string) ($_SESSION['auth_password'] ?? '')))) {
+        unset($_SESSION['user_id'], $_SESSION['auth_password']);
+        $cache = null;
     }
     return $cache;
 }
@@ -179,30 +184,7 @@ function dashboard_path(?string $role): string
 // ----------------------------------------------------------------------
 //  Rate Limiting  (brute-force protection)
 // ----------------------------------------------------------------------
-function is_rate_limited(string $key, int $maxAttempts = 5, int $windowSeconds = 300): bool
-{
-    $cacheKey = 'rate_limit_' . md5($key);
-    
-    if (!isset($_SESSION[$cacheKey])) {
-        $_SESSION[$cacheKey] = ['attempts' => 0, 'reset_at' => time() + $windowSeconds];
-    }
-    
-    // Reset if window expired
-    if (time() > $_SESSION[$cacheKey]['reset_at']) {
-        $_SESSION[$cacheKey] = ['attempts' => 0, 'reset_at' => time() + $windowSeconds];
-    }
-    
-    return $_SESSION[$cacheKey]['attempts'] >= $maxAttempts;
-}
-
-function increment_rate_limit(string $key): void
-{
-    $cacheKey = 'rate_limit_' . md5($key);
-    if (!isset($_SESSION[$cacheKey])) {
-        $_SESSION[$cacheKey] = ['attempts' => 0, 'reset_at' => time() + 300];
-    }
-    $_SESSION[$cacheKey]['attempts']++;
-}
+require_once __DIR__ . '/../../NannyApp.Shared/config/security.php';
 
 // ----------------------------------------------------------------------
 //  Chat messages — shared by messages.php (form fallback) and the
@@ -235,7 +217,6 @@ function send_chat_message(int $fromId, int $toId, string $body): array
     if (is_rate_limited($rateLimitKey, 30, 300)) {
         return ['ok' => false, 'error' => 'You are sending messages too quickly. Please wait a moment and try again.'];
     }
-    increment_rate_limit($rateLimitKey);
 
     $content = mb_substr($body, 0, 1000);
     db()->prepare('INSERT INTO chat_messages (sender_id, receiver_id, content) VALUES (?,?,?)')
@@ -326,7 +307,7 @@ function recompute_rating(int $nannyUserId): void
 function media_url(string $path): string
 {
     // Legacy images saved directly under this project's assets/ folder.
-    if (str_starts_with($path, 'assets/')) {
+    if (str_starts_with($path, 'assets/') && !str_contains($path, '/docs/') && !str_contains($path, '/portfolio/')) {
         return url($path);
     }
     return storage_url($path, fn(string $p) => url('media.php?f=' . rawurlencode($p)));

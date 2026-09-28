@@ -1,17 +1,11 @@
 <?php
-/** POST /api/auth/resend-verification.php { email } */
 require_once __DIR__ . '/../_bootstrap.php';
-
-$email = trim((string) (json_body()['email'] ?? ''));
-$stmt = db()->prepare('SELECT id, email_verified FROM users WHERE email = :email');
-$stmt->execute(['email' => $email]);
+if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') json_error('Method not allowed.', 405);
+$email = strtolower(trim((string) (json_body()['email'] ?? '')));
+if (!filter_var($email, FILTER_VALIDATE_EMAIL)) json_error('Please enter a valid email.');
+if (auth_rate_limited('resend_verification', $email, 3)) json_error('Too many requests. Try again later.', 429);
+$stmt = db()->prepare('SELECT id, full_name, email_verified FROM users WHERE email = ?');
+$stmt->execute([$email]);
 $user = $stmt->fetch();
-
-if ($user && (int) $user['email_verified'] === 0) {
-    $token = bin2hex(random_bytes(32));
-    db()->prepare('UPDATE users SET verification_token = :token, verification_sent_at = NOW() WHERE id = :id')
-        ->execute(['token' => $token, 'id' => $user['id']]);
-    // TODO (deployment): send via includes/email.php
-}
-
-json_response(true, null, 'If that email exists and is unverified, a new verification link has been sent.');
+if ($user && !(int) $user['email_verified']) send_verification_email((int) $user['id'], $email, $user['full_name']);
+json_response(true, (object) [], 'If eligible, instructions will arrive by email. If they do not arrive, please retry later.');

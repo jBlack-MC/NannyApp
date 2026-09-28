@@ -25,6 +25,8 @@ suspend fun <T> safeApiCall(block: suspend () -> Response<ApiEnvelope<T>>): Reso
             body.data == null -> Resource.Error(ErrorMessages.EMPTY)
             else -> Resource.Success(body.data)
         }
+    } catch (e: kotlinx.coroutines.CancellationException) {
+        throw e
     } catch (e: SocketTimeoutException) {
         Resource.Error(ErrorMessages.TIMEOUT, e)
     } catch (e: IOException) {

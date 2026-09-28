@@ -10,6 +10,8 @@ import com.nannyapp.util.safeApiCall
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import com.nannyapp.data.preferences.SessionManager
+import com.nannyapp.util.canUseOfflineCache
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,28 +23,38 @@ import javax.inject.Singleton
  */
 @Singleton
 class BookingRepositoryImpl @Inject constructor(
+    private val sessionManager: SessionManager,
     private val api: BookingApi,
     private val dao: BookingDao,
 ) : BookingRepository {
 
     override fun getBookings(role: UserRole): Flow<Resource<List<Booking>>> = flow {
         emit(Resource.Loading)
-        when (val result = safeApiCall { api.getBookings() }) {
-            is Resource.Success -> {
-                dao.upsertAll(result.data.map { it.toEntity() })
-                emit(Resource.Success(result.data.map { it.asDomain() }))
+        val token = sessionManager.currentToken()
+        val accountId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() } ?: return@flow emit(Resource.Error("Please log in.", code = 401))
+        val result = safeApiCall { api.getBookings() }
+        val output = sessionManager.withCurrentSession(token) {
+            when (result) {
+                is Resource.Success -> {
+                    dao.upsertAll(result.data.map { it.toEntity() })
+                    Resource.Success(result.data.map { it.asDomain() })
+                }
+                is Resource.Error -> {
+                    if (result.canUseOfflineCache()) {
+                        val cached = dao.observeForAccount(accountId).first()
+                        if (cached.isNotEmpty()) Resource.Success(cached.map { it.asDomain() }) else result
+                    } else result
+                }
+                Resource.Loading -> Resource.Loading
             }
-            is Resource.Error -> {
-                val cached = dao.observeAll().first()
-                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.asDomain() })) else emit(result)
-            }
-            Resource.Loading -> {}
         }
+        emit(output ?: Resource.Error("Your session has changed. Please log in again.", code = 401))
     }
 
     override suspend fun getBookingDetail(bookingId: Int): Resource<Booking> {
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.getBookingDetail(bookingId) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 
@@ -58,8 +70,9 @@ class BookingRepositoryImpl @Inject constructor(
             childrenDetails = null,
             notes = wizard.notes.ifBlank { null },
         )
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.createBooking(dto) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 
@@ -70,8 +83,9 @@ class BookingRepositoryImpl @Inject constructor(
         safeApiCall { api.rescheduleBooking(RescheduleRequestDto(bookingId, newDateTimeIso)) }.map { it.asDomain() }
 
     override suspend fun acceptBooking(bookingId: Int): Resource<Booking> {
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.acceptBooking(BookingActionRequestDto(bookingId)) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 
@@ -80,20 +94,23 @@ class BookingRepositoryImpl @Inject constructor(
 
     override suspend fun checkIn(bookingId: Int, pin: String): Resource<Booking> {
         // Server enforces the 5-attempt lockout from nanny/bookings.php; we just relay its response.
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.checkIn(CheckInRequestDto(bookingId, pin)) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 
     override suspend fun checkOut(bookingId: Int): Resource<Booking> {
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.checkOut(BookingActionRequestDto(bookingId)) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 
     override suspend fun confirmCompletion(bookingId: Int): Resource<Booking> {
+        val requestToken = sessionManager.currentToken()
         val result = safeApiCall { api.confirmCompletion(BookingActionRequestDto(bookingId)) }
-        if (result is Resource.Success) dao.upsert(result.data.toEntity())
+        if (result is Resource.Success) sessionManager.withCurrentSession(requestToken) { dao.upsert(result.data.toEntity()) }
         return result.map { it.asDomain() }
     }
 

@@ -6,6 +6,9 @@
 
 declare(strict_types=1);
 
+header('Cache-Control: private, no-store');
+header('Referrer-Policy: no-referrer');
+
 // --- App ---------------------------------------------------------------
 define('APP_NAME', getenv('NANNYAPP_NAME') ?: 'Nanny-App');
 define('SUPPORT_EMAIL', getenv('NANNYAPP_SUPPORT_EMAIL') ?: 'support@example.invalid');

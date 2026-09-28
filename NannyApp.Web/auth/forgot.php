@@ -13,13 +13,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Rate limiting: max 3 attempts per 15 minutes
     $rateLimitKey = 'forgot_password_' . $email;
-    if (is_rate_limited($rateLimitKey, 3, 900)) {
+    if (auth_rate_limited('forgot_password', $email, 3)) {
         $errors[] = 'Too many reset requests. Please try again in 15 minutes.';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors[] = 'Please enter a valid email address.';
     } else {
-        increment_rate_limit($rateLimitKey);
-        
+
+
         $stmt = db()->prepare('SELECT id, full_name FROM users WHERE email = ?');
         $stmt->execute([$email]);
         $user = $stmt->fetch();
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (send_password_reset_email((int) $user['id'], $email, $user['full_name'])) {
                 $sent = true;
             } else {
-                $errors[] = 'Failed to send email. Please try again later.';
+                $sent = true;
             }
         } else {
             // Don't reveal whether the email exists
@@ -59,7 +59,7 @@ require __DIR__ . '/../includes/header.php';
 
         <?php if ($sent): ?>
             <div class="flash flash-success auth-footnote">
-                <strong>Check your email.</strong> If an account exists for that address, we've sent a password reset link. It expires in 1 hour.
+                <strong>Check your email.</strong> If an account exists for that address, reset instructions will arrive by email; please retry later if they do not arrive. It expires in 1 hour.
             </div>
             <p class="muted auth-footnote"><a href="<?= url('auth/login.php') ?>">← Back to log in</a></p>
         <?php else: ?>

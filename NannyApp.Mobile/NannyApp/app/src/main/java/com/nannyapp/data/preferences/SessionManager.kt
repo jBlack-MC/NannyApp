@@ -1,6 +1,9 @@
 package com.nannyapp.data.preferences
 
 import android.content.Context
+import com.nannyapp.data.db.NannyDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.nannyapp.domain.model.UserRole
@@ -18,7 +21,9 @@ private val Context.dataStore by preferencesDataStore(name = "nannyapp_session")
  * no plaintext credentials, token/session managed here rather than SharedPreferences).
  */
 @Singleton
-class SessionManager @Inject constructor(@ApplicationContext private val context: Context) {
+class SessionManager @Inject constructor(@ApplicationContext private val context: Context, private val database: NannyDatabase) {
+
+    private val cacheBoundary = SessionCacheBoundary { currentToken() }
 
     private object Keys {
         val AUTH_TOKEN = stringPreferencesKey("auth_token")
@@ -36,19 +41,26 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
     val isLoggedInFlow: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTH_TOKEN] != null }
 
     suspend fun saveSession(token: String, userId: Int, role: UserRole, name: String, email: String, rememberMe: Boolean) {
-        context.dataStore.edit { prefs ->
-            prefs[Keys.AUTH_TOKEN] = token
-            prefs[Keys.USER_ID] = userId
-            prefs[Keys.USER_ROLE] = role.toApi()
-            prefs[Keys.USER_NAME] = name
-            prefs[Keys.USER_EMAIL] = email
-            prefs[Keys.REMEMBER_ME] = rememberMe
+        cacheBoundary.transition {
+            context.dataStore.edit { it.clear() }
+            withContext(Dispatchers.IO) { database.clearAllTables() }
+            context.dataStore.edit { prefs ->
+                prefs[Keys.AUTH_TOKEN] = token
+                prefs[Keys.USER_ID] = userId
+                prefs[Keys.USER_ROLE] = role.toApi()
+                prefs[Keys.USER_NAME] = name
+                prefs[Keys.USER_EMAIL] = email
+                prefs[Keys.REMEMBER_ME] = rememberMe
+            }
         }
     }
 
-    suspend fun clearSession() {
+    suspend fun clearSession() = cacheBoundary.transition {
         context.dataStore.edit { it.clear() }
+        withContext(Dispatchers.IO) { database.clearAllTables() }
     }
+
+    suspend fun <T> withCurrentSession(token: String?, block: suspend () -> T): T? = cacheBoundary.access(token, block)
 
     suspend fun currentToken(): String? = context.dataStore.data.first()[Keys.AUTH_TOKEN]
     suspend fun currentUserId(): Int? = context.dataStore.data.first()[Keys.USER_ID]

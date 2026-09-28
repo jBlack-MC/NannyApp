@@ -64,12 +64,10 @@ class AdminRepositoryImpl @Inject constructor(
         emit(Resource.Loading)
         when (val result = safeApiCall { api.getAllBookings(statusFilter?.toApi(), query.ifBlank { null }) }) {
             is Resource.Success -> {
-                bookingDao.upsertAll(result.data.map { it.toEntity() })
                 emit(Resource.Success(result.data.map { it.asDomain() }))
             }
             is Resource.Error -> {
-                val cached = bookingDao.observeAll().first()
-                if (cached.isNotEmpty()) emit(Resource.Success(cached.map { it.asDomain() })) else emit(result)
+                emit(result)
             }
             Resource.Loading -> {}
         }

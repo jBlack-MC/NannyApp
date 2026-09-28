@@ -14,9 +14,11 @@ $email = trim((string) ($b['email'] ?? ''));
 $phone = trim((string) ($b['phone'] ?? ''));
 $password = (string) ($b['password'] ?? '');
 
-if ($fullName === '' || $email === '' || $phone === '' || strlen($password) < 8) {
+if ($fullName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $phone === '' || strlen($password) < 8) {
     json_error('Please fill in all required fields (password must be at least 8 characters).');
 }
+
+if (auth_rate_limited('register', $email, 3)) json_error('Too many requests. Try again later.', 429);
 
 $existing = db()->prepare('SELECT id FROM users WHERE email = :email');
 $existing->execute(['email' => $email]);
@@ -36,8 +38,8 @@ try {
     );
     $stmt->execute([
         'full_name' => $fullName, 'email' => $email, 'phone' => $phone, 'hash' => $hash, 'role' => $role,
-        'dob' => $b['dateOfBirth'] ?: null, 'address' => $b['address'] ?: null,
-        'gender' => $b['gender'] ?: null, 'token' => $verificationToken,
+        'dob' => ($b['dateOfBirth'] ?? null) ?: null, 'address' => ($b['address'] ?? null) ?: null,
+        'gender' => ($b['gender'] ?? null) ?: null, 'token' => $verificationToken,
     ]);
     $userId = (int) db()->lastInsertId();
 
@@ -66,9 +68,7 @@ try {
     json_error('Could not create your account. Please try again.', 500);
 }
 
-// TODO (deployment): send the verification email via includes/email.php using $verificationToken.
-// For development/demo, the seed accounts are pre-verified; new accounts can be verified
-// manually via: UPDATE users SET email_verified = 1 WHERE id = ...
+$mailSent = send_verification_email($userId, $email, $fullName);
 
 $token = issue_api_token($userId);
 $stmt = db()->prepare('SELECT * FROM users WHERE id = :id');
@@ -83,4 +83,4 @@ json_response(true, [
         'profileImage' => media_url($user['profile_image']), 'dateOfBirth' => $user['date_of_birth'],
         'address' => $user['address'], 'gender' => $user['gender'], 'createdAt' => $user['created_at'],
     ],
-], 'Account created. Please check your email to verify your account.');
+], $mailSent ? 'Account created. Please check your email to verify your account.' : 'Account created, but email delivery failed. Please request a new verification email.');

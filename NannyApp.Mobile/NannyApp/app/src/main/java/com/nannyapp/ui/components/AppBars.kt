@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.style.TextOverflow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,7 +25,7 @@ fun AppTopBar(
     TopAppBar(
         title = {
             if (title == "NannyApp" || title == "Nanny-App") NannyAppBrand()
-            else Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1)
+            else Text(title, style = MaterialTheme.typography.titleLarge, maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         modifier = modifier,
         navigationIcon = {
@@ -72,6 +73,13 @@ fun AppBottomNavigation(
         NavigationBar(containerColor = MaterialTheme.colorScheme.surface, tonalElevation = 0.dp) {
             items.forEach { item ->
                 NavigationBarItem(
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
                     selected = currentRoute == item.route,
                     onClick = { onItemClick(item) },
                     icon = {

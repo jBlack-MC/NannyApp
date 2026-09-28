@@ -12,3 +12,11 @@ Thumbs.db
 build/
 .gradle/
 local.properties
+
+# Local Codex engineering workspace
+.codex/
+
+# Mail must never be tracked
+**/storage/email_logs/*
+!**/storage/email_logs/README.md
+*.log

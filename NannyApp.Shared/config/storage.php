@@ -83,12 +83,6 @@ function storage_delete(string $relativePath): void
  */
 function storage_url(string $relativePath, callable $localMediaUrl): string
 {
-    if (STORAGE_DRIVER === 's3') {
-        if (S3_PUBLIC_BASE_URL !== '') {
-            return S3_PUBLIC_BASE_URL . '/' . $relativePath;
-        }
-        return s3_presigned_url($relativePath);
-    }
     return $localMediaUrl($relativePath);
 }
 

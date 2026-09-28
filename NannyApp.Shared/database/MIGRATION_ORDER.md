@@ -13,6 +13,11 @@ For a new local database:
 5. Run `migrate_v5_api.sql` for the native API bearer-token table.
 6. Apply `phase1_constraints.sql` and `phase2_authentication.sql` only after
    reviewing their notes and taking a backup.
+7. Apply `migrate_v6_security.sql` before deploying the security fixes. It adds
+   persistent rate-limit storage and ensures recovery/verification columns exist.
+   See `tests/security/README.md` at the repository root for rollout and tests.
+8. Apply `migrate_v7_email_outbox.sql` before selecting the optional `resend`
+   mail transport. See `docs/RESEND_INTEGRATION.md` for worker setup.
 
 Before every non-local migration: back up the database, apply the migration to
 staging first, verify parent/nanny/admin flows, then record the filename and

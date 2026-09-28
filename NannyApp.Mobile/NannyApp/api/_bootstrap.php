@@ -21,16 +21,8 @@ ini_set('log_errors', '1');
 
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
-
-// is_rate_limited()/increment_rate_limit() (reused from includes/functions.php)
-// store their counters in $_SESSION. Start a session so those calls don't warn;
-// note that since the Android client doesn't carry a session cookie between
-// requests, this rate limiting is best-effort per-request rather than truly
-// persistent — for production, swap those two helpers for a database- or
-// Redis-backed limiter keyed by IP.
-if (session_status() === PHP_SESSION_NONE) {
-    @session_start();
-}
+header('Cache-Control: private, no-store');
+header('Referrer-Policy: no-referrer');
 
 // CORS is not needed for the native app (no browser origin), but harmless to allow same-origin tooling.
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
@@ -47,9 +39,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
 // not apply here.
 define('NANNYAPP_API_REQUEST', true);
 
-require_once __DIR__ . '/../config/db_credentials.php';
+if (is_file(__DIR__ . '/../config/db_credentials.php')) require_once __DIR__ . '/../config/db_credentials.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/email.php';
 
 // Optional: Paystack keys live outside version control. See config/paystack.example.php.
 if (file_exists(__DIR__ . '/../config/paystack.php')) {
@@ -135,6 +128,7 @@ function require_api_auth(): array
     if ($user['status'] === 'suspended') {
         json_error('Your account has been suspended. Contact support for help.', 403);
     }
+    if (!verified_active_user($user)) json_error('Please verify your email before continuing.', 403);
     return $user;
 }
 

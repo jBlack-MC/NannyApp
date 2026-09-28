@@ -24,3 +24,12 @@ Options -Indexes
 # Error documents (Apache-level fallback)
 ErrorDocument 404 /nannyapp/404.php
 ErrorDocument 500 /nannyapp/500.php
+
+# Deny private runtime data regardless of deployment prefix.
+<IfModule mod_rewrite.c>
+    RewriteRule ^(?:storage|config|includes)(?:/|$) - [F,L,NC]
+    RewriteRule ^(?:assets/)?(?:uploads/docs|portfolio)(?:/|$) - [F,L,NC]
+</IfModule>
+<FilesMatch "\.log$">
+    Require all denied
+</FilesMatch>

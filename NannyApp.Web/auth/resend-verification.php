@@ -28,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Rate limiting: max 3 resend attempts per 15 minutes
         $rateLimitKey = 'resend_verification_' . $email;
-        if (is_rate_limited($rateLimitKey, 3, 900)) {
+        if (auth_rate_limited('resend_verification', $email, 3)) {
             $errors[] = 'Too many verification email requests. Please try again in 15 minutes.';
         } else {
-            increment_rate_limit($rateLimitKey);
+
 
             // Find unverified user
             $stmt = db()->prepare('SELECT id, full_name FROM users WHERE email = ? AND email_verified = 0');
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if (send_verification_email((int) $user['id'], $email, $user['full_name'])) {
                     $sent = true;
                 } else {
-                    $errors[] = 'Failed to send verification email. Please try again later.';
+                    $sent = true;
                 }
             } else {
                 // Account either doesn't exist or is already verified
@@ -89,13 +89,13 @@ require __DIR__ . '/../includes/header.php';
 
             <div class="field">
                 <label for="rv-email">Email address</label>
-                <input 
-                    id="rv-email" 
-                    type="email" 
-                    name="email" 
-                    placeholder="you@example.com" 
+                <input
+                    id="rv-email"
+                    type="email"
+                    name="email"
+                    placeholder="you@example.com"
                     value="<?= e($_POST['email'] ?? '') ?>"
-                    required 
+                    required
                     autofocus
                 >
             </div>
@@ -104,7 +104,7 @@ require __DIR__ . '/../includes/header.php';
         </form>
 
         <p class="muted auth-link-row">
-            <a href="<?= url('auth/login.php') ?>">Back to Login</a> | 
+            <a href="<?= url('auth/login.php') ?>">Back to Login</a> |
             <a href="<?= url('auth/register.php') ?>">Create Account</a>
         </p>
     <?php endif; ?>

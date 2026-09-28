@@ -1,0 +1,9 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:config|includes|storage)(?:/|$) - [F,L,NC]
+    RewriteRule ^(?:assets/)?(?:uploads/docs|portfolio)(?:/|$) - [F,L,NC]
+</IfModule>
+<FilesMatch "\.log$">
+    Require all denied
+</FilesMatch>

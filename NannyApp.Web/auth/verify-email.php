@@ -18,49 +18,10 @@ $token = trim($_GET['token'] ?? '');
 $success = false;
 $error = '';
 
-if ($token) {
-    // Find user with this verification token. Enforce a 24-hour expiry when supported.
-    try {
-        $stmt = db()->prepare(
-            'SELECT id, full_name, email, role FROM users
-             WHERE verification_token = ?
-               AND email_verified = 0
-               AND verification_sent_at IS NOT NULL
-               AND verification_sent_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)'
-        );
-        $stmt->execute([$token]);
-        $user = $stmt->fetch();
-    } catch (Throwable) {
-        // Backward-compat for databases that do not yet have verification_sent_at.
-        $stmt = db()->prepare('SELECT id, full_name, email, role FROM users WHERE verification_token = ? AND email_verified = 0');
-        $stmt->execute([$token]);
-        $user = $stmt->fetch();
-    }
-
-    if ($user) {
-        // Verify the email
-        try {
-            $ok = db()->prepare('UPDATE users SET email_verified = 1, verification_token = NULL, verification_sent_at = NULL WHERE id = ?')
-                ->execute([(int) $user['id']]);
-        } catch (Throwable) {
-            $ok = db()->prepare('UPDATE users SET email_verified = 1, verification_token = NULL WHERE id = ?')
-                ->execute([(int) $user['id']]);
-        }
-        if ($ok) {
-            $success = true;
-            
-            // Auto-log them in if they want
-            session_regenerate_id(true);
-            $_SESSION['user_id'] = $user['id'];
-        } else {
-            $error = 'Failed to verify email. Please try again.';
-        }
-    } else {
-        $error = 'Invalid or expired verification link.';
-    }
-} else {
-    $error = 'No verification token provided.';
+if ($token && !auth_rate_limited('verify', $token, 5)) {
+    $success = consume_verification_token($token);
 }
+if (!$success) $error = 'Invalid or expired verification link. Please request a new link.';
 
 $pageTitle = 'Email Verification';
 require __DIR__ . '/../includes/header.php';
@@ -72,7 +33,7 @@ require __DIR__ . '/../includes/header.php';
         <?php if ($success): ?>
             <h1>✓ Email Verified!</h1>
             <p class="muted auth-footnote">Your email has been successfully verified. Welcome to <?php echo e(APP_NAME); ?>!</p>
-            <a class="btn btn-primary auth-action-gap btn-inline" href="<?php echo url(dashboard_path($user['role'] ?? 'parent')); ?>">Continue to Dashboard →</a>
+            <a class="btn btn-primary auth-action-gap btn-inline" href="<?php echo url('auth/login.php'); ?>">Log in →</a>
         <?php else: ?>
             <h1>Email Verification Failed</h1>
             <div class="flash flash-error auth-footnote">

@@ -25,4 +25,14 @@ session_destroy();
 /* ── Fresh session to carry the goodbye flash ────────────────────────── */
 session_start();
 flash('You have been logged out successfully.');
-redirect('index.php');
+header('Clear-Site-Data: "cache", "storage"');
+?><!doctype html><meta charset="utf-8"><title>Logged out</title>
+<p>You have been logged out. <a href="<?= e(url('index.php')) ?>">Continue</a></p>
+<script>
+(async () => {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.controller?.postMessage({type: 'LOGOUT'});
+  if ('caches' in window) await Promise.all((await caches.keys()).filter(k => k.startsWith('nannyapp-')).map(k => caches.delete(k)));
+  localStorage.clear(); sessionStorage.clear();
+  location.replace(<?= json_encode(url('index.php'), JSON_HEX_TAG | JSON_HEX_AMP) ?>);
+})();
+</script>

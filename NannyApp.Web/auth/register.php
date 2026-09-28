@@ -21,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $old['role']      = $_POST['role'] ?? 'parent';
     $password         = $_POST['password'] ?? '';
 
+    if (auth_rate_limited('register', $old['email'], 3)) $errors[] = 'Too many requests. Try again later.';
+
     if ($old['full_name'] === '')                         $errors[] = 'Full name is required.';
     if (!filter_var($old['email'], FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
     if (strlen($password) < 8)                            $errors[] = 'Password must be at least 8 characters.';

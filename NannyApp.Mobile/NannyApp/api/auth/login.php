@@ -15,7 +15,7 @@ if ($email === '' || $password === '') {
 }
 
 $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
-if (is_rate_limited('api_login_' . $ip, 5, 900)) {
+if (auth_rate_limited('login', $email, 5)) {
     json_error('Too many login attempts. Please wait 15 minutes and try again.', 429);
 }
 
@@ -24,7 +24,6 @@ $stmt->execute(['email' => $email]);
 $user = $stmt->fetch();
 
 if (!$user || !password_verify($password, $user['password_hash'])) {
-    increment_rate_limit('api_login_' . $ip);
     json_error('Incorrect email or password. Please try again.', 401);
 }
 

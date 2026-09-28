@@ -65,6 +65,9 @@ $isActive = static function (string $path, bool $prefix = false) use ($requestPa
     <link rel="stylesheet" href="<?= url('assets/css/style.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/navbar.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/pages.css') ?>">
+    <link rel="stylesheet" href="<?= url('assets/css/accessibility.css') ?>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" href="<?= url('assets/Icon_Logo.png') ?>">
 </head>
 <body class="<?= isset($bodyClass) ? e($bodyClass) : '' ?>">
 <a class="skip-link" href="#main">Skip to content</a>
