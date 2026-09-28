@@ -1,4 +1,4 @@
-"""Exercise Apache deny rules against synthetic files only (Windows XAMPP)."""
+"""Exercise Apache deny rules against synthetic files only (Windows XAMPP or Debian Apache)."""
 from pathlib import Path
 import subprocess
 import tempfile
@@ -6,11 +6,17 @@ import time
 import urllib.request
 import urllib.error
 import sys
+import os
+import shutil
 
 root = Path(__file__).resolve().parents[2]
 apache = Path(sys.argv[1] if len(sys.argv) > 1 else 'C:/xampp/apache')
+linux = os.name != 'nt'
+binary = shutil.which('apache2') if linux else str(apache / 'bin/httpd.exe')
+if not binary: raise SystemExit('Apache executable not found')
 with tempfile.TemporaryDirectory(prefix='nanny-apache-test-') as temporary:
     base = Path(temporary)
+    base.chmod(0o755)
     doc = base / 'www'
     doc.mkdir()
     (doc / '.htaccess').write_bytes((root / 'NannyApp.Web/.htaccess').read_bytes())
@@ -21,23 +27,25 @@ with tempfile.TemporaryDirectory(prefix='nanny-apache-test-') as temporary:
     (doc / 'synthetic.log').write_text('SYNTHETIC ONLY')
     (doc / 'public.txt').write_text('public')
     config = base / 'httpd.conf'
-    config.write_text(f'''ServerRoot "{apache.as_posix()}"
+    modules = '/usr/lib/apache2/modules' if linux else 'modules'
+    startup = 'LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so\nUser www-data\nGroup www-data\n' if linux else ''
+    config.write_text(f'''{startup}ServerRoot "{base.as_posix() if linux else apache.as_posix()}"
 Listen 127.0.0.1:13383
 ServerName localhost
 PidFile "{(base / 'httpd.pid').as_posix()}"
 ErrorLog "{(base / 'error.log').as_posix()}"
-LoadModule authz_core_module modules/mod_authz_core.so
-LoadModule authz_host_module modules/mod_authz_host.so
-LoadModule dir_module modules/mod_dir.so
-LoadModule alias_module modules/mod_alias.so
-LoadModule rewrite_module modules/mod_rewrite.so
+LoadModule authz_core_module {modules}/mod_authz_core.so
+LoadModule authz_host_module {modules}/mod_authz_host.so
+LoadModule dir_module {modules}/mod_dir.so
+LoadModule alias_module {modules}/mod_alias.so
+LoadModule rewrite_module {modules}/mod_rewrite.so
 DocumentRoot "{doc.as_posix()}"
 <Directory "{doc.as_posix()}">
 AllowOverride All
 Require all granted
 </Directory>
 ''')
-    process = subprocess.Popen([str(apache / 'bin/httpd.exe'), '-f', str(config)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    process = subprocess.Popen([binary, '-f', str(config)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def status(path):
         try:
@@ -58,7 +66,7 @@ Require all granted
             assert status(path) == 403, path
         print('PASS Apache denies synthetic mail logs and generic .log files')
     finally:
-        subprocess.run([str(apache / 'bin/httpd.exe'), '-f', str(config), '-k', 'shutdown'], capture_output=True)
+        subprocess.run([binary, '-f', str(config), '-k', 'shutdown'], capture_output=True)
         try:
             process.wait(timeout=10)
         except subprocess.TimeoutExpired:
