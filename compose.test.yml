@@ -1,0 +1,26 @@
+name: nannyapp-tests
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+    command: ['--port=13379', '--bind-address=127.0.0.1']
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 3s
+      timeout: 3s
+      retries: 40
+      start_period: 15s
+  tests:
+    build:
+      context: .
+      dockerfile: tests/docker/Dockerfile
+    network_mode: 'service:db'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NANNYAPP_TEST_DB_PORT: '13379'
+# No host ports, production credentials, persistent volumes or application DB imports.

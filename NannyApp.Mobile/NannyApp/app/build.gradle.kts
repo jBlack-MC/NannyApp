@@ -1,9 +1,31 @@
+import java.net.URI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.serialization")
+}
+
+// A release must explicitly identify its API; debug remains emulator-friendly.
+val releaseApiUrl = providers.gradleProperty("NANNYAPP_RELEASE_API_URL")
+    .orElse(providers.environmentVariable("NANNYAPP_RELEASE_API_URL"))
+    .orElse("")
+val validateReleaseApiUrl = tasks.register("validateReleaseApiUrl") {
+    doLast {
+        val raw = releaseApiUrl.get()
+        val uri = runCatching { URI(raw) }.getOrNull()
+        require(uri != null && uri.scheme == "https" && !uri.host.isNullOrBlank()
+            && uri.rawUserInfo == null && uri.rawQuery == null && uri.rawFragment == null
+            && raw.endsWith("/") && !raw.contains("your-domain.example.com")
+            && raw.none { it == '"' || it == '\\' || it.isWhitespace() }) {
+            "NANNYAPP_RELEASE_API_URL must be an absolute HTTPS API URL ending in /, without credentials, query or fragment."
+        }
+    }
+}
+tasks.configureEach {
+    if (name == "preReleaseBuild") dependsOn(validateReleaseApiUrl)
 }
 
 android {
@@ -19,8 +41,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Base URL of the PHP API layer. Override per build type / local.properties.
-        buildConfigField("String", "API_BASE_URL", "\"https://your-domain.example.com/nannyapp/api/\"")
+        // Release value is checked before any release build. Configure with -P or environment.
+        buildConfigField("String", "API_BASE_URL", "\"${releaseApiUrl.get().replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
 
     buildTypes {

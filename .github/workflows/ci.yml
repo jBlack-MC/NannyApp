@@ -1,67 +1,58 @@
 name: CI
-
 on:
   push:
   pull_request:
   workflow_dispatch:
-
 permissions:
   contents: read
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
-
 jobs:
-  php-lint:
-    name: PHP syntax checks
+  security:
+    name: PHP and synthetic security tests
+    if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
     runs-on: ubuntu-latest
-
+    timeout-minutes: 20
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.3'
-
-      - name: Lint PHP files
-        shell: bash
-        run: |
-          set -euo pipefail
-          while IFS= read -r -d '' file; do
-            php -l "$file"
-          done < <(find . -type f -name '*.php' -print0)
-
-  android-build:
-    name: Android debug build
+      - uses: actions/checkout@v4
+      - name: Run isolated database, HTTP, mail, download and cache tests
+        run: docker compose -f compose.test.yml up --build --abort-on-container-exit --exit-code-from tests
+      - name: Clean disposable containers
+        if: always()
+        run: docker compose -f compose.test.yml down --volumes --remove-orphans
+  android:
+    name: Android build, unit tests and lint
+    if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
     runs-on: ubuntu-latest
-
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: NannyApp.Mobile/NannyApp
-
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: microsoft
           java-version: '21'
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
+      - uses: gradle/actions/setup-gradle@v4
         with:
-          packages: platform-tools platforms;android-34 build-tools;34.0.0
-
-      - name: Make Gradle wrapper executable
+          cache-disabled: true
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: platform-tools platforms;android-37 build-tools;36.0.0
+      - name: Make wrapper executable
         run: chmod +x gradlew
-
-      - name: Assemble debug app
-        run: ./gradlew --no-daemon :app:assembleDebug
+      - name: Debug build, JVM regressions and lint
+        run: ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+      - name: Verify release URL is mandatory
+        shell: bash
+        run: |
+          if ./gradlew --no-daemon :app:validateReleaseApiUrl > "$RUNNER_TEMP/release-url.log" 2>&1; then
+            echo 'Release validation incorrectly accepted a missing URL'
+            exit 1
+          fi
+          grep -F 'NANNYAPP_RELEASE_API_URL must be an absolute HTTPS API URL' "$RUNNER_TEMP/release-url.log"
+      - name: Compile unsigned release with synthetic endpoint
+        run: ./gradlew --no-daemon :app:assembleRelease -PNANNYAPP_RELEASE_API_URL=https://ci.example.invalid/api/
+# No deploy, paid services, signing secrets, scheduled idle runs or artifact uploads.
