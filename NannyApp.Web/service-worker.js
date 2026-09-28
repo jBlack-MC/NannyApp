@@ -1,53 +1,26 @@
-// Basic offline shell for the PWA / APK wrapper.
-const CACHE = 'nannyapp-v9';
-const ASSETS = [
-  './',
-  './index.php',
-  './assets/css/style.css',
-  './assets/js/app.js',
-  './manifest.webmanifest',
-  './assets/img/icon.svg'
-];
-
-// Admin is web-only by design (see is_native_app_request() server-side) —
-// never let admin pages land in the offline cache.
-function isSensitivePath(url) {
-  try {
-    const path = new URL(url).pathname;
-    return path.includes('/admin/') || /\/migrate_v\d+\.php$/.test(path);
-  } catch (e) {
-    return false;
-  }
-}
-
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
+// Only explicitly listed static resources can enter the offline cache.
+const CACHE = 'nannyapp-public-v10';
+const ASSETS = ['./assets/css/style.css', './assets/js/app.js', './manifest.webmanifest', './assets/img/icon.svg'];
+const allowed = new Set(ASSETS.map(path => new URL(path, self.registration.scope).href));
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
-
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-  );
-  self.clients.claim();
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('nannyapp-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
-
-// Network-first for dynamic PHP pages, cache fallback when offline.
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-
-  if (isSensitivePath(e.request.url)) {
-    e.respondWith(fetch(e.request));
-    return;
+self.addEventListener('message', event => {
+  if (event.data?.type === 'LOGOUT') {
+    event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('nannyapp-')).map(key => caches.delete(key)))));
   }
-
-  e.respondWith(
-    fetch(e.request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(e.request).then((r) => r || caches.match('./index.php')))
-  );
+});
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET' || !allowed.has(event.request.url)) return;
+  event.respondWith(fetch(event.request).then(async response => {
+    if (response.ok && !response.redirected && response.type === 'basic' && !/no-store|private/i.test(response.headers.get('Cache-Control') || '')) {
+      const cache = await caches.open(CACHE);
+      await cache.put(event.request, response.clone());
+    }
+    return response;
+  }).catch(() => caches.open(CACHE).then(cache => cache.match(event.request))));
 });

@@ -54,8 +54,8 @@ interface ChildDao {
 
 @Dao
 interface BookingDao {
-    @Query("SELECT * FROM cached_booking ORDER BY dateTime DESC")
-    fun observeAll(): Flow<List<BookingEntity>>
+    @Query("SELECT * FROM cached_booking WHERE parentId = :accountId OR nannyId = :accountId ORDER BY dateTime DESC")
+    fun observeForAccount(accountId: Int): Flow<List<BookingEntity>>
 
     @Query("SELECT * FROM cached_booking WHERE id = :id")
     fun observe(id: Int): Flow<BookingEntity?>
@@ -72,8 +72,8 @@ interface BookingDao {
 
 @Dao
 interface PaymentDao {
-    @Query("SELECT * FROM cached_payment ORDER BY createdAt DESC")
-    fun observeAll(): Flow<List<PaymentEntity>>
+    @Query("SELECT * FROM cached_payment WHERE accountId = :accountId ORDER BY createdAt DESC")
+    fun observeForAccount(accountId: Int): Flow<List<PaymentEntity>>
 
     @Upsert
     suspend fun upsertAll(items: List<PaymentEntity>)
@@ -81,8 +81,8 @@ interface PaymentDao {
 
 @Dao
 interface SavedNannyDao {
-    @Query("SELECT * FROM cached_saved_nanny")
-    fun observeAll(): Flow<List<SavedNannyEntity>>
+    @Query("SELECT * FROM cached_saved_nanny WHERE accountId = :accountId")
+    fun observeForAccount(accountId: Int): Flow<List<SavedNannyEntity>>
 
     @Upsert
     suspend fun upsertAll(items: List<SavedNannyEntity>)
@@ -108,11 +108,11 @@ interface ChatMessageDao {
 
 @Dao
 interface NotificationDao {
-    @Query("SELECT * FROM cached_notification ORDER BY createdAt DESC")
-    fun observeAll(): Flow<List<NotificationEntity>>
+    @Query("SELECT * FROM cached_notification WHERE accountId = :accountId ORDER BY createdAt DESC")
+    fun observeForAccount(accountId: Int): Flow<List<NotificationEntity>>
 
-    @Query("SELECT COUNT(*) FROM cached_notification WHERE isRead = 0")
-    fun observeUnreadCount(): Flow<Int>
+    @Query("SELECT COUNT(*) FROM cached_notification WHERE isRead = 0 AND accountId = :accountId")
+    fun observeUnreadCount(accountId: Int): Flow<Int>
 
     @Upsert
     suspend fun upsertAll(items: List<NotificationEntity>)

@@ -5,56 +5,15 @@ if (is_logged_in()) {
     redirect(dashboard_path(user_role()));
 }
 
-/* ── Rate-limiting table (created once if absent) ───────────────────── */
-try {
-    db()->exec("CREATE TABLE IF NOT EXISTS login_attempts (
-        id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-        ip        VARCHAR(45)  NOT NULL,
-        attempted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        INDEX idx_ip_time (ip, attempted_at)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
-} catch (Throwable) {}
-
-/* ── Rate-limit helpers ─────────────────────────────────────────────── */
-function get_client_ip(): string {
-    $forwardedFor = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '';
-    return $forwardedFor !== ''
-        ? trim(explode(',', $forwardedFor)[0])
-        : ($_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
-}
-
-function count_recent_attempts(string $ip): int {
-    try {
-        $stmt = db()->prepare(
-            "SELECT COUNT(*) FROM login_attempts
-             WHERE ip = ? AND attempted_at > DATE_SUB(NOW(), INTERVAL 15 MINUTE)"
-        );
-        $stmt->execute([$ip]);
-        return (int) $stmt->fetchColumn();
-    } catch (Throwable) { return 0; }
-}
-
-function record_attempt(string $ip): void {
-    try {
-        db()->prepare("INSERT INTO login_attempts (ip) VALUES (?)")->execute([$ip]);
-    } catch (Throwable) {}
-}
-
-function clear_attempts(string $ip): void {
-    try {
-        db()->prepare("DELETE FROM login_attempts WHERE ip = ?")->execute([$ip]);
-    } catch (Throwable) {}
-}
-
 $errors = [];
 $email  = '';
-$ip     = get_client_ip();
+$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     /* ── Brute-force check ────────────────────────────────────────── */
-    if (count_recent_attempts($ip) >= 5) {
+    if (auth_rate_limited('login', (string) ($_POST['email'] ?? ''), 5)) {
         $errors[] = 'Too many login attempts. Please wait 15 minutes and try again.';
     } else {
         $email    = trim($_POST['email'] ?? '');
@@ -65,27 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            // Backward compatibility: old seed/demo databases created these accounts as unverified.
-            if (isset($user['email_verified']) && (int)$user['email_verified'] === 0) {
-                $demoEmails = [
-                    'admin@nanny.app',
-                    'parent@nanny.app',
-                    'james@nanny.app',
-                    'amelia@nanny.app',
-                    'margaret@nanny.app',
-                    'jasmine@nanny.app',
-                ];
-
-                if (in_array(strtolower((string)($user['email'] ?? '')), $demoEmails, true)) {
-                    try {
-                        db()->prepare('UPDATE users SET email_verified = 1 WHERE id = ?')->execute([$user['id']]);
-                        $user['email_verified'] = 1;
-                    } catch (Throwable) {
-                        // Keep normal verification flow if update fails.
-                    }
-                }
-            }
-
             /* ── Suspended check ──────────────────────────────────── */
             if (($user['status'] ?? 'active') === 'suspended') {
                 $errors[] = 'Your account has been suspended. Please contact support.';
@@ -99,9 +37,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = 'Please verify your email address before logging in. Check your inbox for a verification link.';
 
             } else {
-                clear_attempts($ip);
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
+                $_SESSION['auth_password'] = hash('sha256', $user['password_hash']);
 
                 /* ── Remember me ──────────────────────────────────── */
                 if (!empty($_POST['remember'])) {
@@ -116,13 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 redirect(dashboard_path($user['role']));
             }
         } else {
-            record_attempt($ip);
-            $remaining = max(0, 5 - count_recent_attempts($ip));
-            if ($remaining > 0) {
-                $errors[] = 'Incorrect email or password. Please try again. (' . $remaining . ' attempt' . ($remaining === 1 ? '' : 's') . ' remaining)';
-            } else {
-                $errors[] = 'Too many failed attempts. Please wait 15 minutes and try again.';
-            }
+            $errors[] = 'Incorrect email or password. Please try again.';
         }
     }
 }

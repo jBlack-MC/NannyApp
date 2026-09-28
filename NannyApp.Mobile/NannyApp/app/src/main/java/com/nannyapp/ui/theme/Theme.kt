@@ -21,7 +21,7 @@ private val LightColors = lightColorScheme(
     onPrimary = NannySurface,
     primaryContainer = NannyPrimaryContainer,
     onPrimaryContainer = NannyPrimaryDark,
-    secondary = NannySecondary,
+    secondary = Color(0xFF176697),
     onSecondary = NannySurface,
     secondaryContainer = NannySecondaryContainer,
     tertiary = NannyTertiary,
@@ -36,19 +36,27 @@ private val LightColors = lightColorScheme(
 )
 
 private val DarkColors = darkColorScheme(
-    primary = NannyPrimary,
-    onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = NannyPrimaryDark,
-    onPrimaryContainer = Color(0xFFD1E4FF),
-    secondary = NannySecondary,
-    onSecondary = Color(0xFFFFFFFF),
-    background = Color(0xFF111318),
-    onBackground = Color(0xFFE2E2E6),
-    surface = Color(0xFF111318),
-    onSurface = Color(0xFFE2E2E6),
-    surfaceVariant = Color(0xFF43474E),
-    onSurfaceVariant = Color(0xFFC3C7CF),
-    error = NannyError,
+    primary = Color(0xFF8EC9F8),
+    onPrimary = Color(0xFF082E50),
+    primaryContainer = Color(0xFF123F70),
+    onPrimaryContainer = Color(0xFFD9EFFF),
+    secondary = Color(0xFF93CFF5),
+    onSecondary = Color(0xFF07304B),
+    secondaryContainer = Color(0xFF204760),
+    onSecondaryContainer = Color(0xFFD9EFFF),
+    tertiary = Color(0xFF79DDB4),
+    onTertiary = Color(0xFF003824),
+    background = Color(0xFF0F172A),
+    onBackground = Color(0xFFF1F5F9),
+    surface = Color(0xFF1E293B),
+    onSurface = Color(0xFFF1F5F9),
+    surfaceVariant = Color(0xFF28394D),
+    onSurfaceVariant = Color(0xFFB8C8D9),
+    outline = Color(0xFF8C9FB4),
+    error = Color(0xFFFFB4AB),
+    onError = Color(0xFF690005),
+    errorContainer = Color(0xFF93000A),
+    onErrorContainer = Color(0xFFFFDAD6),
 )
 
 @Composable
@@ -68,8 +76,10 @@ fun NannyAppTheme(
         SideEffect {
             val activity = view.context as? Activity ?: return@SideEffect
             val window = activity.window
-            window.statusBarColor = colorScheme.primary.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+            window.statusBarColor = colorScheme.surface.toArgb()
+            window.navigationBarColor = colorScheme.surface.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
+            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
         }
     }
     MaterialTheme(

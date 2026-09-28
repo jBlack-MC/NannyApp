@@ -41,6 +41,8 @@ function db(): PDO
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
         } catch (PDOException $e) {
+            // CLI workers must fail with a nonzero exit, not exit(string)'s success code.
+            if (PHP_SAPI === 'cli') throw $e;
             http_response_code(500);
             error_log('NannyApp database connection failed: ' . $e->getMessage());
             exit('Database connection failed. Check the server configuration and database migration status.');

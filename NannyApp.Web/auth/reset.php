@@ -14,7 +14,7 @@ if ($token) {
         $stmt = db()->prepare(
             'SELECT pr.*, u.full_name, u.email
              FROM password_resets pr JOIN users u ON u.id=pr.user_id
-             WHERE pr.token=? AND pr.expires_at > NOW()'
+             WHERE pr.token=? AND pr.used = 0 AND pr.expires_at > NOW()'
         );
         $stmt->execute([$token]);
         $row = $stmt->fetch();
@@ -50,10 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-        $hash = password_hash($pw1, PASSWORD_DEFAULT);
-        db()->prepare('UPDATE users SET password_hash=? WHERE id=?')->execute([$hash, $row['user_id']]);
-        db()->prepare('DELETE FROM password_resets WHERE token=?')->execute([$token]);
-        $done = true;
+        if (auth_rate_limited('reset', $token, 5)) {
+            $errors[] = 'Too many requests. Try again later.';
+        } elseif (consume_password_reset($token, $pw1)) {
+            $done = true;
+        } else {
+            $errors[] = 'This reset link is invalid or expired.';
+        }
     }
 }
 

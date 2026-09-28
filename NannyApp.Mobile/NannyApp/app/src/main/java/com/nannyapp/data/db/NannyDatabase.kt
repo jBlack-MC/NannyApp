@@ -18,7 +18,7 @@ import com.nannyapp.data.db.entity.*
         NotificationEntity::class,
         AvailabilityEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = false,
 )
 abstract class NannyDatabase : RoomDatabase() {

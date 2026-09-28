@@ -96,6 +96,7 @@ data class BookingEntity(
 
 @Entity(tableName = "cached_payment")
 data class PaymentEntity(
+    @androidx.room.ColumnInfo(defaultValue = "0") val accountId: Int = 0,
     @PrimaryKey val id: Int,
     val bookingId: Int,
     val bookingRef: String?,
@@ -122,6 +123,7 @@ data class ReviewEntity(
 
 @Entity(tableName = "cached_saved_nanny")
 data class SavedNannyEntity(
+    @androidx.room.ColumnInfo(defaultValue = "0") val accountId: Int = 0,
     @PrimaryKey val id: Int,
     val nannyId: Int,
     val createdAt: String,
@@ -139,6 +141,7 @@ data class ChatMessageEntity(
 
 @Entity(tableName = "cached_notification")
 data class NotificationEntity(
+    @androidx.room.ColumnInfo(defaultValue = "0") val accountId: Int = 0,
     @PrimaryKey val id: Int,
     val title: String,
     val message: String,

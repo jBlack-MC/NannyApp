@@ -1,9 +1,13 @@
 # Production launch runbook
 
+Current hosting decision: [free services only](FREE_DEPLOYMENT_PLAN.md). Earlier AWS/VPS provisioning guidance is inactive. Apply the acceptance requirements below to the chosen free host only after its capabilities are verified.
+
+Updated 2026-09-28: deployment instructions corrected; the [pilot plan](PILOT_DEPLOYMENT.md) is authoritative. The operational checks below are requirements, not completed checks. No deployment or live-provider verification is recorded.
+
 ## Before deployment
 
-1. Provision separate staging and production MySQL databases. Import `NannyApp.Shared/database/schema.sql`, then apply migrations in order through `migrate_v5_api.sql`.
-2. Set every value in `.env.production.example` in the host's secret manager. Production must use HTTPS, non-root database credentials, SMTP delivery, and S3-compatible object storage.
+1. Follow [PILOT_DEPLOYMENT.md](PILOT_DEPLOYMENT.md) for the current small-team pilot. Never import `schema.sql` into an existing database: it drops `nanny_app`. Use reviewed non-destructive migrations following `NannyApp.Shared/database/MIGRATION_ORDER.md`, including v6 and optional v7, after a backup and disposable upgrade/restore check. A reviewed fresh-database bootstrap remains outstanding.
+2. Provision applicable environment values outside source control and the document root. Use HTTPS, non-root database credentials and a configured email transport. Resend setup is in [RESEND_INTEGRATION.md](RESEND_INTEGRATION.md); private local storage with off-host backups is acceptable for this pilot, and S3 is optional.
 3. Deploy `NannyApp.Web`, `NannyApp.Mobile/NannyApp/api`, and `NannyApp.Shared` so both PHP applications use the same production database and shared storage configuration. Keep `NannyApp.Shared` outside the public web root.
 4. Set the Android release `API_BASE_URL` to the HTTPS API URL, create a signed release build, and test it on physical devices.
 5. Remove or disable all `@nanny.app` seed/demo accounts. Replace placeholder support, privacy, legal, and emergency contact details with approved business details.
@@ -16,13 +20,13 @@
 - After a checked-out booking, the parent can confirm completion. An admin resolves disputed cases from the web payments screen by releasing or refunding the held amount.
 - Reconcile every recorded payment against the bank/payment reference daily. Do not mark a payment received without independent proof.
 
-## Staging acceptance checklist
+## Pilot release acceptance checklist (outstanding)
 
 - Parent registration, booking, cancellation, messaging, support, and review work.
 - Nanny profile verification, availability, accept/reject, PIN check-in, check-out, and earnings work.
 - Admin functionality works in a browser and admin credentials are rejected by the native API.
 - Booking conflicts, incorrect PIN lockout, cancellation, dispute, manual payment recording, release, and refund are tested.
-- Password reset and verification email delivery are tested against the production SMTP provider.
+- Password reset and verification email delivery are tested against the configured live mail provider.
 - Uploads are private, retrievable through the application, backed up, and not served from the web root.
 
 ## Pilot and go-live

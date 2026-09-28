@@ -1,5 +1,5 @@
 /* ============================================================
-   Nanny-App  •  front-end behaviour
+   Nanny-App  Ã¢â‚¬Â¢  front-end behaviour
    Vanilla JS, no dependencies. Organised into small modules:
    nav, scroll-reveal, toasts, confirm-modal, form feedback, PWA.
    Animations use transform/opacity only (no layout thrash).
@@ -55,7 +55,9 @@
     on(document, 'click', function (e) {
       if (nav.classList.contains('open') && !nav.contains(e.target) && !toggle.contains(e.target)) setNav(false);
     });
-    on(document, 'keydown', function (e) { if (e.key === 'Escape') setNav(false); });
+    on(document, 'keydown', function (e) {
+      if (e.key === 'Escape' && nav.classList.contains('open')) { setNav(false); toggle.focus(); }
+    });
     // Auto-close if window resizes above the mobile breakpoint (768px)
     on(window, 'resize', function () {
       if (window.innerWidth > 768 && nav.classList.contains('open')) setNav(false);
@@ -68,7 +70,7 @@
     var here = location.pathname.replace(/\/index\.php$/, '/');
     nav.querySelectorAll('a').forEach(function (a) {
       var path = a.pathname.replace(/\/index\.php$/, '/');
-      if (path === here) a.classList.add('active');
+      if (path === here) { a.classList.add('active'); a.setAttribute('aria-current', 'page'); }
     });
   })();
 
@@ -319,7 +321,7 @@
       closeBox();
       var box = document.createElement('div');
       box.className = 'simple-lightbox';
-      box.innerHTML = '<button type="button" class="slb-close" aria-label="Close image">×</button>' +
+      box.innerHTML = '<button type="button" class="slb-close" aria-label="Close image">Ãƒâ€”</button>' +
                       '<img src="" alt="Gallery image">';
       box.querySelector('img').src = href;
       document.body.appendChild(box);
@@ -390,7 +392,7 @@
     }
     return stack;
   }
-  var ICONS = { success: '✓', error: '⚠', info: 'ℹ' };
+  var ICONS = { success: 'Ã¢Å“â€œ', error: 'Ã¢Å¡Â ', info: 'Ã¢â€žÂ¹' };
   function showToast(message, type) {
     type = type || 'info';
     var t = document.createElement('div');
@@ -398,7 +400,7 @@
     t.setAttribute('role', 'status');
     t.innerHTML = '<span class="toast-ico">' + (ICONS[type] || ICONS.info) + '</span>' +
                   '<span class="toast-msg"></span>' +
-                  '<button class="toast-close" aria-label="Dismiss">×</button>';
+                  '<button class="toast-close" aria-label="Dismiss">Ãƒâ€”</button>';
     t.querySelector('.toast-msg').textContent = message;
     toastStack().appendChild(t);
     var remove = function () {
@@ -612,7 +614,7 @@
     on(document, 'click', function (e) {
       if (!toggle.contains(e.target) && !menu.contains(e.target)) closeMenu();
     });
-    on(document, 'keydown', function (e) { if (e.key === 'Escape' && isOpen()) closeMenu(); });
+    on(document, 'keydown', function (e) { if (e.key === 'Escape' && isOpen()) { closeMenu(); toggle.focus(); } });
     // On mobile the drawer close already hides the whole nav; sync aria state.
     on(document, 'click', function (e) {
       if (e.target.closest('.menu-btn')) closeMenu();

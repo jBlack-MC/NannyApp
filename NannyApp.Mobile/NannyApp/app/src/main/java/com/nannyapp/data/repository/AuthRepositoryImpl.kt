@@ -11,6 +11,8 @@ import com.nannyapp.domain.repository.RegisterData
 import com.nannyapp.util.Resource
 import com.nannyapp.util.safeApiCall
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.emitAll
@@ -49,7 +51,7 @@ class AuthRepositoryImpl @Inject constructor(
                 val dto = result.data
                 val user = dto.user.asDomain()
                 sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe)
-                userDao.upsert(user.toEntity())
+                sessionManager.withCurrentSession(dto.token) { userDao.upsert(user.toEntity()) }
                 Resource.Success(user)
             }
             is Resource.Error -> result
@@ -74,8 +76,8 @@ class AuthRepositoryImpl @Inject constructor(
         return when (result) {
             is Resource.Success -> {
                 val user = result.data.user.asDomain()
-                sessionManager.saveSession(result.data.token, user.id, user.role, user.fullName, user.email, rememberMe = true)
-                userDao.upsert(user.toEntity())
+                // Registration stays signed out until email verification and a fresh login.
+                sessionManager.clearSession()
                 Resource.Success(user)
             }
             is Resource.Error -> result
@@ -84,8 +86,11 @@ class AuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
-        runCatching { api.logout() }
-        sessionManager.clearSession()
+        try {
+            runCatching { api.logout() }
+        } finally {
+            withContext(NonCancellable) { sessionManager.clearSession() }
+        }
     }
 
     override suspend fun forgotPassword(email: String): Resource<Unit> =

@@ -25,13 +25,13 @@ fun VerificationBadge(verified: Boolean, modifier: Modifier = Modifier) {
     if (!verified) return
     Row(
         modifier = modifier
-            .background(NannySecondaryContainer, RoundedCornerShape(50))
+            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
             .padding(horizontal = 8.dp, vertical = 3.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(Icons.Filled.Verified, contentDescription = "Verified", tint = NannySecondary, modifier = Modifier.size(14.dp))
+        Icon(Icons.Filled.Verified, contentDescription = "Verified", tint = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.size(14.dp))
         Spacer(Modifier.width(4.dp))
-        Text("Verified", fontSize = 11.sp, color = NannySecondary)
+        Text("Verified", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSecondaryContainer)
     }
 }
 

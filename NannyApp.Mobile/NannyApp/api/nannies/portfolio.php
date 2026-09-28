@@ -12,6 +12,7 @@ if ($method === 'GET') {
         require_api_role($me, 'nanny');
         $nannyId = (int) $me['id'];
     }
+    if ((int) $me['id'] !== $nannyId && $me['role'] !== 'admin') json_error('Access denied.', 403);
     $stmt = db()->prepare('SELECT * FROM nanny_portfolio WHERE nanny_id = :id ORDER BY created_at DESC');
     $stmt->execute(['id' => $nannyId]);
     json_response(true, array_map(fn($r) => [

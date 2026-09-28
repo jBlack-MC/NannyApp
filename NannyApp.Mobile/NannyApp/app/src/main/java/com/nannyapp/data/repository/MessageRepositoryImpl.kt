@@ -7,6 +7,7 @@ import com.nannyapp.data.preferences.SessionManager
 import com.nannyapp.domain.model.ChatMessage
 import com.nannyapp.domain.model.Conversation
 import com.nannyapp.domain.repository.MessageRepository
+import com.nannyapp.util.canUseOfflineCache
 import com.nannyapp.util.Resource
 import com.nannyapp.util.safeApiCall
 import kotlinx.coroutines.flow.Flow
@@ -34,40 +35,44 @@ class MessageRepositoryImpl @Inject constructor(
 
     override fun getMessages(withUserId: Int): Flow<Resource<List<ChatMessage>>> = flow {
         emit(Resource.Loading)
-        val myId = sessionManager.currentUserId() ?: 0
-        
-        // Return cached messages first, then fetch new ones
-        val cached = dao.observeThread(myId, withUserId).first()
-        if (cached.isNotEmpty()) {
-            emit(Resource.Success(cached.map { it.asDomain(myId) }))
-        }
-
-        when (val result = safeApiCall { api.getMessages(withUserId) }) {
-            is Resource.Success -> {
-                dao.upsertAll(result.data.map { it.toEntity() })
-                emit(Resource.Success(result.data.map { it.asDomain(myId) }))
+        val token = sessionManager.currentToken()
+        val myId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() }
+            ?: return@flow emit(Resource.Error("Please log in.", code = 401))
+        val result = safeApiCall { api.getMessages(withUserId) }
+        val output = sessionManager.withCurrentSession(token) {
+            when (result) {
+                is Resource.Success -> {
+                    dao.upsertAll(result.data.map { it.toEntity() })
+                    Resource.Success(result.data.map { it.asDomain(myId) })
+                }
+                is Resource.Error -> {
+                    if (result.canUseOfflineCache()) {
+                        val cached = dao.observeThread(myId, withUserId).first()
+                        if (cached.isNotEmpty()) Resource.Success(cached.map { it.asDomain(myId) }) else result
+                    } else result
+                }
+                Resource.Loading -> Resource.Loading
             }
-            is Resource.Error -> {
-                if (cached.isEmpty()) emit(result)
-            }
-            Resource.Loading -> {}
         }
+        emit(output ?: Resource.Error("Your session has changed.", code = 401))
     }
 
     override suspend fun sendMessage(toUserId: Int, content: String): Resource<ChatMessage> {
-        val myId = sessionManager.currentUserId() ?: 0
+        val token = sessionManager.currentToken()
+        val myId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() } ?: return Resource.Error("Please log in.", code = 401)
         val result = safeApiCall { api.sendMessage(SendMessageRequestDto(toUserId, content)) }
         if (result is Resource.Success) {
-            dao.upsert(result.data.toEntity())
+            sessionManager.withCurrentSession(token) { dao.upsert(result.data.toEntity()) }
         }
         return result.map { it.asDomain(myId) }
     }
 
     override suspend fun pollNewMessages(withUserId: Int, sinceId: Int): Resource<List<ChatMessage>> {
-        val myId = sessionManager.currentUserId() ?: 0
+        val token = sessionManager.currentToken()
+        val myId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() } ?: return Resource.Error("Please log in.", code = 401)
         val result = safeApiCall { api.pollMessages(withUserId, sinceId) }
         if (result is Resource.Success) {
-            dao.upsertAll(result.data.map { it.toEntity() })
+            sessionManager.withCurrentSession(token) { dao.upsertAll(result.data.map { it.toEntity() }) }
         }
         return result.map { list -> list.map { it.asDomain(myId) } }
     }
