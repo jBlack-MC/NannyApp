@@ -1,16 +1,4 @@
--- =====================================================================
---  Nanny-App • v5 Migration — mobile API token auth
---  Run AFTER migrate_v4.sql: mysql -u root nanny_app < database/migrate_v5_api.sql
---
---  The existing web app authenticates with PHP sessions (cookies). The
---  native Android app instead authenticates with a bearer token sent in
---  the Authorization header on every /api/ request. This table maps an
---  opaque, randomly-generated token to a user until it's revoked
---  (logout) or expires (90 days of inactivity).
--- =====================================================================
-
-USE nanny_app;
-
+-- Additive MariaDB migration. No demo data or destructive duplicate cleanup.
 CREATE TABLE IF NOT EXISTS api_tokens (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT          NOT NULL,

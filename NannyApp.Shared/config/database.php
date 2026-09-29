@@ -18,7 +18,7 @@ if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
 
 // Where uploaded files (profile photos, verification docs, etc.) live —
 // outside any single app's webroot so web + app share the exact same files.
-if (!defined('SHARED_STORAGE_DIR')) define('SHARED_STORAGE_DIR', __DIR__ . '/../storage');
+if (!defined('SHARED_STORAGE_DIR')) define('SHARED_STORAGE_DIR', getenv('NANNYAPP_STORAGE_DIR') ?: __DIR__ . '/../storage');
 
 require_once __DIR__ . '/storage.php';
 

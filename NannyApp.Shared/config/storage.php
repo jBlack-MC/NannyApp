@@ -51,29 +51,76 @@ function storage_mime_for(string $path): string
 }
 
 /** Store a just-uploaded temp file ($_FILES[...]['tmp_name']) at $relativePath. */
-function storage_store_upload(string $uploadedTmpPath, string $relativePath): bool
+function storage_safe_path(string $path): bool
 {
-    if (STORAGE_DRIVER === 's3') {
-        $body = @file_get_contents($uploadedTmpPath);
-        return $body !== false && s3_put_object($relativePath, $body, storage_mime_for($relativePath));
-    }
-
-    $full = rtrim(SHARED_STORAGE_DIR, '/\\') . '/' . $relativePath;
-    $dir  = dirname($full);
-    if (!is_dir($dir) && !@mkdir($dir, 0775, true) && !is_dir($dir)) {
-        return false;
-    }
-    return move_uploaded_file($uploadedTmpPath, $full);
+    return $path !== '' && !str_contains($path, "\0") && !str_contains($path, '\\')
+        && !str_starts_with($path,'/') && !preg_match('~(^|/)\.\.?(/|$)|:~',$path);
 }
 
-/** Remove a previously stored file (e.g. when replacing an avatar). Best-effort. */
-function storage_delete(string $relativePath): void
+function storage_local_target(string $path): string|false
 {
-    if (STORAGE_DRIVER === 's3') {
-        s3_delete_object($relativePath);
-        return;
+    if (!storage_safe_path($path)) return false;
+    $root=realpath(SHARED_STORAGE_DIR);
+    if ($root===false) return false;
+    $current=$root;
+    foreach (explode('/',$path) as $part) {
+        if ($part==='') return false;
+        $current.='/'.$part;
+        if (is_link($current)) return false;
     }
-    @unlink(rtrim(SHARED_STORAGE_DIR, '/\\') . '/' . $relativePath);
+    return $current;
+}
+
+/** Caller holds the storage lock, covering both quota calculation and the move. */
+function storage_has_capacity(int $incoming): bool
+{
+    $limit=filter_var(getenv('NANNYAPP_STORAGE_QUOTA_BYTES') ?: '104857600',FILTER_VALIDATE_INT);
+    $reserve=filter_var(getenv('NANNYAPP_STORAGE_RESERVE_BYTES') ?: '20971520',FILTER_VALIDATE_INT);
+    if ($limit===false || $reserve===false || $limit<1 || $reserve<0 || $incoming<0) return false;
+    $used=0;
+    try {
+        $files=new RecursiveIteratorIterator(new RecursiveDirectoryIterator(SHARED_STORAGE_DIR,FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            if ($file->isLink()) return false;
+            if ($file->isFile()) $used+=$file->getSize();
+            if ($used+$incoming>$limit) return false;
+        }
+        $free=disk_free_space(SHARED_STORAGE_DIR);
+        return $used+$incoming<=$limit && $free!==false && $free-$incoming>=$reserve;
+    } catch (Throwable $e) { return false; }
+}
+
+function storage_store_upload(string $uploadedTmpPath, string $relativePath): bool
+{
+    if (!storage_safe_path($relativePath) || !is_uploaded_file($uploadedTmpPath)) return false;
+    if (STORAGE_DRIVER==='s3') {
+        $body=@file_get_contents($uploadedTmpPath);
+        return $body!==false && s3_put_object($relativePath,$body,storage_mime_for($relativePath));
+    }
+    if (!is_dir(SHARED_STORAGE_DIR) && !@mkdir(SHARED_STORAGE_DIR,0700,true)) return false;
+    $full=storage_local_target($relativePath);
+    if ($full===false || file_exists($full)) return false;
+    $lock=@fopen(SHARED_STORAGE_DIR.'/.quota.lock','c');
+    if (!$lock) return false;
+    try {
+        if (!flock($lock,LOCK_EX)) return false;
+        $size=filesize($uploadedTmpPath);
+        if ($size===false || !storage_has_capacity($size)) return false;
+        $dir=dirname($full);
+        if (!is_dir($dir) && !@mkdir($dir,0700,true) && !is_dir($dir)) return false;
+        if (!move_uploaded_file($uploadedTmpPath,$full)) return false;
+        @chmod($full,0600);
+        return true;
+    } finally { flock($lock,LOCK_UN);fclose($lock); }
+}
+
+/** Idempotent delete: missing objects count as success; failures stay in the deletion queue. */
+function storage_delete(string $relativePath): bool
+{
+    if (!storage_safe_path($relativePath)) return false;
+    if (STORAGE_DRIVER==='s3') return s3_delete_object($relativePath);
+    $full=storage_local_target($relativePath);
+    return $full!==false && (!file_exists($full) || (is_file($full) && @unlink($full)));
 }
 
 /**

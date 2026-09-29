@@ -5,6 +5,7 @@ Use these current documents rather than historical infrastructure suggestions.
 | Document | Purpose |
 | --- | --- |
 | [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md) | Authoritative zero-paid-services constraint, free-host evaluation and owner actions |
+| [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md) | Booking/ledger policy, durable workers, storage limits and migration rollout |
 | [AUTOMATION.md](AUTOMATION.md) | Local Docker/non-Docker checks, CI setup and Android release configuration |
 | [LAUNCH_READINESS_AUDIT.md](LAUNCH_READINESS_AUDIT.md) | Completed source work versus remaining real-host/device/operations gates |
 | [CODE_REVIEW_2026-09-27.md](CODE_REVIEW_2026-09-27.md) | Original findings with dated remediation updates; historical lines may have moved |

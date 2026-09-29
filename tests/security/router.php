@@ -1,6 +1,6 @@
 <?php
 // Only for the disposable regression server. Never deploy this router.
-if (!preg_match('/^nanny_security_test_[a-f0-9]{12}$/', getenv('NANNYAPP_DB_NAME') ?: '')) exit;
+if (!preg_match('/^nanny_(?:security|operations)_test_[a-f0-9]{12}$/', getenv('NANNYAPP_DB_NAME') ?: '')) exit;
 define('SHARED_STORAGE_DIR', getenv('NANNYAPP_TEST_STORAGE'));
 if (($_GET['test_driver'] ?? '') === 's3') {
     define('STORAGE_DRIVER', 's3');

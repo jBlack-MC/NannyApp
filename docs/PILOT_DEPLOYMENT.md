@@ -21,11 +21,11 @@ are not provided. This plan assumes a small invitation-only pilot that fits on o
 host, not a public-scale launch. Resolve the high-severity items in
 `CODE_REVIEW_2026-09-27.md` before expanding the pilot.
 
-## AWS selection - 2026-09-28
+## Historical AWS selection - superseded
 
-AWS is now selected. Use one Lightsail Linux host for PHP/MariaDB and private S3 for uploads; the local-storage option below remains a development/rollback alternative. Follow [AWS_OWNER_CHECKLIST.md](AWS_OWNER_CHECKLIST.md) for owner account actions, storage configuration and app publishing. No resources have been provisioned. iPhone/iPad and other devices are served through the installable web app; a native iOS client remains separate work.
+AWS is not the active deployment plan. The earlier Lightsail/private-S3 proposal and [AWS_OWNER_CHECKLIST.md](AWS_OWNER_CHECKLIST.md) are historical references only; follow [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md). No resources have been provisioned. iPhone/iPad and other devices are served through the installable web app; a native iOS client remains separate work.
 
-## Where it runs
+## Historical paid-host layout (not the current selection)
 
 Use one managed Linux VPS in one region near the pilot users, with Apache 2.4,
 PHP-FPM, and a supported MariaDB package bound to loopback. Use PHP 8.3 initially
@@ -79,12 +79,10 @@ keystore/secret storage. Set a real release API URL before building the signed A
 
 1. Build one immutable artifact from a reviewed revision. Run PHP lint, the
    disposable security/mail tests, Android unit tests/debug assembly and the
-   known-failing lint gate after fixing its WorkManager error. Smoke the artifact
+   lint gate (WorkManager initialization has been fixed; current local lint passes). Smoke the artifact
    locally with synthetic data; don't copy customer data into developer databases.
 2. Back up the live database and upload inventory; confirm a recent restore test
-   to a separate disposable database. **Never import the development `schema.sql` into an existing database:
-   it drops `nanny_app`.** Use reviewed additive
-   migrations, including v6 and v7 when enabling the new features.
+   to a separate disposable database. Use the [CLI migration runner](../NannyApp.Shared/database/MIGRATION_ORDER.md), including v8 for operational queues. Historical `schema.sql` revisions dropped the database and must not be reused.
 3. Unpack into `/srv/nannyapp/releases/<revision>` and wire persistent storage,
    sessions and environment. Validate configuration, schema compatibility and
    route permissions on a loopback-only candidate virtual host. Do not test by

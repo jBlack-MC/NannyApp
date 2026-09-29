@@ -21,13 +21,17 @@ HelioHost advertises PHP, databases and 1000 MB of free storage on its [official
 
 No permanent free production host has yet passed this application's acceptance checks. A shared free host must not be used for real identity documents merely because signup succeeds.
 
+## Local code readiness
+
+Use [the safe CLI migration runner](../NannyApp.Shared/database/MIGRATION_ORDER.md) for fresh setup and upgrades. It creates no demo accounts and no longer drops databases or silently removes conflicting records. Both web and API now use shared booking validation, overlap locks and transactional manual-ledger rules. See [Phase 1 operating rules](PHASE1_OPERATIONS.md) for allowed actions, post-release dispute policy and required workers. Source completion does not certify a free host or replace physical-device and restore checks.
+
 ## Owner checklist
 
 - [ ] Register only for the free hosting plan if a slot is available. Choose its free subdomain; no purchased domain needed for evaluation.
 - [ ] Confirm that the provider permits the intended pilot/commercial activity, native API clients and APK distribution under the free plan.
 - [ ] Confirm HTTPS on the supplied subdomain, a supported PHP runtime, PDO MySQL/MariaDB and the database engine/version. Existing migrations contain MariaDB-specific syntax; validate compatibility on a disposable database first.
 - [ ] Confirm private directories outside the public root, required Apache deny rules, PHP sessions, upload-size limits and database/file export access.
-- [ ] Confirm scheduled CLI jobs if using the Resend worker, outbound HTTPS/cURL, and provider email/sender limits. Do not expose the CLI worker as an unauthenticated web endpoint to bypass missing scheduling.
+- [ ] Confirm scheduled private CLI jobs for notification delivery and storage deletion (plus Resend if selected), outbound HTTPS/cURL, and provider email/sender limits. Do not expose the CLI worker as an unauthenticated web endpoint to bypass missing scheduling.
 - [ ] Record account inactivity/renewal rules, disk/CPU/transfer quotas, backup availability and suspension behavior. Never enable automatic paid upgrades.
 - [ ] Share the non-secret subdomain, engine/version and limits with the developer. Provision secrets securely on the host; do not paste passwords/keys into chat.
 - [ ] Test using synthetic users/files first: web and native API login, mail verification/recovery, authorized uploads, unrelated-user denial, download headers, migrations and restore.
@@ -38,7 +42,7 @@ No permanent free production host has yet passed this application's acceptance c
 
 Set `NANNYAPP_STORAGE_DRIVER=local`. Keep uploads in the shared private storage directory outside the host's public root and serve them only through the existing authorized media controllers. Keep ownership and relative file paths in MariaDB; file bytes stay on disk. No second database, S3, public photo-sharing site or public Drive link is needed.
 
-Database, uploads, backups left on the host and APK releases compete for limited space. Set an upload/storage budget after measuring the deployed footprint, monitor it, remove temporary files and reject additional uploads safely before exhausting disk. A total storage-quota guard is still implementation work; the current upload-size limit alone is not sufficient. Fix orphan-file deletion and verify backup/restore before depending on this arrangement for real documents.
+Database, uploads, backups left on the host and APK releases compete for limited space. Set an upload/storage budget after measuring the deployed footprint, monitor it, remove temporary files and reject additional uploads safely before exhausting disk. The local upload guard now serializes writes against a configurable total upload-directory quota (100 MiB default) and free-disk reserve (20 MiB default). Document deletion queues stored keys for a retryable worker. These limits do not discover the provider account quota; choose a conservative budget and verify backup/restore. See [Phase 1 operating rules](PHASE1_OPERATIONS.md).
 
 ## Services not selected
 

@@ -28,6 +28,7 @@ if ($method === 'POST') {
     }
     $type = $_POST['type'] ?? 'other';
     $title = $_POST['title'] ?? 'Document';
+    if (!is_string($title) || trim($title)==='' || strlen($title)>150 || !in_array($type,['certificate','id','photo','reference','other'],true)) json_error('Invalid document title or type.',400);
 
     $result = save_uploaded_image($_FILES['file'], 'portfolio');
     if (!($result['ok'] ?? false)) {
@@ -37,7 +38,8 @@ if ($method === 'POST') {
     $stmt = db()->prepare(
         'INSERT INTO nanny_portfolio (nanny_id, type, title, file_path, admin_verified) VALUES (:nid, :type, :title, :path, 0)'
     );
-    $stmt->execute(['nid' => $me['id'], 'type' => $type, 'title' => $title, 'path' => $result['path']]);
+    try { $stmt->execute(['nid' => $me['id'], 'type' => $type, 'title' => $title, 'path' => $result['path']]); }
+    catch (Throwable $e) { storage_delete($result['path']); json_error('Could not save document.',503); }
     $id = (int) db()->lastInsertId();
 
     json_response(true, [
@@ -49,9 +51,11 @@ if ($method === 'POST') {
 if ($method === 'DELETE') {
     require_api_role($me, 'nanny');
     $id = (int) ($_GET['id'] ?? 0);
-    db()->prepare('DELETE FROM nanny_portfolio WHERE id = :id AND nanny_id = :nid')
-        ->execute(['id' => $id, 'nid' => $me['id']]);
-    json_response(true, null);
+    require_once __DIR__ . '/../../../../NannyApp.Shared/config/storage_jobs.php';
+    try {
+        if (!delete_portfolio_document(db(),(int)$me['id'],$id)) json_error('Document not found.',404);
+    } catch (Throwable $e) { json_error('Could not delete document.',503); }
+    json_response(true,(object)[]);
 }
 
 json_error('Method not allowed.', 405);

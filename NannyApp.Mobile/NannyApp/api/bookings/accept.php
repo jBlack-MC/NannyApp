@@ -1,25 +1,17 @@
 <?php
-/** POST /api/bookings/accept.php { bookingId } — nanny accepts a pending request.
- * Generates the one-time check-in PIN shown only to the parent. */
 require_once __DIR__ . '/../_bootstrap.php';
 require_once __DIR__ . '/_serialize.php';
-$me = require_api_auth();
-require_api_role($me, 'nanny');
+require_once __DIR__ . '/../../../../NannyApp.Shared/config/bookings.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_error('POST required.',405);
+$me=require_api_auth();
+$b=json_body();
+$id=filter_var($b['bookingId']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+if (!$id) json_error('Invalid booking ID.',400);
+try {
+    transition_booking(db(),(int)$me['id'],$id,'accept',$b);
+} catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
+catch (Throwable $e) { json_error('Could not update booking. Please retry.',503); }
 
-$bookingId = (int) (json_body()['bookingId'] ?? 0);
-$stmt = db()->prepare('SELECT * FROM bookings WHERE id = :id AND nanny_id = :nid');
-$stmt->execute(['id' => $bookingId, 'nid' => $me['id']]);
-$booking = $stmt->fetch();
-
-if (!$booking) json_error('Booking not found.', 404);
-if ($booking['status'] !== 'pending') json_error('This booking can no longer be accepted.', 409);
-
-$code = generate_check_in_code();
-db()->prepare("UPDATE bookings SET status = 'confirmed', check_in_code = :code WHERE id = :id")
-    ->execute(['code' => $code, 'id' => $bookingId]);
-
-notify((int) $booking['parent_id'], 'Booking confirmed', 'Your nanny confirmed the booking. Your check-in PIN is ready.', '/parent/bookings.php');
-
-$stmt = db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id = :id');
-$stmt->execute(['id' => $bookingId]);
-json_response(true, serialize_booking($stmt->fetch(), $me));
+$stmt=db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id=?');
+$stmt->execute([$id]);
+json_response(true,serialize_booking($stmt->fetch(),$me));

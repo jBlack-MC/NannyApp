@@ -6,54 +6,14 @@ auto_release_stale_payments();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
-    $bookingId = (int) ($_POST['booking_id'] ?? 0);
-    $action    = $_POST['action'] ?? '';
-
-    if ($action === 'record_received' && $bookingId) {
-        $upd = db()->prepare(
-            "UPDATE payments SET status='paid', payout_status='held'
-             WHERE booking_id=? AND status='pending' AND method='manual'"
-        );
-        $upd->execute([$bookingId]);
-        $info = db()->prepare('SELECT nanny_id FROM bookings WHERE id=?');
-        $info->execute([$bookingId]);
-        if ($upd->rowCount() && ($b = $info->fetch())) {
-            notify((int) $b['nanny_id'], 'Payment recorded', 'A manual payment has been recorded and is held pending completion of the booking.', 'nanny/earnings.php');
-        }
-        flash($upd->rowCount() ? 'Manual payment recorded and held for this booking.' : 'No pending manual payment was found for this booking.', $upd->rowCount() ? 'success' : 'error');
-    } elseif ($action === 'release' && $bookingId) {
-        db()->prepare("UPDATE bookings SET status='completed', parent_confirmed_at=NOW() WHERE id=? AND status IN ('in_progress','disputed')")
-            ->execute([$bookingId]);
-        $upd = db()->prepare(
-            "UPDATE payments SET payout_status='released', released_at=NOW()
-             WHERE booking_id=? AND status='paid' AND payout_status IN ('held')"
-        );
-        $upd->execute([$bookingId]);
-        $info = db()->prepare('SELECT nanny_id, date_time FROM bookings WHERE id=?');
-        $info->execute([$bookingId]);
-        if ($b = $info->fetch()) {
-            notify((int) $b['nanny_id'], 'Payment released',
-                'An admin reviewed booking #' . $bookingId . ' and released the held payment to you.', 'nanny/earnings.php');
-        }
-        flash($upd->rowCount() ? 'Payment released to the nanny.' : 'Nothing to release for that booking.', $upd->rowCount() ? 'success' : 'error');
-    } elseif ($action === 'refund' && $bookingId) {
-        db()->prepare("UPDATE bookings SET status='cancelled' WHERE id=? AND status IN ('in_progress','disputed','confirmed')")
-            ->execute([$bookingId]);
-        $upd = db()->prepare(
-            "UPDATE payments SET status='refunded', payout_status='refunded'
-             WHERE booking_id=? AND status='paid'"
-        );
-        $upd->execute([$bookingId]);
-        $info = db()->prepare('SELECT parent_id, nanny_id, date_time FROM bookings WHERE id=?');
-        $info->execute([$bookingId]);
-        if ($b = $info->fetch()) {
-            notify((int) $b['parent_id'], 'Payment refunded',
-                'An admin reviewed booking #' . $bookingId . ' and refunded your payment.', 'parent/payments.php');
-            notify((int) $b['nanny_id'], 'Booking refunded',
-                'An admin reviewed booking #' . $bookingId . ' and refunded the parent — no payment will be released for this job.', 'nanny/bookings.php');
-        }
-        flash($upd->rowCount() ? 'Payment refunded to the parent.' : 'Nothing to refund for that booking.', $upd->rowCount() ? 'success' : 'error');
-    }
+    require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
+    try {
+        $action=$_POST['action']??'';
+        if (!in_array($action,['record_received','release','refund'],true)) throw new BookingError('Invalid action.',400);
+        transition_booking(db(),(int)current_user()['id'],(int)($_POST['booking_id']??0),$action);
+        flash('Manual ledger updated. No bank transfer was made.');
+    } catch (BookingError $e) { flash($e->getMessage(),'error'); }
+    catch (Throwable $e) { flash('Could not update ledger. Please retry.','error'); }
     redirect('admin/payments.php');
 }
 

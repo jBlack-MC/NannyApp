@@ -27,21 +27,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'delete_doc') {
         $docId = (int) ($_POST['doc_id'] ?? 0);
         try {
-            $doc = db()->prepare('SELECT file_path FROM nanny_portfolio WHERE id=? AND nanny_id=?');
-            $doc->execute([$docId, $me]);
-            if ($row = $doc->fetch()) {
-                @unlink(__DIR__ . '/../' . $row['file_path']);
-                db()->prepare('DELETE FROM nanny_portfolio WHERE id=?')->execute([$docId]);
-                flash('Document removed.');
-            }
-        } catch (Throwable $e) {}
+            require_once __DIR__ . '/../../NannyApp.Shared/config/storage_jobs.php';
+            flash(delete_portfolio_document(db(),(int)$me,$docId) ? 'Document removed; stored file queued for deletion.' : 'Document not found.');
+        } catch (Throwable $e) { flash('Could not delete document. Please retry.','error'); }
         redirect('nanny/profile.php');
     }
 
     if ($action === 'upload_doc') {
-        $title   = trim($_POST['doc_title'] ?? '');
+        $title = is_string($_POST['doc_title']??null) ? trim($_POST['doc_title']) : '';
         $docType = $_POST['doc_type'] ?? 'certificate';
-        if ($title && isset($_FILES['doc_file'])) {
+        if ($title && strlen($title)<=150 && in_array($docType,['certificate','id','photo','reference','other'],true) && isset($_FILES['doc_file'])) {
             $up = save_uploaded_image($_FILES['doc_file'], 'uploads/docs');
             if ($up['ok']) {
                 try {
@@ -49,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'INSERT INTO nanny_portfolio (nanny_id, type, title, file_path) VALUES (?,?,?,?)'
                     )->execute([$me, $docType, $title, $up['path']]);
                     flash('Document uploaded.');
-                } catch (Throwable $e) { flash('Could not save document.', 'error'); }
+                } catch (Throwable $e) { storage_delete($up['path']); flash('Could not save document.', 'error'); }
             } else {
                 flash($up['error'] ?? 'Upload failed.', 'error');
             }

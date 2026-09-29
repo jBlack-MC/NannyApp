@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli' || getenv('NANNYAPP_ALLOW_DEMO_SEED') !== 'true') { http_response_code(404); exit; }
 /**
  * Demo data seeder — South African platform data.
  * Admin-only. Run once. Safe to re-run (duplicate rows skipped via INSERT IGNORE / try-catch).

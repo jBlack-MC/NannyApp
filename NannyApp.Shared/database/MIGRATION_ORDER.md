@@ -1,26 +1,21 @@
-# Database migration order
+# Safe database setup and migrations
 
-`schema.sql` creates a local development database, including demo accounts. It
-starts with `DROP DATABASE`, so it must **never** be run against staging or
-production.
+Use MariaDB 10.11 (the tested runtime). Create an empty database and migration account in the host panel; the runner never creates, selects a hard-coded database, drops or clears an application database. Back up an existing database and test its upgrade on a disposable copy first.
 
-For a new local database:
+Set `NANNYAPP_DB_HOST`, `NANNYAPP_DB_PORT`, `NANNYAPP_DB_NAME`, `NANNYAPP_DB_USER` and `NANNYAPP_DB_PASS` in the process environment, then from the repository root run:
 
-1. Import `schema.sql`.
-2. Run `migrate_v2.sql`.
-3. Run `migrate_v3.sql`.
-4. Run `migrate_v4.sql`.
-5. Run `migrate_v5_api.sql` for the native API bearer-token table.
-6. Apply `phase1_constraints.sql` and `phase2_authentication.sql` only after
-   reviewing their notes and taking a backup.
-7. Apply `migrate_v6_security.sql` before deploying the security fixes. It adds
-   persistent rate-limit storage and ensures recovery/verification columns exist.
-   See `tests/security/README.md` at the repository root for rollout and tests.
-8. Apply `migrate_v7_email_outbox.sql` before selecting the optional `resend`
-   mail transport. See `docs/RESEND_INTEGRATION.md` for worker setup.
+```sh
+php NannyApp.Shared/bin/migrate.php
+```
 
-Before every non-local migration: back up the database, apply the migration to
-staging first, verify parent/nanny/admin flows, then record the filename and
-deployment date in the release notes. This repository does not yet include an
-automated migration runner or database-version table; add one before frequent
-production releases.
+The database name and user must be explicit. This command is CLI-only. Historical web migration URLs now return 404. `.env.production.example` is a reference, not an automatically loaded dotenv file.
+
+The order is schema, v2, v3, v4, v5, phase1 constraints, phase2 authentication, v6 security, v7 email outbox, v8 operational queues. `schema.sql` is now an idempotent empty schema, with no DROP DATABASE, database selection or demo accounts. Older revisions of this file were destructive: do not use downloaded old copies. Demo seed scripts are not part of setup and must not be shipped to production.
+
+A database advisory lock prevents concurrent migration runners. `schema_migrations` stores filenames and normalized checksums; a changed applied migration is rejected. Future changes require a new migration file. Existing installations without a migration table are adopted through idempotent statements. Unique-index conflicts fail without deleting duplicates; review and resolve conflicting records separately, then retry. No ALTER IGNORE or silent data repair is performed. Historical demo verification/admin backfills and marketing copy inserts have been removed.
+
+MariaDB DDL auto-commits. An interrupted upgrade can leave some additive changes applied; it does not pretend to roll back DDL. Resolve the reported failure and rerun the same files. Take a backup before schema changes, including enum expansion. Schema drift and missing legacy columns can require manual investigation; do not change checksums to bypass an error.
+
+Bootstrap creates no admin or other accounts. Register an owner account and grant the intended administrative access through a separately authorized administrative procedure before a pilot. Keep migration credentials separate from the application's data-only user.
+
+Validation: `tests/security/migrations.test.php` uses randomly named disposable schemas to exercise fresh setup, populated repeats, legacy adoption, checksum refusal and conflicting-data preservation. These tests do not replace a restore drill for a real hosting account.

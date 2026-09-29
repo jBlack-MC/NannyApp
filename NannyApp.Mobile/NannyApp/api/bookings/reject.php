@@ -1,21 +1,15 @@
 <?php
-/** POST /api/bookings/reject.php { bookingId } — nanny declines a pending request. */
 require_once __DIR__ . '/../_bootstrap.php';
-$me = require_api_auth();
-require_api_role($me, 'nanny');
+require_once __DIR__ . '/_serialize.php';
+require_once __DIR__ . '/../../../../NannyApp.Shared/config/bookings.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_error('POST required.',405);
+$me=require_api_auth();
+$b=json_body();
+$id=filter_var($b['bookingId']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+if (!$id) json_error('Invalid booking ID.',400);
+try {
+    transition_booking(db(),(int)$me['id'],$id,'reject',$b);
+} catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
+catch (Throwable $e) { json_error('Could not update booking. Please retry.',503); }
 
-$bookingId = (int) (json_body()['bookingId'] ?? 0);
-$stmt = db()->prepare('SELECT * FROM bookings WHERE id = :id AND nanny_id = :nid');
-$stmt->execute(['id' => $bookingId, 'nid' => $me['id']]);
-$booking = $stmt->fetch();
-
-if (!$booking) json_error('Booking not found.', 404);
-if ($booking['status'] !== 'pending') json_error('This booking can no longer be rejected.', 409);
-
-db()->prepare("UPDATE bookings SET status = 'rejected' WHERE id = :id")->execute(['id' => $bookingId]);
-db()->prepare("UPDATE payments SET status = 'refunded', payout_status = 'refunded' WHERE booking_id = :id AND status = 'paid'")
-    ->execute(['id' => $bookingId]);
-
-notify((int) $booking['parent_id'], 'Booking declined', 'Unfortunately the nanny could not accept this booking. Any payment has been refunded.', '/parent/bookings.php');
-
-json_response(true, null);
+json_response(true,(object)[]);

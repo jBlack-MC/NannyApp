@@ -1,19 +1,5 @@
--- =====================================================================
---  Nanny-App  •  Database schema + seed data
---  Engine : MySQL / MariaDB (XAMPP)
---  Usage  : mysql -u root < database/schema.sql
---           or import this file via phpMyAdmin.
---  All seed accounts use the password:  Password123!
--- =====================================================================
-
-DROP DATABASE IF EXISTS nanny_app;
-CREATE DATABASE nanny_app CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE nanny_app;
-
--- ---------------------------------------------------------------------
---  users  (one row per account, role drives the "live role")
--- ---------------------------------------------------------------------
-CREATE TABLE users (
+-- Empty application schema. Select/create the target database separately. No demo accounts.
+CREATE TABLE IF NOT EXISTS users (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     full_name       VARCHAR(100)    NOT NULL,
     email           VARCHAR(150)    NOT NULL UNIQUE,
@@ -32,7 +18,7 @@ CREATE TABLE users (
 -- ---------------------------------------------------------------------
 --  parent_profiles  (1:1 with a user whose role = 'parent')
 -- ---------------------------------------------------------------------
-CREATE TABLE parent_profiles (
+CREATE TABLE IF NOT EXISTS parent_profiles (
     id                 INT AUTO_INCREMENT PRIMARY KEY,
     user_id            INT          NOT NULL UNIQUE,
     emergency_contact  VARCHAR(20)  DEFAULT NULL,
@@ -43,7 +29,7 @@ CREATE TABLE parent_profiles (
 -- ---------------------------------------------------------------------
 --  nanny_profiles  (1:1 with a user whose role = 'nanny')
 -- ---------------------------------------------------------------------
-CREATE TABLE nanny_profiles (
+CREATE TABLE IF NOT EXISTS nanny_profiles (
     id                  INT AUTO_INCREMENT PRIMARY KEY,
     user_id             INT             NOT NULL,
     bio                 TEXT,
@@ -61,7 +47,7 @@ CREATE TABLE nanny_profiles (
 -- ---------------------------------------------------------------------
 --  bookings  (parent books a nanny)
 -- ---------------------------------------------------------------------
-CREATE TABLE bookings (
+CREATE TABLE IF NOT EXISTS bookings (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     parent_id   INT             NOT NULL,
     nanny_id    INT             NOT NULL,
@@ -78,7 +64,7 @@ CREATE TABLE bookings (
 -- ---------------------------------------------------------------------
 --  payments  (1:1 with a booking)
 -- ---------------------------------------------------------------------
-CREATE TABLE payments (
+CREATE TABLE IF NOT EXISTS payments (
     id              INT AUTO_INCREMENT PRIMARY KEY,
     booking_id      INT             NOT NULL,
     amount          DECIMAL(10,2)   NOT NULL,
@@ -92,7 +78,7 @@ CREATE TABLE payments (
 -- ---------------------------------------------------------------------
 --  chat_messages  (M:M between users)
 -- ---------------------------------------------------------------------
-CREATE TABLE chat_messages (
+CREATE TABLE IF NOT EXISTS chat_messages (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     sender_id   INT             NOT NULL,
     receiver_id INT             NOT NULL,
@@ -106,7 +92,7 @@ CREATE TABLE chat_messages (
 -- ---------------------------------------------------------------------
 --  reviews  (1:1 with a completed booking)
 -- ---------------------------------------------------------------------
-CREATE TABLE reviews (
+CREATE TABLE IF NOT EXISTS reviews (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     booking_id  INT             NOT NULL,
     reviewer_id INT             NOT NULL,
@@ -122,7 +108,7 @@ CREATE TABLE reviews (
 -- ---------------------------------------------------------------------
 --  notifications  (in-app notifications per user)
 -- ---------------------------------------------------------------------
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     user_id     INT             NOT NULL,
     title       VARCHAR(150)    NOT NULL,
@@ -135,45 +121,3 @@ CREATE TABLE notifications (
 
 -- ---------------------------------------------------------------------
 --  contact_messages  (public "Contact us" form submissions)
--- ---------------------------------------------------------------------
-CREATE TABLE contact_messages (
-    id          INT AUTO_INCREMENT PRIMARY KEY,
-    name        VARCHAR(100)    NOT NULL,
-    email       VARCHAR(150)    NOT NULL,
-    subject     VARCHAR(150)    DEFAULT NULL,
-    message     VARCHAR(2000)   NOT NULL,
-    created_at  TIMESTAMP       DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
--- =====================================================================
---  SEED DATA   (password for every account below = Password123!)
--- =====================================================================
-SET @pw = '$2y$10$tsFm/578qCWodJOPBwCJ0OYdTjA9FjOKQT/vZwgt.xdFiPQKRWu66';
-
--- Admin
-INSERT INTO users (full_name, email, phone, password_hash, role, email_verified) VALUES
-('Site Administrator', 'admin@nanny.app', '0670000000', @pw, 'admin', 1);
-
--- Parents
-INSERT INTO users (full_name, email, phone, password_hash, role, email_verified) VALUES
-('Thandi Nkosi',  'parent@nanny.app', '0671111111', @pw, 'parent', 1),
-('James Carter',  'james@nanny.app',  '0672222222', @pw, 'parent', 1);
-
--- Nannies (users)
-INSERT INTO users (full_name, email, phone, password_hash, role, email_verified) VALUES
-('Amelia Carter',   'amelia@nanny.app',   '0673333333', @pw, 'nanny', 1),
-('Margaret Lopez',  'margaret@nanny.app', '0674444444', @pw, 'nanny', 1),
-('Jasmine Williams','jasmine@nanny.app',  '0675555555', @pw, 'nanny', 1);
-
--- Nanny profiles (link to the nanny users created above)
-INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, skills, availability, verification_status, average_rating)
-SELECT id, 'Certified early-childhood educator who loves crafts, story-time and outdoor play.', 8, 22.00, 'Brooklyn, NY', 'Newborn care,Tutoring', 'Weekdays', 'verified', 0.00
-FROM users WHERE email='amelia@nanny.app';
-
-INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, skills, availability, verification_status, average_rating)
-SELECT id, 'Grandmother of four with 20+ years caring for little ones in cozy, structured days.', 22, 28.00, 'Queens, NY', 'Cooking,Bilingual', 'Weekends', 'verified', 5.00
-FROM users WHERE email='margaret@nanny.app';
-
-INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, skills, availability, verification_status, average_rating)
-SELECT id, 'Energetic and playful - perfect for active toddlers who love music and movement.', 4, 18.00, 'Manhattan, NY', 'Music,Arts & crafts', 'Flexible', 'pending', 4.00
-FROM users WHERE email='jasmine@nanny.app';
