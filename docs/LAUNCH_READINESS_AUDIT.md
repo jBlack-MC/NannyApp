@@ -17,6 +17,13 @@ See [AUTOMATION.md](AUTOMATION.md). Public hosting, real mail/storage verificati
 - [x] Synthetic disputed/recent candidates, competing release workers and injected payment-write failure regressions pass in the full Docker suite.
 - [ ] Booking creation validation, serialized overlap checks and all manual status/ledger transitions remain open (P08/P09). In particular, disputes raised after release still need an explicit ledger policy; notification delivery is not yet durable.
 
+## GitHub Actions - 2026-09-29
+
+- [x] Diagnosed existing remote failures: GitHub account billing lock prevents jobs starting; see [automation troubleshooting](AUTOMATION.md).
+- [x] Added weekly CI and workflow-validation schedules; pinned Ubuntu 24.04 and retained free-only gates. Both workflow files pass local actionlint 1.7.12 validation.
+- [x] Added read-only `tests/check-actions.py` and CI result summaries; diagnostic verified against the real failed run and updated YAML passes actionlint.
+- [ ] Owner resolves GitHub account restriction without enabling paid overages, pushes updated workflows and verifies new runs. Local checks remain available.
+
 ## Budget constraint: free services only
 
 Follow [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md). AWS provisioning and paid store/domain enrollment are inactive. Use local tests, evaluate a free PHP/database host with its HTTPS subdomain, keep uploads private using the local storage driver, and distribute through direct Android download and the web app. Hosting/email/privacy compatibility remains unverified; this is not launch approval.

@@ -3,6 +3,8 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "23 4 * * 1"
 permissions:
   contents: read
 concurrency:
@@ -12,19 +14,26 @@ jobs:
   security:
     name: PHP and synthetic security tests
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - name: Run isolated database, HTTP, mail, download and cache tests
+        id: tests
         run: python3 tests/docker-checks.py
       - name: Clean disposable containers
         if: always()
         run: docker compose -p nannyapp-tests -f compose.test.yml down --volumes --remove-orphans
+      - name: Summarize security checks
+        if: always()
+        env:
+          TEST_RESULT: ${{ steps.tests.outcome }}
+        run: |
+          printf '## Synthetic security checks\n\nResult: %s\n\nSee the test step log for individual assertions.\n' "$TEST_RESULT" >> "$GITHUB_STEP_SUMMARY"
   android:
     name: Android build, unit tests and lint
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     defaults:
       run:
@@ -44,6 +53,7 @@ jobs:
       - name: Make wrapper executable
         run: chmod +x gradlew
       - name: Debug build, JVM regressions and lint
+        id: debug
         run: ./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
       - name: Verify release URL is mandatory
         shell: bash
@@ -54,5 +64,13 @@ jobs:
           fi
           grep -F 'NANNYAPP_RELEASE_API_URL must be an absolute HTTPS API URL' "$RUNNER_TEMP/release-url.log"
       - name: Compile unsigned release with synthetic endpoint
+        id: release
         run: ./gradlew --no-daemon :app:assembleRelease -PNANNYAPP_RELEASE_API_URL=https://ci.example.invalid/api/
-# No deploy, paid services, signing secrets, scheduled idle runs or artifact uploads.
+      - name: Summarize Android checks
+        if: always()
+        env:
+          DEBUG_RESULT: ${{ steps.debug.outcome }}
+          RELEASE_RESULT: ${{ steps.release.outcome }}
+        run: |
+          printf '## Android checks\n\nDebug build, JVM tests and lint: %s\n\nUnsigned release: %s\n\nNo signed app published or physical-device test performed.\n' "$DEBUG_RESULT" "$RELEASE_RESULT" >> "$GITHUB_STEP_SUMMARY"
+# No deploy, paid services, signing secrets, artifact uploads. Weekly checks use the same free-only gate.
