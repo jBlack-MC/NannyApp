@@ -100,3 +100,9 @@ the trusted server `REMOTE_ADDR`, not a caller-provided forwarding header.
 `node tests/security/install.test.cjs` covers install prompt acceptance, dismissal, browser failure and already-installed state without any provider.
 
 `python tests/security/download.test.py /path/to/php` starts a disposable PHP server on loopback port 13386 and serves a temporary synthetic non-installable APK. It checks the public landing page, exact download bytes/headers and missing-release handling. Do not run with another server using that port. It does not create or publish a real APK.
+
+The service-worker suite also covers cache-open/write/read failures, offline misses and cache v11 migration. Online responses remain usable when browser storage is unavailable; private routes are never intercepted.
+
+## Phase 1 schema and operational regressions
+
+The Docker backend gate also runs `migrations.test.php` and `operations.test.php` against fresh random disposable schemas on port 13379. The operations HTTP server uses loopback port 13382 and only synthetic accounts/files. Coverage includes repeated and populated migrations, checksum/duplicate conflict refusal without data loss, server booking validation, concurrent overlap and accept/cancel requests, rescheduling, PIN limits and actor authorization, injected ledger/outbox failures, exactly-once local notification insertion, durable document deletion, private-path checks, real web wizard/API requests, MIME spoofing and total upload quota rejection. Neither test uses application databases or real providers.

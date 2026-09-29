@@ -43,36 +43,11 @@ if ($method === 'GET') {
 }
 
 if ($method === 'PUT') {
-    require_api_role($me, 'nanny');
-    $days = json_body();
-    $nannyId = (int) $me['id'];
-
-    db()->beginTransaction();
-    try {
-        foreach ($days as $d) {
-            db()->prepare(
-                'INSERT INTO nanny_availability (nanny_id, day_of_week, is_available, time_start, time_end)
-                 VALUES (:nid, :dow, :avail, :start, :end)
-                 ON DUPLICATE KEY UPDATE is_available = VALUES(is_available), time_start = VALUES(time_start), time_end = VALUES(time_end)'
-            )->execute([
-                'nid' => $nannyId, 'dow' => $d['dayOfWeek'], 'avail' => !empty($d['isAvailable']) ? 1 : 0,
-                'start' => $d['timeStart'] . ':00', 'end' => $d['timeEnd'] . ':00',
-            ]);
-
-            db()->prepare('DELETE FROM availability_slots WHERE nanny_id = :nid AND day_of_week = :dow')
-                ->execute(['nid' => $nannyId, 'dow' => $d['dayOfWeek']]);
-            foreach (($d['slots'] ?? []) as $slot) {
-                db()->prepare('INSERT IGNORE INTO availability_slots (nanny_id, day_of_week, slot) VALUES (:nid, :dow, :slot)')
-                    ->execute(['nid' => $nannyId, 'dow' => $d['dayOfWeek'], 'slot' => $slot]);
-            }
-        }
-        db()->commit();
-    } catch (Throwable $e) {
-        db()->rollBack();
-        json_error('Could not save availability.', 500);
-    }
-
-    json_response(true, null, 'Availability updated.');
+    require_api_role($me,'nanny');
+    require_once __DIR__ . '/../../../../NannyApp.Shared/config/bookings.php';
+    try { save_booking_availability(db(),(int)$me['id'],json_body()); }
+    catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
+    catch (Throwable $e) { json_error('Could not save availability.',503); }
+    json_response(true,(object)[]);
 }
-
-json_error('Method not allowed.', 405);
+json_error('Method not allowed.',405);

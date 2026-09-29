@@ -9,157 +9,16 @@ $me = current_user()['id'];
 // Accept / reject / check-in / check-out / cancel a booking.
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
-    $id     = (int) ($_POST['booking_id'] ?? 0);
-    $action = $_POST['action'] ?? '';
-
-    // Cancel an upcoming confirmed booking (only before the nanny has checked in).
-    if ($action === 'cancel') {
-        $stmt = db()->prepare(
-            "UPDATE bookings SET status='cancelled'
-             WHERE id=? AND nanny_id=? AND status='confirmed' AND date_time > NOW()"
-        );
-        $stmt->execute([$id, $me]);
-        if ($stmt->rowCount()) {
-            db()->prepare(
-                "UPDATE payments SET
-                     payout_status = CASE WHEN status='paid' THEN 'refunded' ELSE payout_status END,
-                     status = CASE
-                         WHEN status='paid'    THEN 'refunded'
-                         WHEN status='pending' THEN 'failed'
-                         ELSE status
-                     END
-                 WHERE booking_id=?"
-            )->execute([$id]);
-            $info = db()->prepare('SELECT parent_id, date_time FROM bookings WHERE id=?');
-            $info->execute([$id]);
-            if ($b = $info->fetch()) {
-                notify((int) $b['parent_id'], 'Booking cancelled',
-                    current_user()['full_name'] . ' has cancelled your booking on '
-                        . date('D d M, H:i', strtotime($b['date_time'])) . '.',
-                    'parent/bookings.php');
-            }
-        }
-        flash($stmt->rowCount() ? 'Booking cancelled.' : 'Could not cancel — the booking may have already started.', $stmt->rowCount() ? 'success' : 'error');
-        redirect('nanny/bookings.php');
-    }
-
-    // Check in: proves the nanny is physically at the home. The PIN is only
-    // ever shown to the parent, who hands it over once the nanny has arrived.
-    if ($action === 'check_in') {
-        $code = trim($_POST['check_in_code'] ?? '');
-        $chk  = db()->prepare("SELECT id, check_in_code, check_in_attempts FROM bookings WHERE id=? AND nanny_id=? AND status='confirmed'");
-        $chk->execute([$id, $me]);
-        $bk = $chk->fetch();
-
-        if (!$bk) {
-            flash('That booking is not ready for check-in.', 'error');
-        } elseif ((int) $bk['check_in_attempts'] >= 5) {
-            flash('Too many incorrect attempts. Ask the parent to resend the check-in PIN from their bookings page.', 'error');
-        } elseif ($code === '' || !hash_equals((string) $bk['check_in_code'], $code)) {
-            db()->prepare('UPDATE bookings SET check_in_attempts = check_in_attempts + 1 WHERE id=?')->execute([$id]);
-            flash('Incorrect PIN. Ask the parent for the check-in code once you have arrived at the home.', 'error');
-        } else {
-            db()->prepare("UPDATE bookings SET status='in_progress', checked_in_at=NOW() WHERE id=?")->execute([$id]);
-            $info = db()->prepare('SELECT parent_id, date_time FROM bookings WHERE id=?');
-            $info->execute([$id]);
-            if ($b = $info->fetch()) {
-                notify((int) $b['parent_id'], 'Nanny checked in',
-                    current_user()['full_name'] . ' checked in for the booking on '
-                        . date('D d M, H:i', strtotime($b['date_time'])) . '.',
-                    'parent/bookings.php');
-            }
-            flash('Checked in — have a great session!', 'success');
-        }
-        redirect('nanny/bookings.php');
-    }
-
-    // Check out: marks the session as finished on the nanny's side. Payment
-    // stays held until the parent confirms the job was actually done.
-    if ($action === 'check_out') {
-        $stmt = db()->prepare(
-            "UPDATE bookings SET checked_out_at=NOW()
-             WHERE id=? AND nanny_id=? AND status='in_progress' AND checked_out_at IS NULL"
-        );
-        $stmt->execute([$id, $me]);
-        if ($stmt->rowCount()) {
-            $info = db()->prepare('SELECT parent_id, date_time FROM bookings WHERE id=?');
-            $info->execute([$id]);
-            if ($b = $info->fetch()) {
-                notify((int) $b['parent_id'], 'Session finished — please confirm',
-                    current_user()['full_name'] . ' marked the session on '
-                        . date('D d M, H:i', strtotime($b['date_time'])) . ' as finished. Confirm it in your bookings to release payment.',
-                    'parent/bookings.php');
-            }
-            flash('Session marked as finished. Payment is released once the parent confirms (or automatically after 48 hours).', 'success');
-        } else {
-            flash('Could not update that booking.', 'error');
-        }
-        redirect('nanny/bookings.php');
-    }
-
-    $map = [
-        'accept' => ['confirmed', ['pending']],
-        'reject' => ['rejected',  ['pending']],
-    ];
-
-    if (isset($map[$action])) {
-        [$newStatus, $allowedFrom] = $map[$action];
-        $in = implode(',', array_fill(0, count($allowedFrom), '?'));
-        $sql = "UPDATE bookings SET status=? WHERE id=? AND nanny_id=? AND status IN ($in)";
-        $stmt = db()->prepare($sql);
-        $stmt->execute(array_merge([$newStatus, $id, $me], $allowedFrom));
-
-        if ($stmt->rowCount()) {
-            $info = db()->prepare(
-                'SELECT b.parent_id, b.date_time, u.full_name AS parent_name, u.email AS parent_email
-                 FROM bookings b JOIN users u ON u.id = b.parent_id WHERE b.id=?'
-            );
-            $info->execute([$id]);
-            $b = $info->fetch();
-
-            if ($action === 'accept') {
-                $code = generate_check_in_code();
-                db()->prepare(
-                    "UPDATE payments SET status='paid', payout_status='held',
-                        transaction_id=COALESCE(transaction_id, CONCAT('TXN', booking_id, UNIX_TIMESTAMP()))
-                     WHERE booking_id=? AND status='pending'"
-                )->execute([$id]);
-                db()->prepare('UPDATE bookings SET check_in_code=?, check_in_attempts=0 WHERE id=?')->execute([$code, $id]);
-
-                if ($b) {
-                    $when = date('D d M, H:i', strtotime($b['date_time']));
-                    notify((int) $b['parent_id'], 'Booking accepted',
-                        current_user()['full_name'] . ' accepted your booking on ' . $when
-                            . '. Your check-in PIN is ' . $code . ' — only give it to the nanny once they have arrived.',
-                        'parent/bookings.php');
-
-                    $textBody = "Hi " . $b['parent_name'] . ",\n\n" . current_user()['full_name']
-                        . " accepted your booking on " . $when . ".\n\n"
-                        . "Your check-in PIN is: " . $code . "\n\n"
-                        . "For your safety, only hand this PIN to the nanny once they have actually arrived at your home. "
-                        . "They need it to check in, and payment is only released to them after you confirm the session took place.\n\n"
-                        . "View your booking: " . url('parent/bookings.php');
-                    $htmlBody = '<p>Hi ' . htmlspecialchars($b['parent_name']) . ',</p>'
-                        . '<p><strong>' . htmlspecialchars(current_user()['full_name']) . '</strong> accepted your booking on ' . htmlspecialchars($when) . '.</p>'
-                        . '<p>Your check-in PIN is: <strong style="font-size:20px;letter-spacing:2px;">' . htmlspecialchars($code) . '</strong></p>'
-                        . '<p>For your safety, only hand this PIN to the nanny once they have actually arrived at your home. '
-                        . 'They need it to check in, and payment is only released to them after you confirm the session took place.</p>'
-                        . '<p><a href="' . url('parent/bookings.php') . '">View your booking</a></p>';
-                    send_email($b['parent_email'], 'Booking accepted — your check-in PIN', $textBody, $htmlBody);
-                }
-            } elseif ($action === 'reject') {
-                db()->prepare("UPDATE payments SET status='failed' WHERE booking_id=? AND status='pending'")
-                    ->execute([$id]);
-                if ($b) {
-                    notify((int) $b['parent_id'], 'Booking rejected',
-                        current_user()['full_name'] . ' rejected your booking on '
-                            . date('D d M, H:i', strtotime($b['date_time'])) . '.',
-                        'parent/bookings.php');
-                }
-            }
-        }
-        flash($stmt->rowCount() ? 'Booking updated.' : 'No change made.', $stmt->rowCount() ? 'success' : 'error');
-    }
+    require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
+    try {
+        $action=$_POST['action']??'';
+        if (!is_string($action)) throw new BookingError('Invalid action.',400);
+        transition_booking(db(),(int)$me,(int)($_POST['booking_id']??0),$action,[
+            'checkInCode'=>$_POST['check_in_code']??null,'reason'=>$_POST['dispute_reason']??null
+        ]);
+        flash('Booking updated. Payment entries are a manual ledger; no bank transfer was made.');
+    } catch (BookingError $e) { flash($e->getMessage(),'error'); }
+    catch (Throwable $e) { flash('Could not update booking. Please retry.','error'); }
     redirect('nanny/bookings.php');
 }
 

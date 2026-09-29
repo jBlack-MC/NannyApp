@@ -7,28 +7,12 @@ $days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday']
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
-    $pdo = db();
-    for ($d = 0; $d < 7; $d++) {
-        $isAvail = isset($_POST['avail_' . $d]) ? 1 : 0;
-        $start   = $_POST['start_' . $d] ?? '08:00';
-        $end     = $_POST['end_' . $d] ?? '18:00';
-        $pdo->prepare(
-            'INSERT INTO nanny_availability (nanny_id, day_of_week, is_available, time_start, time_end)
-             VALUES (?,?,?,?,?)
-             ON DUPLICATE KEY UPDATE is_available=VALUES(is_available),
-                                     time_start=VALUES(time_start),
-                                     time_end=VALUES(time_end)'
-        )->execute([$me, $d, $isAvail, $start . ':00', $end . ':00']);
-    }
-    // Mirror to legacy text field
-    $openDays = [];
-    for ($d = 0; $d < 7; $d++) {
-        if (isset($_POST['avail_' . $d])) $openDays[] = $days[$d];
-    }
-    $legacyText = $openDays ? implode(', ', $openDays) : 'Unavailable';
-    db()->prepare('UPDATE nanny_profiles SET availability=? WHERE user_id=?')->execute([$legacyText, $me]);
-
-    flash('Availability updated.');
+    require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
+    $input=[];
+    for ($d=0;$d<7;$d++) $input[]=['dayOfWeek'=>$d,'isAvailable'=>isset($_POST['avail_'.$d]),'timeStart'=>$_POST['start_'.$d]??'08:00','timeEnd'=>$_POST['end_'.$d]??'18:00'];
+    try { save_booking_availability(db(),(int)$me,$input);flash('Availability updated. Existing bookings are unchanged.'); }
+    catch (BookingError $e) { flash($e->getMessage(),'error'); }
+    catch (Throwable $e) { flash('Could not save availability.','error'); }
     redirect('nanny/availability.php');
 }
 

@@ -1,5 +1,24 @@
 # Production readiness audit
 
+## Phase 1 local code fixes - 2026-09-29
+
+- [x] Safe empty database bootstrap and idempotent CLI migrations, version/checksum records, migration locking, duplicate-conflict preservation, fresh/populated regression tests.
+- [x] Shared server validation for booking dates, durations, child ownership, eligible nanny and published availability.
+- [x] Serialized create/reschedule overlap checks, including in-progress/disputed blockers; concurrent creation regression passes.
+- [x] Shared allowed-transition table and transactional ledger helper across web/API/admin/automatic release; accept/cancel concurrency, PIN and rollback tests pass.
+- [x] Post-release disputes preserve released money entries and require manual review; automatic reversal is refused.
+- [x] Booking notifications queued inside transactions; retryable in-app worker and delivery-failure tests pass.
+- [x] Authorized document deletion queues file keys durably; local total-quota/free-space guard and HTTP image/upload regressions pass.
+- [x] Full Docker suite passed after final changes, including real web wizard and API requests. Disposable stack removed; git whitespace checks pass. No Android source changes or new physical-device verification in this phase.
+
+Rollout commands, policy and operational limits: [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md). Apply migrations and configure workers before deploying. Historical orphan inventory, live-host backup restoration, remaining unrelated review findings and real-device acceptance remain open.
+
+## Web-app resilience - 2026-09-29
+
+- [x] Review finding 16: successful network assets survive cache storage failures; offline misses return a valid network-error response. Cache v11 migration and storage-failure regressions pass locally.
+- [x] Removed contradictory active-AWS wording and stale lint-failure instructions from the historical pilot plan.
+- [x] Safe bootstrap and booking validation/manual transitions completed in Phase 1 below; host compatibility and real-device acceptance remain open.
+
 ## Automation update - 2026-09-28
 
 - [x] Docker synthetic PHP/MariaDB/HTTP/SMTP/Resend, Apache, PWA/cache and install/download checks pass locally.
@@ -9,13 +28,13 @@
 - [x] Ordinary password changes atomically revoke bearer/remember sessions and reset links; concurrent stale logins cannot recreate tokens. Synthetic API/web/concurrency/rollback checks pass; Android debug build, 7 JVM tests and lint pass (0 errors, 52 warnings).
 - [ ] Enable private-repository CI after verifying free-only billing, run remote jobs, and configure required checks if the repository plan supports them.
 
-See [AUTOMATION.md](AUTOMATION.md). Public hosting, real mail/storage verification and outstanding booking security defects are not completed by these checks.
+See [AUTOMATION.md](AUTOMATION.md). Public hosting, real mail/storage verification and remaining unrelated review defects are not completed by these checks.
 
 ## Booking ledger update - 2026-09-28
 
 - [x] Automatic completion and payment release share one transactional helper across web/API. Eligibility is rechecked during the write; ledger failures roll back completion.
 - [x] Synthetic disputed/recent candidates, competing release workers and injected payment-write failure regressions pass in the full Docker suite.
-- [ ] Booking creation validation, serialized overlap checks and all manual status/ledger transitions remain open (P08/P09). In particular, disputes raised after release still need an explicit ledger policy; notification delivery is not yet durable.
+- [x] P08/P09 source work completed in Phase 1: creation validation, serialized overlap checks, manual transitions and durable booking notifications. Post-release disputes require manual review; released funds are not automatically reversed.
 
 ## GitHub Actions - 2026-09-29
 

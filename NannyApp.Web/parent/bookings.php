@@ -8,88 +8,17 @@ $me = current_user()['id'];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
-    $id     = (int) ($_POST['booking_id'] ?? 0);
-    $action = $_POST['action'] ?? 'cancel';
-
-    // Cancel a pending/confirmed booking (before the nanny has checked in).
-    if ($action === 'cancel') {
-        $upd = db()->prepare(
-            "UPDATE bookings SET status='cancelled'
-             WHERE id=? AND parent_id=? AND status IN ('pending','confirmed')"
-        );
-        $upd->execute([$id, $me]);
-        if ($upd->rowCount()) {
-            db()->prepare(
-                "UPDATE payments
-                 SET payout_status = CASE WHEN status='paid' THEN 'refunded' ELSE payout_status END,
-                     status = CASE WHEN status='paid' THEN 'refunded' WHEN status='pending' THEN 'failed' ELSE status END
-                 WHERE booking_id=?"
-            )->execute([$id]);
-        }
-        flash($upd->rowCount() ? 'Booking cancelled.' : 'Could not cancel that booking.', $upd->rowCount() ? 'success' : 'error');
-        redirect('parent/bookings.php');
-    }
-
-    // Regenerate the check-in PIN (e.g. it was mistyped too many times, or forgotten).
-    if ($action === 'resend_code') {
-        $code = generate_check_in_code();
-        $upd  = db()->prepare(
-            "UPDATE bookings SET check_in_code=?, check_in_attempts=0 WHERE id=? AND parent_id=? AND status='confirmed'"
-        );
-        $upd->execute([$code, $id, $me]);
-        flash($upd->rowCount() ? 'New check-in PIN generated below.' : 'Could not update that booking.', $upd->rowCount() ? 'success' : 'error');
-        redirect('parent/bookings.php');
-    }
-
-    // Confirm the session actually happened — this is what releases the held payment.
-    if ($action === 'confirm') {
-        $upd = db()->prepare(
-            "UPDATE bookings SET status='completed', parent_confirmed_at=NOW()
-             WHERE id=? AND parent_id=? AND status='in_progress' AND checked_out_at IS NOT NULL"
-        );
-        $upd->execute([$id, $me]);
-        if ($upd->rowCount()) {
-            db()->prepare(
-                "UPDATE payments SET payout_status='released', released_at=NOW()
-                 WHERE booking_id=? AND status='paid' AND payout_status='held'"
-            )->execute([$id]);
-            $info = db()->prepare('SELECT nanny_id, date_time FROM bookings WHERE id=?');
-            $info->execute([$id]);
-            if ($b = $info->fetch()) {
-                notify((int) $b['nanny_id'], 'Payment released',
-                    current_user()['full_name'] . ' confirmed the session on '
-                        . date('D d M, H:i', strtotime($b['date_time'])) . ' — payment has been released to you.',
-                    'nanny/earnings.php');
-            }
-            flash('Thanks for confirming — payment has been released to the nanny.', 'success');
-        } else {
-            flash('Could not confirm that booking.', 'error');
-        }
-        redirect('parent/bookings.php');
-    }
-
-    // Report a problem (e.g. the nanny never actually arrived). Payment stays
-    // held until an admin reviews it — it does not get auto-released while disputed.
-    if ($action === 'dispute') {
-        $reason = trim($_POST['dispute_reason'] ?? '');
-        $upd = db()->prepare(
-            "UPDATE bookings SET status='disputed', dispute_reason=?, disputed_at=NOW()
-             WHERE id=? AND parent_id=? AND status IN ('confirmed','in_progress')"
-        );
-        $upd->execute([$reason !== '' ? $reason : 'No details given.', $id, $me]);
-        if ($upd->rowCount()) {
-            $admins = db()->query("SELECT id FROM users WHERE role='admin'")->fetchAll(PDO::FETCH_COLUMN);
-            foreach ($admins as $adminId) {
-                notify((int) $adminId, 'Booking disputed',
-                    current_user()['full_name'] . ' reported a problem with booking #' . $id . '. Payment is on hold pending review.',
-                    'admin/payments.php');
-            }
-            flash('Thanks — we have paused this payment and a team member will review it shortly.', 'success');
-        } else {
-            flash('Could not report that booking.', 'error');
-        }
-        redirect('parent/bookings.php');
-    }
+    require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
+    try {
+        $action=$_POST['action']??'';
+        if (!is_string($action)) throw new BookingError('Invalid action.',400);
+        transition_booking(db(),(int)$me,(int)($_POST['booking_id']??0),$action,[
+            'checkInCode'=>$_POST['check_in_code']??null,'reason'=>$_POST['dispute_reason']??null
+        ]);
+        flash('Booking updated. Payment entries are a manual ledger; no bank transfer was made.');
+    } catch (BookingError $e) { flash($e->getMessage(),'error'); }
+    catch (Throwable $e) { flash('Could not update booking. Please retry.','error'); }
+    redirect('parent/bookings.php');
 }
 
 $stmt = db()->prepare(

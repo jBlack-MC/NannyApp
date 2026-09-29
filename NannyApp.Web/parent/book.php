@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
 
 $nannyId = (int) ($_GET['nanny'] ?? 0);
 
@@ -91,11 +92,13 @@ $wz = &$_SESSION[$wizardKey];
 // --- STEP 2 POST: datetime / duration ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 2) {
     verify_csrf();
-    $dt       = trim($_POST['datetime'] ?? '');
-    $duration = (float) ($_POST['duration'] ?? 0);
+    $dt = is_string($_POST['datetime']??null) ? trim($_POST['datetime']) : '';
+    $duration=0;
+    try { $duration=booking_duration($_POST['duration']??null); }
+    catch (BookingError $e) { $errors[]=$e->getMessage(); }
 
     try {
-        $chosen = new DateTimeImmutable($dt);
+        $chosen = booking_time($dt);
     } catch (Throwable $e) {
         $chosen = null;
     }
@@ -123,15 +126,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 2) {
 // --- STEP 3 POST: address / children details / notes ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 3) {
     verify_csrf();
-    $address  = trim($_POST['address']  ?? '');
-    $children = trim($_POST['children'] ?? '');
-    $notes    = trim($_POST['notes']    ?? '');
+    $address = is_string($_POST['address']??null) ? trim($_POST['address']) : '';
+    $childrenIds = $_POST['childrenIds']??[];
+    if (!is_array($childrenIds) || !$childrenIds) $errors[]='Select your children.';
+    else foreach ($childrenIds as $id) if (!is_string($id) || !ctype_digit($id)) $errors[]='Invalid child selection.';
+    $notes = is_string($_POST['notes']??null) ? trim($_POST['notes']) : '';
 
     if (!$address) $errors[] = 'Please enter the care address.';
 
     if (!$errors) {
         $wz['address']  = $address;
-        $wz['children'] = $children;
+        $wz['childrenIds'] = array_map('intval',$childrenIds);
         $wz['notes']    = $notes;
         redirect('parent/book.php?nanny=' . $nannyId . '&step=4');
     }
@@ -146,81 +151,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 4) {
         redirect('parent/book.php?nanny=' . $nannyId . '&step=2');
     }
 
-    // Re-check just before insert in case availability changed after step 2.
-    if (nanny_has_booking_conflict($nannyId, (string) $wz['date_time'], (float) $wz['duration'])) {
-        flash('That time slot is no longer available. Please choose another time.', 'error');
-        redirect('parent/book.php?nanny=' . $nannyId . '&step=2');
-    }
-
-    $pdo = db();
-    $pdo->beginTransaction();
-
-    $ref = 'BK' . strtoupper(substr(bin2hex(random_bytes(4)), 0, 6));
-
     try {
-        // Insert booking
-        $ins = $pdo->prepare(
-            'INSERT INTO bookings (parent_id, nanny_id, date_time, duration, location, notes, status)
-             VALUES (?,?,?,?,?,?,"pending")'
-        );
-        $ins->execute([
-            current_user()['id'], $nannyId,
-            $wz['date_time'], $wz['duration'],
-            $wz['address'],
-            ($wz['notes'] ?: null),
+        $bookingId=create_booking(db(),(int)current_user()['id'],[
+            'nannyId'=>$nannyId,'dateTime'=>$wz['date_time'],'duration'=>$wz['duration']??null,
+            'address'=>$wz['address'],'notes'=>$wz['notes']??'','childrenIds'=>$wz['childrenIds']??[]
         ]);
-        $bookingId = (int) $pdo->lastInsertId();
-
-        // Set booking_ref if column exists
-        try {
-            $pdo->prepare('UPDATE bookings SET booking_ref=?, children_details=?, booking_address=? WHERE id=?')
-                ->execute([$ref, ($wz['children'] ?: null), $wz['address'], $bookingId]);
-        } catch (Throwable) {}
-
-        // Payment record
-        $pdo->prepare('INSERT INTO payments (booking_id, amount, method, status) VALUES (?,?,"manual","pending")')
-            ->execute([$bookingId, $wz['amount']]);
-
-        $pdo->commit();
-
-        // Notify nanny
-        notify($nannyId, 'New booking request',
-            current_user()['full_name'] . ' requested care on '
-                . date('D d M \a\t H:i', strtotime($wz['date_time'])) . '.',
-            'nanny/bookings.php'
-        );
-
-        // Send confirmation email to parent
-        $me = current_user();
-        $textBody = 'Hi ' . $me['full_name'] . ",\n\nYour booking request with " . $nanny['full_name'] . " has been submitted.\n\n" .
-            'Date & time: ' . date('D d M Y \a\t H:i', strtotime($wz['date_time'])) . "\n" .
-            'Duration: ' . $wz['duration'] . ' hours\n' .
-            'Address: ' . $wz['address'] . "\n" .
-            'Estimated cost: R' . number_format($wz['amount'], 2) . "\n" .
-            'Reference: ' . $ref . "\n\n" .
-            'Your nanny will confirm or respond shortly. You can track your booking on your dashboard.';
-
-        $htmlBody = '<p>Hi ' . htmlspecialchars($me['full_name']) . ',</p>' .
-            '<p>Your booking request with <strong>' . htmlspecialchars($nanny['full_name']) . '</strong> has been submitted.</p>' .
-            '<ul>' .
-            '<li><strong>Date &amp; time:</strong> ' . date('D d M Y \a\t H:i', strtotime($wz['date_time'])) . '</li>' .
-            '<li><strong>Duration:</strong> ' . $wz['duration'] . ' hours</li>' .
-            '<li><strong>Address:</strong> ' . htmlspecialchars($wz['address']) . '</li>' .
-            '<li><strong>Estimated cost:</strong> R' . number_format($wz['amount'], 2) . '</li>' .
-            '<li><strong>Reference:</strong> ' . $ref . '</li>' .
-            '</ul>' .
-            '<p>Your nanny will confirm or respond shortly. You can track your booking on your dashboard.</p>';
-
-        send_email($me['email'], 'Booking confirmed — ' . APP_NAME, $textBody, $htmlBody);
-
-        $wz['booking_id'] = $bookingId;
-        $wz['ref']        = $ref;
-        redirect('parent/book.php?nanny=' . $nannyId . '&step=5');
-
-    } catch (Throwable $e) {
-        $pdo->rollBack();
-        $errors[] = 'Something went wrong. Please try again.';
-    }
+        $wz['booking_id']=$bookingId;
+        $wz['ref']='BK'.str_pad((string)$bookingId,6,'0',STR_PAD_LEFT);
+        redirect('parent/book.php?nanny='.$nannyId.'&step=5');
+    } catch (BookingError $e) { $errors[]=$e->getMessage(); }
+    catch (Throwable $e) { $errors[]='Could not create booking. Please retry.'; }
 }
 
 // Computed nanny stats
@@ -585,14 +525,15 @@ try {
     $parentAddr = $pa->fetchColumn() ?: '';
 } catch (Throwable) {}
 
+$rows=[];
 $childCount = 0;
 $childNames = '';
 try {
-    $pch = db()->prepare('SELECT full_name FROM children WHERE parent_id=? ORDER BY id LIMIT 5');
+    $pch = db()->prepare('SELECT id,name FROM children WHERE parent_id=? ORDER BY id');
     $pch->execute([$me['id']]);
     $rows = $pch->fetchAll();
     $childCount = count($rows);
-    $childNames = implode(', ', array_column($rows, 'full_name'));
+    $childNames = implode(', ', array_column($rows, 'name'));
 } catch (Throwable) {}
 ?>
 <div class="mw-560">
@@ -609,9 +550,12 @@ try {
         </div>
 
         <div class="field">
-            <label>Children details <span class="muted">(ages, names, any allergies)</span></label>
-            <textarea name="children" rows="3"
-                      placeholder="e.g. Emma (3yrs, peanut allergy) and James (6yrs, loves dinosaurs)"><?= e($_POST['children'] ?? ($wz['children'] ?? ($childCount ? "I have $childCount child" . ($childCount > 1 ? 'ren' : '') . ($childNames ? ": $childNames" : '') : ''))) ?></textarea>
+            <label>Select children from your account</label>
+            <?php foreach ($rows as $child): ?>
+                <label><input type="checkbox" name="childrenIds[]" value="<?= (int)$child['id'] ?>"
+                    <?= in_array((int)$child['id'],$wz['childrenIds']??[],true)?'checked':'' ?>> <?= e($child['name']) ?></label>
+            <?php endforeach; ?>
+            <?php if (!$rows): ?><a href="<?= url('parent/children.php') ?>">Add a child before booking</a><?php endif; ?>
         </div>
 
         <div class="field">
@@ -654,7 +598,7 @@ $totalCost = $wz['amount'];
                 'Duration'      => $wz['duration'] . ' hour' . ($wz['duration'] > 1 ? 's' : ''),
                 'Location'      => e($wz['address']),
             ];
-            if (!empty($wz['children'])) $rows['Children'] = e($wz['children']);
+            $rows['Children selected'] = count($wz['childrenIds']??[]);
             if (!empty($wz['notes']))    $rows['Notes']    = e($wz['notes']);
             foreach ($rows as $k => $v): ?>
             <tr>

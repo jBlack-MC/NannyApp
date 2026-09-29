@@ -1,42 +1,17 @@
 <?php
-/** POST /api/bookings/reschedule.php { bookingId, dateTime } */
 require_once __DIR__ . '/../_bootstrap.php';
 require_once __DIR__ . '/_serialize.php';
-$me = require_api_auth();
-require_api_role($me, 'parent');
+require_once __DIR__ . '/../../../../NannyApp.Shared/config/bookings.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') json_error('POST required.',405);
+$me=require_api_auth();
+$b=json_body();
+$id=filter_var($b['bookingId']??null,FILTER_VALIDATE_INT,['options'=>['min_range'=>1]]);
+if (!$id) json_error('Invalid booking ID.',400);
+try {
+    transition_booking(db(),(int)$me['id'],$id,'reschedule',$b);
+} catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
+catch (Throwable $e) { json_error('Could not update booking. Please retry.',503); }
 
-$b = json_body();
-$bookingId = (int) ($b['bookingId'] ?? 0);
-$newDateTime = (string) ($b['dateTime'] ?? '');
-
-$stmt = db()->prepare('SELECT * FROM bookings WHERE id = :id AND parent_id = :pid');
-$stmt->execute(['id' => $bookingId, 'pid' => $me['id']]);
-$booking = $stmt->fetch();
-
-if (!$booking) json_error('Booking not found.', 404);
-if (!in_array($booking['status'], ['pending', 'confirmed'], true)) {
-    json_error('This booking can no longer be rescheduled.', 409);
-}
-// Conflict check duplicated inline (excluding this booking itself) since
-// nanny_has_booking_conflict() doesn't support an exclusion — it's designed
-// for brand-new bookings only.
-$start = new DateTimeImmutable($newDateTime);
-$end = $start->add(new DateInterval('PT' . (int) round(((float) $booking['duration']) * 3600) . 'S'));
-$conflictStmt = db()->prepare(
-    'SELECT COUNT(*) FROM bookings WHERE nanny_id = :nid AND id != :bid AND status IN ("pending","confirmed")
-     AND date_time < :end AND TIMESTAMPADD(SECOND, ROUND(duration * 3600), date_time) > :start'
-);
-$conflictStmt->execute([
-    'nid' => $booking['nanny_id'], 'bid' => $bookingId,
-    'end' => $end->format('Y-m-d H:i:s'), 'start' => $start->format('Y-m-d H:i:s'),
-]);
-if ((int) $conflictStmt->fetchColumn() > 0) {
-    json_error('The nanny is not available at that time.', 409);
-}
-
-db()->prepare('UPDATE bookings SET date_time = :dt WHERE id = :id')->execute(['dt' => $newDateTime, 'id' => $bookingId]);
-notify((int) $booking['nanny_id'], 'Booking rescheduled', 'The parent has rescheduled this booking.', '/nanny/bookings.php');
-
-$stmt = db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id = :id');
-$stmt->execute(['id' => $bookingId]);
-json_response(true, serialize_booking($stmt->fetch(), $me));
+$stmt=db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id=?');
+$stmt->execute([$id]);
+json_response(true,serialize_booking($stmt->fetch(),$me));

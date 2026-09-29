@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/notification_outbox.php';
+require_once __DIR__ . '/booking_ledger.php';
 /** One atomic automatic completion; caller must not already own a transaction. */
 function release_stale_booking(PDO $pdo, int $id, int $graceHours): bool
 {
@@ -16,8 +18,9 @@ function release_stale_booking(PDO $pdo, int $id, int $graceHours): bool
             $pdo->rollBack();
             return false;
         }
-        $pdo->prepare("UPDATE payments SET payout_status='released', released_at=NOW()
-            WHERE booking_id=? AND status='paid' AND payout_status='held'")->execute([$id]);
+        update_booking_ledger($pdo,$id,'release');
+        $stmt=$pdo->prepare('SELECT nanny_id FROM bookings WHERE id=?');$stmt->execute([$id]);
+        queue_notification($pdo,(int)$stmt->fetchColumn(),'Booking auto-completed','Booking #'.$id.' was completed after the confirmation grace period.','nanny/earnings.php');
         $pdo->commit();
         return true;
     } catch (Throwable $e) {

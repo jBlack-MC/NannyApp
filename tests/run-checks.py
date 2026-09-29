@@ -31,6 +31,8 @@ try:
     if shutil.which('apache2'):
         run([sys.executable, 'tests/security/apache.test.py'])
     if args.backend:
+        run([php, 'tests/security/migrations.test.php'])
+        run([php, 'tests/security/operations.test.php'])
         run([sys.executable, 'tests/security/run-backend.py', php])
         run([php, 'tests/security/resend.test.php'])
 except subprocess.CalledProcessError as error:

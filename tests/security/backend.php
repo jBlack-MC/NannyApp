@@ -136,11 +136,13 @@ try {
     $pdo->exec("INSERT INTO nanny_profiles (user_id) VALUES (1),(4)");
     $pdo->exec("INSERT INTO bookings VALUES (10,2,1,'completed'),(11,2,1,'pending'),(12,999,1,'completed')");
 
+    $pdo->exec(file_get_contents(__DIR__ . '/../../NannyApp.Shared/database/migrate_v8_operations.sql'));
     require __DIR__ . '/../../NannyApp.Shared/config/booking_release.php';
     $pdo->exec('ALTER TABLE bookings ADD checked_out_at DATETIME, ADD parent_confirmed_at DATETIME');
     $pdo->exec('CREATE TABLE payments (booking_id INT PRIMARY KEY, status VARCHAR(20), payout_status VARCHAR(20), released_at DATETIME) ENGINE=InnoDB');
     $pdo->exec("INSERT INTO bookings (id,status,checked_out_at) VALUES (90,'in_progress',DATE_SUB(NOW(),INTERVAL 49 HOUR)),(91,'disputed',DATE_SUB(NOW(),INTERVAL 49 HOUR)),(92,'in_progress',NOW()),(93,'in_progress',DATE_SUB(NOW(),INTERVAL 49 HOUR))");
     $pdo->exec("INSERT INTO payments (booking_id,status,payout_status) VALUES (90,'paid','held'),(91,'paid','held'),(92,'paid','held'),(93,'paid','held')");
+    $pdo->exec('UPDATE bookings SET nanny_id=1,parent_id=2 WHERE id>=90');
     check(!release_stale_booking($pdo,91,48),'stale candidate now disputed cannot release payment');
     check(!release_stale_booking($pdo,92,48),'release rechecks grace deadline');
     check((int)$pdo->query("SELECT COUNT(*) FROM payments WHERE booking_id IN (91,92) AND payout_status='held'")->fetchColumn()===2,'ineligible payments remain held');

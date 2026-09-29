@@ -395,7 +395,7 @@ function nanny_has_booking_conflict(int $nannyId, string $startDateTime, float $
     $stmt = db()->prepare(
         'SELECT COUNT(*) FROM bookings
          WHERE nanny_id = ?
-           AND status IN ("pending", "confirmed")
+           AND status IN ("pending", "confirmed", "in_progress", "disputed")
            AND date_time < ?
            AND TIMESTAMPADD(SECOND, ROUND(duration * 3600), date_time) > ?'
     );
@@ -495,14 +495,7 @@ function auto_release_stale_payments(int $graceHours = 48): void
             $id = (int) $id;
             if (!release_stale_booking(db(), $id, $graceHours)) continue;
 
-            $info = db()->prepare('SELECT parent_id, nanny_id, date_time FROM bookings WHERE id=?');
-            $info->execute([$id]);
-            if ($b = $info->fetch()) {
-                notify((int) $b['nanny_id'], 'Payment released',
-                    'Your booking on ' . date('D d M, H:i', strtotime($b['date_time']))
-                        . ' was auto-confirmed after ' . $graceHours . ' hours and payment has been released to you.',
-                    'nanny/earnings.php');
-            }
+
         }
     } catch (Throwable) {
         // Escrow columns may not exist yet on older schemas — ignore until migrate_v4 runs.

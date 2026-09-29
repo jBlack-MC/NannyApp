@@ -85,7 +85,7 @@ Nanny-App
 - browse verified nannies by location, rate, experience, and skills
 - search and filter nanny listings
 - complete booking workflow with child details and scheduling
-- check booking overlap (concurrent-request hardening remains open in the code review)
+- serialize booking overlap checks across web/API creation and rescheduling
 - receive a one-time check-in PIN for a verified in-person arrival
 - confirm session completion to update the manual payment ledger
 - cancel eligible bookings and record refund decisions for manual reconciliation
@@ -218,7 +218,7 @@ Choose the project you want to work on:
 
 The shared database folder is the canonical schema source for the project.
 
-- `schema.sql` is a destructive development reset/seed script, not a production upgrade.
+- Use `php NannyApp.Shared/bin/migrate.php` with explicit database environment settings for safe, versioned setup and upgrades. Current `schema.sql` contains empty idempotent DDL only; older revisions were destructive. See `NannyApp.Shared/database/MIGRATION_ORDER.md`.
 - Migration files are imported in order as the system evolves.
 - Do not use the base schema drop-and-seed file on production or staging.
 - Keep migration ordering and release sequencing consistent.
