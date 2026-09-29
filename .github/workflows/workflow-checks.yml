@@ -1,0 +1,27 @@
+name: Workflow validation
+on:
+  push:
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    paths:
+      - '.github/workflows/**'
+  workflow_dispatch:
+  schedule:
+    - cron: '41 4 * * 1'
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  actionlint:
+    if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate workflow syntax, expressions and shell commands
+        uses: docker://rhysd/actionlint:1.7.12
+        with:
+          args: -color
