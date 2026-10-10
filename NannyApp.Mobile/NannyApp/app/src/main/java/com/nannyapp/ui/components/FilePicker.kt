@@ -5,7 +5,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
+import java.io.ByteArrayOutputStream
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Returns a trigger function that opens the system file/image picker; when the
@@ -18,13 +25,33 @@ import androidx.compose.ui.platform.LocalContext
 fun rememberFilePickerLauncher(onPicked: (bytes: ByteArray, fileName: String) -> Unit): () -> Unit {
     val context = LocalContext.current
     val callback = rememberUpdatedState(onPicked)
+    val scope = rememberCoroutineScope()
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         if (uri == null) return@rememberLauncherForActivityResult
-        val resolver = context.contentResolver
-        val bytes = resolver.openInputStream(uri)?.use { it.readBytes() } ?: return@rememberLauncherForActivityResult
-        val name = queryDisplayName(context, uri) ?: "upload_${System.currentTimeMillis()}.jpg"
-        callback.value(bytes, name)
+        scope.launch {
+            try {
+                val (bytes, name) = withContext(Dispatchers.IO) {
+                    val bytes = context.contentResolver.openInputStream(uri)?.use { input ->
+                        val output = ByteArrayOutputStream()
+                        val buffer = ByteArray(8192)
+                        while (true) {
+                            val count = input.read(buffer)
+                            if (count == -1) break
+                            require(output.size() + count <= 5 * 1024 * 1024) { "Choose an image smaller than 5 MB." }
+                            output.write(buffer, 0, count)
+                        }
+                        output.toByteArray()
+                    } ?: error("Could not open this image.")
+                    bytes to (queryDisplayName(context, uri) ?: "upload_${System.currentTimeMillis()}.jpg")
+                }
+                callback.value(bytes, name)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Toast.makeText(context, if (error is IllegalArgumentException) error.message else "Could not read this image. Please try another file.", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     return { launcher.launch("image/*") }

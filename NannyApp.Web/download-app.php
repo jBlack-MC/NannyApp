@@ -33,6 +33,7 @@ require __DIR__ . '/includes/header.php';
                 <a class="btn btn-primary" href="<?= url('download-app.php?platform=android') ?>" download>Download Android app</a>
                 <p class="muted">Your phone may ask permission to install from this browser. Only install the release downloaded from this site.</p>
             <?php else: ?>
+                <button class="btn btn-primary" type="button" disabled>Download Android app</button>
                 <p class="muted" role="status">The signed Android download is not published yet. You can install the web app below in the meantime.</p>
             <?php endif; ?>
         </article>

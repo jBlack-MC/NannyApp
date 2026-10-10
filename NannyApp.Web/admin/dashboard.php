@@ -137,6 +137,7 @@ require __DIR__ . '/../includes/header.php';
         <p class="muted">Real-time snapshot of NannyApp activity.</p>
     </div>
     <div class="dash-wrap-actions">
+        <a class="btn btn-primary" href="<?= url('admin/operations.php') ?>">Action centre</a>
         <?php if ($stats['pending_verifications'] + $pendingDocs > 0): ?>
         <a class="btn btn-primary btn-badge-wrap" href="<?= url('admin/verifications.php') ?>">
             Verifications

@@ -28,6 +28,7 @@ import com.nannyapp.ui.components.*
 fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onSupport: () -> Unit,
+    onStaticPage: (String) -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -93,6 +94,12 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(12.dp))
                 SecondaryButton(text = "Help & support", onClick = onSupport, modifier = Modifier.fillMaxWidth())
+                Text("About & policies", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 20.dp))
+                listOf("About" to "about", "Safety" to "safety", "Pricing" to "pricing", "FAQ" to "faq",
+                    "Community" to "community", "Resources" to "resources", "Contact" to "contact",
+                    "Terms" to "terms", "Privacy" to "privacy").forEach { (label, key) ->
+                    TextButton(onClick = { onStaticPage(key) }, modifier = Modifier.fillMaxWidth()) { Text(label) }
+                }
 
                 Spacer(Modifier.height(24.dp))
                 HorizontalDivider()

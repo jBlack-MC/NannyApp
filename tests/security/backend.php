@@ -187,7 +187,9 @@ try {
     $serverCommand=[PHP_BINARY,'-d','SMTP=127.0.0.1','-d','smtp_port='.(getenv('NANNYAPP_TEST_SMTP_PORT') ?: '25')];
     if (getenv('NANNYAPP_TEST_SENDMAIL')) array_push($serverCommand,'-d','sendmail_path='.getenv('NANNYAPP_TEST_SENDMAIL'));
     array_push($serverCommand,'-S','127.0.0.1:13381',__DIR__.'/router.php');
-    $server=proc_open($serverCommand,[1=>['pipe','w'],2=>['pipe','w']],$serverPipes);
+    // Windows pipes have small buffers; unread request logs can block the server.
+    $serverOutput=tmpfile();$serverErrors=tmpfile();
+    $server=proc_open($serverCommand,[1=>$serverOutput,2=>$serverErrors],$serverPipes);
     function request_test(string $path, ?array $body=null, string $auth='', string $cookie='', string $remember='', bool $form=false): array {
         $headers=$form ? "Content-Type: application/x-www-form-urlencoded\r\n" : "Content-Type: application/json\r\n";
         if($auth!=='') $headers.="Authorization: Bearer $auth\r\n";
@@ -200,6 +202,14 @@ try {
     }
     try {
         for($i=0;$i<50;$i++){ if(request_test('/ready')[0]===200) break; usleep(100000); }
+
+        $pdo->exec('CREATE TABLE chat_messages (id INT PRIMARY KEY, sender_id INT, receiver_id INT, content VARCHAR(1000), is_read INT, created_at DATETIME)');
+        $pdo->exec("INSERT INTO chat_messages VALUES (1,2,1,'Outgoing',0,NOW()),(2,1,2,'Incoming',0,NOW()),(3,1,3,'Private other conversation',0,NOW())");
+        [$threadStatus,$threadBody]=request_test('/api/messages/thread.php?with=1',null,'synthetic-token-2');
+        $thread=json_decode($threadBody,true)['data']??[];
+        check($threadStatus===200 && count($thread)===2,'message thread includes both directions and excludes other accounts');
+        $threadIds=array_column($thread,'id');sort($threadIds);
+        check($threadIds===[1,2],'message thread returns correct incoming and outgoing rows');
 
         $review = ['bookingId'=>10,'nannyId'=>4,'rating'=>5,'comment'=>'Synthetic review'];
         check(request_test('/api/reviews/create.php',$review,'synthetic-token-2')[0]===409,'review rejects mismatched nanny');
@@ -311,6 +321,7 @@ try {
         check(request_test('/api/auth/forgot.php')[0]===405,'recovery GET rejected');
     } finally {
         proc_terminate($server); foreach($serverPipes as $pipe) fclose($pipe); proc_close($server);
+        fclose($serverOutput);fclose($serverErrors);
         unlink($storage.'/uploads/docs/synthetic.pdf'); rmdir($storage.'/uploads/docs'); rmdir($storage.'/uploads'); rmdir($storage);
     }
 

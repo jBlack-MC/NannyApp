@@ -51,6 +51,13 @@ try {
     op_check($created===1,'concurrent overlapping bookings create exactly one row');
     $id=(int)$pdo->query('SELECT id FROM bookings')->fetchColumn();
     op_check((float)$pdo->query('SELECT amount FROM payments')->fetchColumn()===200.0,'rate derived from server profile');
+    require __DIR__ . '/../../NannyApp.Mobile/NannyApp/api/bookings/_serialize.php';
+    $pdo->exec('UPDATE nanny_profiles SET hourly_rate=300 WHERE user_id=1');
+    $read=$pdo->prepare(BOOKING_SELECT_SQL . ' WHERE b.id=?');
+    $read->execute([$id]);
+    $historical=$read->fetch();
+    op_check((float)$historical['amount']===200.0 && (float)$historical['hourly_rate']===100.0,'API preserves booked amount and rate after profile price changes');
+    $pdo->exec('UPDATE nanny_profiles SET hourly_rate=100 WHERE user_id=1');
     rejected(fn()=>save_booking_availability($pdo,1,[['dayOfWeek'=>0,'isAvailable'=>true,'timeStart'=>'25:00','timeEnd'=>'26:00']]),400,'invalid availability times rejected');
     $adjacent=create_booking($pdo,2,array_replace(booking_input(),['dateTime'=>date('Y-m-d',strtotime('+2 days')).' 12:00:00']));
     rejected(fn()=>transition_booking($pdo,2,$adjacent,'reschedule',['dateTime'=>booking_input()['dateTime']]),409,'reschedule cannot overlap another booking');

@@ -1,3 +1,5 @@
+> Updated 2026-10-10: the owner requested AWS deployment again. Use [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) and `deploy/aws/` as the current plan. The previous hosting decisions below are historical. No live deployment has occurred.
+
 # Zero-cost deployment and testing plan
 
 Owner requirement, 2026-09-28: no paid services. This supersedes the earlier AWS selection. Do not provision Lightsail/S3, buy a domain, enroll in paid app stores, or enable metered overages. Trials/credits are not a permanent free deployment plan. No account or service was provisioned by this work.

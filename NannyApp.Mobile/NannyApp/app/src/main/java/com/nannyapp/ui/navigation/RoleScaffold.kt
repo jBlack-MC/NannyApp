@@ -3,10 +3,7 @@ package com.nannyapp.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.nannyapp.domain.model.UserRole
 import com.nannyapp.ui.components.BottomNavItem
 

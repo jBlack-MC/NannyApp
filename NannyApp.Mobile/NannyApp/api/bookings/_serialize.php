@@ -39,7 +39,7 @@ function serialize_booking(array $b, array $viewer): array {
 /** Common JOIN used by every booking read query in this directory. */
 const BOOKING_SELECT_SQL = "
     SELECT b.*, pu.full_name AS parent_name, nu.full_name AS nanny_name, np.photo_url AS nanny_photo,
-           np.hourly_rate, (b.duration * np.hourly_rate) AS amount,
+           (pay.amount / NULLIF(b.duration, 0)) AS hourly_rate, pay.amount AS amount,
            pay.status AS payment_status, pay.payout_status AS payout_status
     FROM bookings b
     JOIN users pu ON pu.id = b.parent_id

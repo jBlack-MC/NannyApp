@@ -15,3 +15,14 @@
     width: 100%;
     max-width: none;
 }
+
+.admin-action-grid,
+.admin-queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 16px;
+}
+.admin-action-card { display: flex; flex-direction: column; gap: 8px; overflow-wrap: anywhere; }
+.admin-action-card strong { font-size: 2rem; }
+.admin-action-card:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+.admin-queue-grid dd { margin: 4px 0 0; font-size: 1.5rem; font-weight: 700; }

@@ -51,7 +51,10 @@ class BookingDetailViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(actionInProgress = true, actionError = null)
             when (val result = block()) {
-                is Resource.Success -> load()
+                is Resource.Success -> {
+                    _state.value = _state.value.copy(actionInProgress = false)
+                    load()
+                }
                 is Resource.Error -> _state.value = _state.value.copy(actionInProgress = false, actionError = result.message)
                 Resource.Loading -> {}
             }
