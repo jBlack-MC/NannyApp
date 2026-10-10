@@ -10,24 +10,15 @@
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var on = function (el, ev, fn) { el && el.addEventListener(ev, fn); };
 
-  /* ---------- 0. Splash screen (first visit per session) ---------- */
+  /* ---------- 0. Dismiss the page skeleton when markup is ready ---------- */
   (function () {
     var splash = document.getElementById('splash');
     if (!splash) return;
-    var seen = false;
-    try { seen = sessionStorage.getItem('na_splash') === '1'; } catch (e) {}
-    if (seen || reduceMotion) {            // skip the hold if already shown / reduced motion
-      splash.parentNode.removeChild(splash);
-      return;
-    }
     var done = function () {
-      splash.classList.add('hide');
-      try { sessionStorage.setItem('na_splash', '1'); } catch (e) {}
-      setTimeout(function () { if (splash.parentNode) splash.parentNode.removeChild(splash); }, 600);
+      if (splash.parentNode) splash.parentNode.removeChild(splash);
     };
-    // Hold ~2s but never longer than load+grace.
-    var t = setTimeout(done, 2000);
-    on(window, 'load', function () { clearTimeout(t); setTimeout(done, 600); });
+    if (document.readyState !== 'loading') done();
+    else on(document, 'DOMContentLoaded', done);
   })();
 
   /* ---------- 1. Fixed-nav: dark-glass when scrolled (or no hero) ---------- */

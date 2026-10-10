@@ -12,6 +12,16 @@ plugins {
 val releaseApiUrl = providers.gradleProperty("NANNYAPP_RELEASE_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_RELEASE_API_URL"))
     .orElse("")
+val debugApiUrl = providers.gradleProperty("NANNYAPP_DEBUG_API_URL")
+    .orElse(providers.environmentVariable("NANNYAPP_DEBUG_API_URL"))
+    .orElse("http://10.0.2.2/nannyapp/api/")
+val debugUri = runCatching { URI(debugApiUrl.get()) }.getOrNull()
+require(debugUri != null && debugUri.scheme in listOf("http", "https")
+    && !debugUri.host.isNullOrBlank() && debugUri.rawUserInfo == null
+    && debugUri.rawQuery == null && debugUri.rawFragment == null
+    && debugApiUrl.get().endsWith("/")) {
+    "NANNYAPP_DEBUG_API_URL must be an HTTP(S) API URL ending in /, without credentials, query or fragment."
+}
 val validateReleaseApiUrl = tasks.register("validateReleaseApiUrl") {
     doLast {
         val raw = releaseApiUrl.get()
@@ -47,7 +57,7 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2/nannyapp/api/\"")
+            buildConfigField("String", "API_BASE_URL", "\"${debugApiUrl.get().replace("\\", "\\\\").replace("\"", "\\\"")}\"")
             isMinifyEnabled = false
         }
         release {
@@ -67,7 +77,7 @@ android {
     sourceSets {
         getByName("main") {
             // Keep the approved brand artwork in this project's canonical assets folder.
-            assets.srcDirs("../assets")
+            assets.srcDirs("../assets", "../../../NannyApp.Shared/content")
         }
     }
     packaging {

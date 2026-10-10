@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends libcurl4-openss
 WORKDIR /srv/nannyapp
 COPY NannyApp.Shared/config/ NannyApp.Shared/config/
 COPY NannyApp.Shared/database/ NannyApp.Shared/database/
+COPY NannyApp.Shared/content/ NannyApp.Shared/content/
 COPY NannyApp.Shared/bin/ NannyApp.Shared/bin/
 COPY NannyApp.Web/ NannyApp.Web/
 COPY NannyApp.Mobile/NannyApp/api/ NannyApp.Mobile/NannyApp/api/

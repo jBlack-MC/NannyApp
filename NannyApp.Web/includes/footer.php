@@ -1,4 +1,11 @@
 </main>
+<script>
+// The server-rendered content is ready; do not wait for fonts, images or app.js.
+(function () {
+    var loader = document.getElementById('splash');
+    if (loader) loader.remove();
+})();
+</script>
 <?php
 /**
  * Role-based footer loader.

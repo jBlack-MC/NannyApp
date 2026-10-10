@@ -56,8 +56,11 @@ No PHP built-in server or MySQL was available in the environment that generated 
 2. Let Gradle sync — it will download Compose BOM 2024.06.00, Hilt 2.51.1, Room 2.6.1, Retrofit 2.11.0, etc. (see `app/build.gradle.kts` for the full list).
 3. Point the app at your backend: `app/build.gradle.kts` sets `API_BASE_URL` per build type —
    - `debug` defaults to `http://10.0.2.2/nannyapp/api/` (the Android emulator's alias for your host machine's `localhost`, works with XAMPP out of the box).
-   - `release` defaults to a placeholder HTTPS URL — change it before shipping.
-   - For a physical device on the same Wi-Fi, use your computer's LAN IP instead of `10.0.2.2`.
+   - `release` requires `-PNANNYAPP_RELEASE_API_URL=https://your-host/api/`.
+   - For a physical device on the same Wi-Fi, build with `-PNANNYAPP_DEBUG_API_URL=http://YOUR_LAN_IP/nannyapp/api/`. Debug builds allow local HTTP; release builds keep their HTTPS restrictions.
+   - A hosted HTTPS API address works on both phones and emulators. The API and database must be running for account and booking actions.
+
+The nine welcome pages include a bundled copy of the public web text for offline reading. The CMS is checked for updates for up to five seconds before using that copy. After changing public pages, run `python tests/build-public-content.py` from the repository root before rebuilding the APK. Full forms remain available through each page's website link.
 4. Run on an emulator or device (min SDK 24, target/compile SDK 34).
 
 This sandbox also has no Android SDK/Gradle/Kotlin toolchain, so `./gradlew build` was not run here — please run a Gradle sync and build locally as the first step and report back anything that doesn't compile so it can be fixed.
