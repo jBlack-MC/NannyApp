@@ -157,7 +157,8 @@ private fun TrustItem(title: String, subtitle: String, modifier: Modifier = Modi
 
 @Composable
 private fun ExploreGrid(onStaticPage: (String) -> Unit) {
-    val links = listOf("How it works" to "about", "Safety" to "safety", "Pricing" to "pricing", "Help centre" to "faq")
+    val links = listOf("How it works" to "about", "Safety" to "safety", "Pricing" to "pricing", "Help centre" to "faq",
+        "Community" to "community", "Resources" to "resources", "Contact" to "contact", "Terms" to "terms", "Privacy" to "privacy")
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         links.chunked(2).forEach { row ->
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

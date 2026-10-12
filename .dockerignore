@@ -21,6 +21,11 @@
 !NannyApp.Mobile/NannyApp/app/src/**
 !tests/
 !tests/**
+!deploy/
+!deploy/aws/
+!deploy/aws/Dockerfile
+!deploy/aws/apache.conf
+!deploy/aws/php.ini
 **/storage/**
 **/releases/**
 **/email_logs/**

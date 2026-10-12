@@ -8,7 +8,7 @@ $stmt = db()->prepare(
     'SELECT * FROM chat_messages WHERE (sender_id = :a AND receiver_id = :b) OR (sender_id = :b2 AND receiver_id = :a2)
      ORDER BY created_at ASC LIMIT 500'
 );
-$stmt->execute(['a' => $me['id'], 'b' => $otherId, 'b2' => $me['id'], 'a2' => $otherId]);
+$stmt->execute(['a' => $me['id'], 'b' => $otherId, 'b2' => $otherId, 'a2' => $me['id']]);
 
 json_response(true, array_map('serialize_message', $stmt->fetchAll()));
 

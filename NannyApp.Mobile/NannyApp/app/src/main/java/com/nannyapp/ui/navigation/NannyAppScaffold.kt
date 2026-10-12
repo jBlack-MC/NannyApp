@@ -98,6 +98,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                 ProfileScreen(
                     onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } },
                     onSupport = { nav.navigate(Routes.SUPPORT) },
+                    onStaticPage = { key -> rootNav.navigate(Routes.staticPage(key)) },
                 )
             }
             composable(Routes.SUPPORT) {

@@ -1,3 +1,5 @@
+> Updated 2026-10-10: the owner requested AWS deployment again. Use [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) and `deploy/aws/` as the current plan. The previous hosting decisions below are historical. No live deployment has occurred.
+
 # Deployment plan: small team, pilot users
 
 ## Current decision: free services only

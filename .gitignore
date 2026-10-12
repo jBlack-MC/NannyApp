@@ -7,6 +7,7 @@ Thumbs.db
 .env
 .env.*
 !.env.production.example
+!deploy/aws/.env.example
 
 # Android build output (per-project .gitignore also covers this under NannyApp.Mobile/NannyApp)
 build/
@@ -24,3 +25,9 @@ local.properties
 # Python test-runner bytecode
 __pycache__/
 *.py[cod]
+
+# Private Android distribution files
+*.apk
+*.aab
+*.jks
+*.keystore

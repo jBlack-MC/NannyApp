@@ -40,6 +40,7 @@ if (!isset($isActive) || !is_callable($isActive)) {
                         <?php $mUnread = unread_message_count(); ?>
                         <a class="<?= $isActive('messages.php') ? 'active' : '' ?>" href="<?= url('messages.php') ?>">Messages<?php if ($mUnread): ?> <span class="nav-badge"><?= $mUnread ?></span><?php endif; ?></a>
                     <?php elseif ($userRole === 'admin'): ?>
+                        <a class="<?= $isActive('admin/operations.php') ? 'active' : '' ?>" href="<?= url('admin/operations.php') ?>">Action centre</a>
                         <a class="<?= $isActive('admin/dashboard.php') ? 'active' : '' ?>" href="<?= url('admin/dashboard.php') ?>">Dashboard</a>
                         <a class="<?= $isActive('admin/users.php') ? 'active' : '' ?>" href="<?= url('admin/users.php') ?>">Users</a>
                         <a class="<?= $isActive('admin/bookings.php') ? 'active' : '' ?>" href="<?= url('admin/bookings.php') ?>">Bookings</a>

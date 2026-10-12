@@ -115,6 +115,15 @@ p{margin:0 0 1em}
 .splash::before,.splash::after{content:"";position:absolute;pointer-events:none;border-radius:50%;border:36px solid rgba(59,155,224,.18);width:72vmax;height:72vmax}
 .splash::before{top:-57vmax;left:-42vmax}.splash::after{right:-49vmax;bottom:-58vmax}
 .splash.hide{opacity:0;visibility:hidden}
+.no-js .splash{display:none}
+.splash{animation:pageLoaderFallback 0s 3s forwards}
+.page-skeleton{width:min(88vw,720px);display:grid;gap:16px}
+.page-skeleton .skeleton-heading{width:65%;height:36px;margin-bottom:12px}
+.page-skeleton .skeleton-text{height:16px;margin:0}
+.page-skeleton .skeleton-short{width:70%}
+.page-skeleton .skeleton-card{height:120px;margin-top:12px}
+@keyframes pageLoaderFallback{to{visibility:hidden;opacity:0;pointer-events:none}}
+@media(prefers-reduced-motion:reduce){.page-skeleton .skeleton,.page-skeleton .skeleton::after{animation:none}.splash{animation-delay:0s}}
 .splash-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:44px;animation:splashRise .6s cubic-bezier(.4,0,.2,1) both}
 .splash-logo{width:min(52vw,260px);height:min(52vw,260px);object-fit:contain;
     animation:splashPulse 1.8s ease-in-out infinite}

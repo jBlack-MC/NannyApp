@@ -6,6 +6,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
+import com.nannyapp.BuildConfig
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -20,6 +22,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.withTimeoutOrNull
+import com.nannyapp.util.ErrorMessages
 import javax.inject.Inject
 
 /**
@@ -33,11 +39,20 @@ class StaticPageViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow<Resource<Pair<String, String>>>(Resource.Loading)
     val state: StateFlow<Resource<Pair<String, String>>> = _state.asStateFlow()
+    private var loadJob: Job? = null
 
     fun load(pageKey: String) {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             _state.value = Resource.Loading
-            _state.value = repository.getPage(pageKey)
+            _state.value = try {
+                withTimeoutOrNull(25_000) { repository.getPage(pageKey) }
+                    ?: Resource.Error(ErrorMessages.TIMEOUT)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Resource.Error(ErrorMessages.GENERIC, e)
+            }
         }
     }
 }
@@ -45,6 +60,8 @@ class StaticPageViewModel @Inject constructor(
 @Composable
 fun StaticPageScreen(pageKey: String, onBack: () -> Unit, viewModel: StaticPageViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
+    val uriHandler = LocalUriHandler.current
+    val publicPages = setOf("about", "safety", "pricing", "faq", "community", "resources", "contact", "terms", "privacy")
     LaunchedEffect(pageKey) { viewModel.load(pageKey) }
 
     val title = pageKey.replaceFirstChar { it.uppercase() }
@@ -57,6 +74,13 @@ fun StaticPageScreen(pageKey: String, onBack: () -> Unit, viewModel: StaticPageV
                     Text(s.data.first, style = MaterialTheme.typography.headlineSmall)
                     Spacer(Modifier.height(12.dp))
                     Text(s.data.second, style = MaterialTheme.typography.bodyLarge)
+                    if (pageKey in publicPages) {
+                        Spacer(Modifier.height(16.dp))
+                        Text("The website has the full page and any available forms.", style = MaterialTheme.typography.bodyMedium)
+                        TextButton(onClick = {
+                            uriHandler.openUri(BuildConfig.API_BASE_URL.removeSuffix("api/") + "pages/$pageKey.php")
+                        }) { Text("Open full website page") }
+                    }
                 }
             }
         }

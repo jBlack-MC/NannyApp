@@ -1,0 +1,73 @@
+name: nannyapp-production
+x-app: &app
+  image: nannyapp-production:local
+  build:
+    context: ../..
+    dockerfile: deploy/aws/Dockerfile
+  env_file: ${NANNYAPP_ENV_FILE:-.env}
+  environment:
+    NANNYAPP_DB_HOST: database
+    NANNYAPP_STORAGE_DIR: /srv/nannyapp/private/uploads
+    NANNYAPP_APK_PATH: /srv/nannyapp/private/releases/NannyApp-latest.apk
+  volumes:
+    - uploads:/srv/nannyapp/private/uploads
+    - ./releases:/srv/nannyapp/private/releases:ro
+  depends_on:
+    database:
+      condition: service_healthy
+services:
+  proxy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      NANNYAPP_DOMAIN: ${NANNYAPP_DOMAIN:?Set your domain}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+  app:
+    <<: *app
+    restart: unless-stopped
+  database:
+    image: mariadb:10.11
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: ${NANNYAPP_DB_NAME:?Set database name}
+      MARIADB_USER: ${NANNYAPP_DB_USER:?Set database user}
+      MARIADB_PASSWORD: ${NANNYAPP_DB_PASS:?Set database password}
+      MARIADB_ROOT_PASSWORD: ${NANNYAPP_DB_ROOT_PASS:?Set separate root password}
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  migrate:
+    <<: *app
+    profiles: [tools]
+    command: ["php", "NannyApp.Shared/bin/migrate.php"]
+  worker:
+    <<: *app
+    user: www-data
+    restart: unless-stopped
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          php NannyApp.Shared/bin/send-email.php
+          php NannyApp.Shared/bin/deliver-notifications.php
+          php NannyApp.Shared/bin/delete-storage.php
+          sleep 60
+        done
+volumes:
+  database:
+  uploads:
+  certificates:
+  caddy_config:

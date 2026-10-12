@@ -1,0 +1,1 @@
+document.addEventListener('DOMContentLoaded',()=>{const main=document.querySelector('.content');const links=[...main.querySelectorAll(':scope > h2[id]')].map(h=>`<a href="#${h.id}">${h.textContent}</a>`).join('');const toc=document.querySelector('.toc');if(toc)toc.innerHTML=links;});

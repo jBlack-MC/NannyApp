@@ -1,12 +1,18 @@
 package com.nannyapp.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,14 +22,26 @@ import androidx.compose.ui.unit.dp
 /** Full-bleed loading state, per request #33/#39. */
 @Composable
 fun LoadingView(modifier: Modifier = Modifier, label: String = "Loading…") {
+    val transition = rememberInfiniteTransition(label = "Skeleton loading")
+    val alpha by transition.animateFloat(
+        initialValue = 0.35f, targetValue = 0.7f,
+        animationSpec = infiniteRepeatable(tween(900), RepeatMode.Reverse),
+        label = "Skeleton opacity",
+    )
+    val color = MaterialTheme.colorScheme.onSurface.copy(alpha = alpha * 0.2f)
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+        modifier = modifier.fillMaxSize().padding(24.dp).semantics { contentDescription = label },
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        CircularProgressIndicator()
-        Spacer(Modifier.height(12.dp))
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(Modifier.fillMaxWidth(0.65f).height(30.dp).background(color, RoundedCornerShape(8.dp)))
+        Spacer(Modifier.height(8.dp))
+        repeat(3) {
+            repeat(3) { line ->
+                Box(Modifier.fillMaxWidth(if (line == 2) 0.7f else 1f).height(16.dp)
+                    .background(color, RoundedCornerShape(6.dp)))
+            }
+            Spacer(Modifier.height(16.dp))
+        }
     }
 }
 
