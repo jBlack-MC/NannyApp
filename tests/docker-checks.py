@@ -7,10 +7,10 @@ import tarfile
 import tempfile
 
 root = Path(__file__).resolve().parents[1]
-folders = ['NannyApp.Shared/config', 'NannyApp.Shared/database', 'NannyApp.Shared/bin',
-           'NannyApp.Web', 'NannyApp.Mobile/NannyApp/api', 'NannyApp.Mobile/NannyApp/includes',
-           'NannyApp.Mobile/NannyApp/config', 'NannyApp.Mobile/NannyApp/app/src', 'tests']
-source_types = {'.php', '.js', '.cjs', '.css', '.sql', '.kt', '.xml', '.py', '.webmanifest'}
+folders = ['NannyApp.Shared/config', 'NannyApp.Shared/database', 'NannyApp.Shared/bin', 'NannyApp.Shared/content',
+            'NannyApp.Web', 'NannyApp.Mobile/NannyApp/api', 'NannyApp.Mobile/NannyApp/includes',
+            'NannyApp.Mobile/NannyApp/config', 'NannyApp.Mobile/NannyApp/app/src', 'tests']
+source_types = {'.php', '.js', '.cjs', '.css', '.sql', '.kt', '.xml', '.py', '.webmanifest', '.json'}
 if not shutil.which('docker'):
     raise SystemExit('Docker is required; start Docker Engine/Compose or use tests/run-checks.py locally.')
 compose = ['docker', 'compose', '-p', 'nannyapp-tests', '-f', str(root / 'compose.test.yml')]
