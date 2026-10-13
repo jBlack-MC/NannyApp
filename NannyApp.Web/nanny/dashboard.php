@@ -123,7 +123,7 @@ require __DIR__ . '/../includes/header.php';
 ?>
 <div class="dash-head">
     <div>
-        <h1>Hi, <?= e(explode(' ', $me['full_name'])[0]) ?> 👋</h1>
+        <h1>Hi, <?= e(explode(' ', $me['full_name'])[0]) ?></h1>
         <p class="muted dash-head-sub">Your childcare professional overview</p>
     </div>
     <div class="dash-head-actions">
@@ -153,12 +153,12 @@ require __DIR__ . '/../includes/header.php';
 <?php endif; ?>
 
 <div class="stats section">
-    <div class="stat"><span class="stat-ico">📥</span><b><?= (int)($c['pending'] ?? 0) ?></b>New requests</div>
-    <div class="stat"><span class="stat-ico">🗓️</span><b><?= (int)($c['upcoming'] ?? 0) ?></b>Upcoming</div>
-    <div class="stat"><span class="stat-ico">✅</span><b><?= (int)($c['completed'] ?? 0) ?></b>Completed</div>
-    <div class="stat"><span class="stat-ico">💰</span><b>R<?= number_format($monthEarnings, 0) ?></b>This month</div>
-    <div class="stat"><span class="stat-ico">💎</span><b>R<?= number_format($totalEarned, 0) ?></b>Total earned</div>
-    <div class="stat"><span class="stat-ico">⭐</span><b><?= number_format((float)($p['average_rating'] ?? 0), 1) ?></b>Rating (<?= $reviewCount ?>)</div>
+    <div class="stat"><span class="stat-ico"><?= icon('inbox') ?></span><b><?= (int)($c['pending'] ?? 0) ?></b>New requests</div>
+    <div class="stat"><span class="stat-ico"><?= icon('calendar-days') ?></span><b><?= (int)($c['upcoming'] ?? 0) ?></b>Upcoming</div>
+    <div class="stat"><span class="stat-ico"><?= icon('circle-check') ?></span><b><?= (int)($c['completed'] ?? 0) ?></b>Completed</div>
+    <div class="stat"><span class="stat-ico"><?= icon('wallet') ?></span><b>R<?= number_format($monthEarnings, 0) ?></b>This month</div>
+    <div class="stat"><span class="stat-ico"><?= icon('gem') ?></span><b>R<?= number_format($totalEarned, 0) ?></b>Total earned</div>
+    <div class="stat"><span class="stat-ico"><?= icon('star') ?></span><b><?= number_format((float)($p['average_rating'] ?? 0), 1) ?></b>Rating (<?= $reviewCount ?>)</div>
 </div>
 
 <!-- Pending requests -->
@@ -175,7 +175,7 @@ require __DIR__ . '/../includes/header.php';
             <div class="panel-row-info">
                 <strong><?= e($b['parent_name']) ?></strong>
                 <div class="muted panel-row-muted"><?= e(date('D d M Y \a\t H:i', strtotime($b['date_time']))) ?> · <?= e(rtrim(rtrim((string)$b['duration'],'0'),'.')) ?> hrs</div>
-                <?php if ($b['notes']): ?><div class="muted panel-row-note">📝 <?= e(substr($b['notes'],0,60)) ?>…</div><?php endif; ?>
+                <?php if ($b['notes']): ?><div class="muted panel-row-note"><?= icon('file-text') ?> <?= e(substr($b['notes'],0,60)) ?>…</div><?php endif; ?>
             </div>
             <a class="btn btn-sm btn-primary" href="<?= url('nanny/bookings.php') ?>">Respond</a>
         </div>
@@ -205,7 +205,7 @@ require __DIR__ . '/../includes/header.php';
             <a href="<?= url('nanny/earnings.php') ?>">Full earnings breakdown →</a>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">💰</div><p class="muted">Complete bookings to see earnings here.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('wallet') ?></div><p class="muted">Complete bookings to see earnings here.</p></div>
         <?php endif; ?>
     </div>
     <div class="card">
@@ -226,7 +226,7 @@ require __DIR__ . '/../includes/header.php';
             <a href="<?= url('nanny/bookings.php') ?>">Manage all bookings →</a>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">📊</div><p class="muted">No bookings in the last 6 months.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('chart-column') ?></div><p class="muted">No bookings in the last 6 months.</p></div>
         <?php endif; ?>
     </div>
 </div>
@@ -244,7 +244,7 @@ require __DIR__ . '/../includes/header.php';
         <div class="card-muted review-item-card">
             <div class="detail-head mb-6 review-item-head">
                 <strong class="feed-title"><?= e($rv['reviewer_name']) ?></strong>
-                <span class="review-stars-sm"><?= str_repeat('★', (int)$rv['rating']) ?><?= str_repeat('☆', 5 - (int)$rv['rating']) ?></span>
+                <span class="review-stars-sm"><?= str_repeat(icon('star', 'ico-fill'), (int)$rv['rating']) ?><?= str_repeat(icon('star', 'ico-fill ico-off'), 5 - (int)$rv['rating']) ?></span>
             </div>
             <?php if ($rv['comment']): ?>
             <p class="muted no-margin text-sm review-quote">"<?= e(substr($rv['comment'], 0, 120)) ?><?= strlen($rv['comment']) > 120 ? '…' : '' ?>"</p>
@@ -259,27 +259,27 @@ require __DIR__ . '/../includes/header.php';
 <!-- Quick actions -->
 <div class="grid grid-3 section">
     <a class="card action-card" href="<?= url('nanny/bookings.php') ?>">
-        <div class="stat-ico">📋</div>
+        <div class="stat-ico"><?= icon('clipboard-list') ?></div>
         <div><strong>Manage Bookings</strong><div class="muted meta"><?= (int)($c['pending'] ?? 0) ?> pending</div></div>
     </a>
     <a class="card action-card" href="<?= url('nanny/profile.php') ?>">
-        <div class="stat-ico">👤</div>
+        <div class="stat-ico"><?= icon('user') ?></div>
         <div><strong>Edit Profile</strong><div class="muted meta"><?= $complete ?>% complete</div></div>
     </a>
     <a class="card action-card" href="<?= url('nanny/availability.php') ?>">
-        <div class="stat-ico">🗓️</div>
+        <div class="stat-ico"><?= icon('calendar-days') ?></div>
         <div><strong>Availability</strong><div class="muted meta">Set your schedule</div></div>
     </a>
     <a class="card action-card" href="<?= url('nanny/earnings.php') ?>">
-        <div class="stat-ico">💰</div>
+        <div class="stat-ico"><?= icon('wallet') ?></div>
         <div><strong>Earnings</strong><div class="muted meta">R<?= number_format($totalEarned, 0) ?> total</div></div>
     </a>
     <a class="card action-card" href="<?= url('nanny/reviews.php') ?>">
-        <div class="stat-ico">⭐</div>
+        <div class="stat-ico"><?= icon('star') ?></div>
         <div><strong>My Reviews</strong><div class="muted meta"><?= $reviewCount ?> review<?= $reviewCount===1?'':'s' ?></div></div>
     </a>
     <a class="card action-card" href="<?= url('messages.php') ?>">
-        <div class="stat-ico">💬</div>
+        <div class="stat-ico"><?= icon('message-circle') ?></div>
         <div><strong>Messages</strong><?php if ($unreadMsgs): ?><div class="muted meta"><?= $unreadMsgs ?> unread</div><?php else: ?><div class="muted meta">All read</div><?php endif; ?></div>
     </a>
 </div>

@@ -5,7 +5,8 @@
 Each page is rendered by PHP with stubbed includes (no database, no session), so
 loops and helper output match what the website shows. The result keeps two views
 of every page: `blocks`, the structure the app lays out like the website (eyebrow,
-headings, cards, lists), and `body`, the same text flattened for older app builds.
+headings, cards, lists, and icons by Lucide name), and `body`, the same text flattened
+for older app builds.
 """
 import html
 from html.parser import HTMLParser
@@ -36,6 +37,8 @@ function csrf_field() { return ''; }
 function verify_csrf() {}
 function flash(...$args) {}
 function redirect(...$args) { exit; }
+// Only the icon's name matters here: the app draws its own vector for each name.
+function icon($name, $class = '') { return '<svg data-icon="' . e($name) . '"></svg>'; }
 function db() {
     return new class {
         function query($sql) { return $this; }
@@ -98,10 +101,14 @@ class PageBlocks(HTMLParser):
             if tag == 'br' and not self.skipping:
                 (self.text if self.collecting else self.loose).append(LINE_BREAK)
             return
+        # An icon tile carries the icon's name, which the app maps to its own vector.
+        if tag == 'svg' and self.collecting == 'icon' and not self.skipping:
+            self.text.append(dict(attrs).get('data-icon') or '')
         classes = set((dict(attrs).get('class') or '').split())
         kind = 'plain'
         # A link that opens a container's text is navigation ("All resources →"), not prose.
-        lone_link = tag == 'a' and not self.collecting and not ''.join(self.loose).strip()
+        lone_link = (tag == 'a' and not classes & CARD_CLASSES and not self.collecting
+                     and not ''.join(self.loose).strip())
         if self.skipping or tag in SKIP_TAGS or classes & SKIP_CLASSES or lone_link:
             kind = 'skip'
             self.skipping += 1
@@ -151,7 +158,7 @@ def flatten(blocks):
     for block in blocks:
         if block['type'] == 'card':
             yield from flatten(block['blocks'])
-        else:
+        elif block['type'] != 'icon':  # icon names are not prose
             yield block['text']
 
 

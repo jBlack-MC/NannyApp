@@ -2,7 +2,7 @@
   "about": {
     "pageKey": "about",
     "title": "How it works",
-    "body": "About us\n\nChildcare you can trust\n\nNanny-App connects families with vetted, caring nannies — and gives nannies a simple way to find work they love. We handle the searching, booking and moderation so everyone can focus on what matters: happy, well-cared-for children.\n\n🛡️\n\nTrust first\n\nEvery nanny is reviewed and verified by our admin team before they appear in search results.\n\n💙\n\nBuilt on care\n\nFrom newborn specialists to playful all-rounders, we help you find the right match for your family.\n\n⚡\n\nRefreshingly simple\n\nSearch, request a booking and track everything in one place — on your phone or computer.\n\nOur story\n\nNannyApp is a South African childcare booking platform that puts safety and simplicity first. Parents browse verified nannies, send booking requests and see an estimated cost up front. Nannies manage their own profile, rates and availability, and accept or decline requests on their terms. An admin team moderates the platform and verifies every nanny.\n\nWe believe finding childcare shouldn't be stressful — so we made it feel as warm and reassuring as the care itself.",
+    "body": "About us\n\nChildcare you can trust\n\nNanny-App connects families with vetted, caring nannies — and gives nannies a simple way to find work they love. We handle the searching, booking and moderation so everyone can focus on what matters: happy, well-cared-for children.\n\nTrust first\n\nEvery nanny is reviewed and verified by our admin team before they appear in search results.\n\nBuilt on care\n\nFrom newborn specialists to playful all-rounders, we help you find the right match for your family.\n\nRefreshingly simple\n\nSearch, request a booking and track everything in one place — on your phone or computer.\n\nOur story\n\nNannyApp is a South African childcare booking platform that puts safety and simplicity first. Parents browse verified nannies, send booking requests and see an estimated cost up front. Nannies manage their own profile, rates and availability, and accept or decline requests on their terms. An admin team moderates the platform and verifies every nanny.\n\nWe believe finding childcare shouldn't be stressful — so we made it feel as warm and reassuring as the care itself.",
     "blocks": [
       {
         "type": "eyebrow",
@@ -21,7 +21,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🛡️"
+            "text": "shield-check"
           },
           {
             "type": "h3",
@@ -38,7 +38,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "💙"
+            "text": "heart-handshake"
           },
           {
             "type": "h3",
@@ -55,7 +55,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "⚡"
+            "text": "zap"
           },
           {
             "type": "h3",
@@ -89,7 +89,7 @@
   "safety": {
     "pageKey": "safety",
     "title": "Safety",
-    "body": "Safety & trust\n\nHow we help keep families safe\n\nSafety is the foundation of Nanny-App. Here's how we protect parents, nannies and children at every step.\n\n✅\n\nVerified nannies\n\nOnly nannies approved by our admin team appear in search. Editing a profile sends it back for re-verification.\n\n👀\n\nHuman moderation\n\nAdmins review accounts and can suspend or remove anyone who breaks our community standards.\n\n🔒\n\nSecure by design\n\nPasswords are hashed, every form is protected against cross-site request forgery, and access is role-based.\n\n💳\n\nTransparent costs\n\nSee an estimated cost before you request a booking — no hidden fees or surprises.\n\n📝\n\nBooking records\n\nEvery request, confirmation and completed session is logged to your dashboard for full transparency.\n\n🚩\n\nReport concerns\n\nSomething not right? Contact us and our team will look into it quickly.\n\nSafety tips for parents\n\nRead each nanny's profile, experience and skills carefully before booking.\n\nUse the notes field to share your children's ages and any special needs.\n\nMeet your nanny and agree on expectations before the first session.\n\nKeep all communication and bookings on the platform so there's a clear record.",
+    "body": "Safety & trust\n\nHow we help keep families safe\n\nSafety is the foundation of Nanny-App. Here's how we protect parents, nannies and children at every step.\n\nVerified nannies\n\nOnly nannies approved by our admin team appear in search. Editing a profile sends it back for re-verification.\n\nHuman moderation\n\nAdmins review accounts and can suspend or remove anyone who breaks our community standards.\n\nSecure by design\n\nPasswords are hashed, every form is protected against cross-site request forgery, and access is role-based.\n\nTransparent costs\n\nSee an estimated cost before you request a booking — no hidden fees or surprises.\n\nBooking records\n\nEvery request, confirmation and completed session is logged to your dashboard for full transparency.\n\nReport concerns\n\nSomething not right? Contact us and our team will look into it quickly.\n\nSafety tips for parents\n\nRead each nanny's profile, experience and skills carefully before booking.\n\nUse the notes field to share your children's ages and any special needs.\n\nMeet your nanny and agree on expectations before the first session.\n\nKeep all communication and bookings on the platform so there's a clear record.",
     "blocks": [
       {
         "type": "eyebrow",
@@ -108,7 +108,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "✅"
+            "text": "circle-check"
           },
           {
             "type": "h3",
@@ -125,7 +125,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "👀"
+            "text": "eye"
           },
           {
             "type": "h3",
@@ -142,7 +142,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🔒"
+            "text": "lock"
           },
           {
             "type": "h3",
@@ -159,7 +159,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "💳"
+            "text": "credit-card"
           },
           {
             "type": "h3",
@@ -176,7 +176,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "📝"
+            "text": "file-text"
           },
           {
             "type": "h3",
@@ -193,7 +193,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🚩"
+            "text": "flag"
           },
           {
             "type": "h3",
@@ -580,7 +580,7 @@
   "community": {
     "pageKey": "community",
     "title": "Community",
-    "body": "Community\n\nFamilies and nannies, together\n\nNanny-App is more than a booking platform — it's a growing community built on trust, care and professional childcare across South Africa.\n\nOur values\n\nWhat makes our community special\n\n🤝\n\nLasting relationships\n\nParents and nannies build long-term bonds through repeat bookings, trust and shared care of the little ones that matter most.\n\n⭐\n\nHonest reviews\n\nAfter every completed session, parents leave real reviews. This keeps standards high and helps families find the perfect match.\n\n🌍\n\nSouth African roots\n\nBuilt for South African families. Our nannies speak English, isiZulu, Sesotho, Afrikaans and more — care in your home language.\n\n🔒\n\nSafe and verified\n\nEvery nanny in our community is manually verified by our admin team before appearing to parents. Safety is never optional.\n\n💬\n\nOpen communication\n\nSecure in-app messaging lets parents and nannies coordinate, ask questions and stay connected throughout every booking.\n\n📚\n\nShared knowledge\n\nOur resources section is filled with childcare guides, safety tips and development advice contributed by professionals and families.\n\nCommunity articles\n\nTips from our community\n\nWhat our community says\n\nFamilies and nannies, in their own words\n\nMargaret was amazing with our two children. She arrived early, kept us updated throughout the evening, and the kids absolutely loved her. We've already booked her again.\n\nSarah Dlamini\n\nParent · Sandton, Johannesburg\n\n★★★★★\n\nVery professional and caring. My daughter took to her immediately. NannyApp made finding her so easy — I had three great candidates to choose from within 24 hours.\n\nMichael Mokoena\n\nParent · Centurion, Pretoria\n\n★★★★★\n\nNannyApp changed my career. I now have a steady flow of families who trust me, the payments are always on time, and the verification badge gives parents confidence in my credentials.\n\nNomsa Khumalo\n\nNanny · Sandton · 7 years exp.\n\n★★★★★\n\nAs a working mom, finding reliable childcare used to be my biggest stress. With NannyApp, I can see reviews, qualifications, and availability all in one place. Game changer.\n\nLebo Khumalo\n\nParent · Midrand, Johannesburg\n\n★★★★★\n\nI love that all my documents are in one place and the admin team was thorough but friendly during verification. I felt like they genuinely cared about quality, not just ticking boxes.\n\nMargaret Sithole\n\nNanny · Johannesburg · 9 years exp.\n\n★★★★★\n\nThe booking system is so simple my husband set it up in five minutes. We love being able to message the nanny before the booking — it gives us real peace of mind.\n\nNomsa Ncube\n\nParent · Durban\n\n★★★★★\n\n💛\n\nBe part of our community\n\nJoin thousands of South African families and nannies who trust Nanny-App for safe, professional childcare.",
+    "body": "Community\n\nFamilies and nannies, together\n\nNanny-App is more than a booking platform — it's a growing community built on trust, care and professional childcare across South Africa.\n\nOur values\n\nWhat makes our community special\n\nLasting relationships\n\nParents and nannies build long-term bonds through repeat bookings, trust and shared care of the little ones that matter most.\n\nHonest reviews\n\nAfter every completed session, parents leave real reviews. This keeps standards high and helps families find the perfect match.\n\nSouth African roots\n\nBuilt for South African families. Our nannies speak English, isiZulu, Sesotho, Afrikaans and more — care in your home language.\n\nSafe and verified\n\nEvery nanny in our community is manually verified by our admin team before appearing to parents. Safety is never optional.\n\nOpen communication\n\nSecure in-app messaging lets parents and nannies coordinate, ask questions and stay connected throughout every booking.\n\nShared knowledge\n\nOur resources section is filled with childcare guides, safety tips and development advice contributed by professionals and families.\n\nCommunity articles\n\nTips from our community\n\nParenting\n\nThe importance of routine for young children\n\nConsistent routines reduce anxiety and help children feel safe, loved and ready to learn. Here's how to create one that works.\n\nNutrition\n\nHealthy snack ideas your nanny can prepare\n\nQuick, nutritious snacks that nannies can make with ingredients already in your kitchen — loved by toddlers and school-age children alike.\n\nSafety\n\nTeaching children about stranger safety\n\nAge-appropriate ways to talk to your child about personal safety without causing unnecessary fear. Practical scripts for parents and nannies.\n\nDevelopment\n\nScreen time guidelines by age group\n\nThe South African Paediatric Association's recommendations on healthy screen time — and ideas for what to do instead.\n\nWellbeing\n\nSupporting your nanny's mental health\n\nChildcare is emotionally demanding work. Small gestures of appreciation go a long way in building a healthy, sustainable working relationship.\n\nEducation\n\nReading aloud every day\n\nResearch shows that reading 20 minutes a day with a child dramatically boosts vocabulary, empathy and school readiness. Tips on making it fun.\n\nWhat our community says\n\nFamilies and nannies, in their own words\n\nMargaret was amazing with our two children. She arrived early, kept us updated throughout the evening, and the kids absolutely loved her. We've already booked her again.\n\nSarah Dlamini\n\nParent · Sandton, Johannesburg\n\nVery professional and caring. My daughter took to her immediately. NannyApp made finding her so easy — I had three great candidates to choose from within 24 hours.\n\nMichael Mokoena\n\nParent · Centurion, Pretoria\n\nNannyApp changed my career. I now have a steady flow of families who trust me, the payments are always on time, and the verification badge gives parents confidence in my credentials.\n\nNomsa Khumalo\n\nNanny · Sandton · 7 years exp.\n\nAs a working mom, finding reliable childcare used to be my biggest stress. With NannyApp, I can see reviews, qualifications, and availability all in one place. Game changer.\n\nLebo Khumalo\n\nParent · Midrand, Johannesburg\n\nI love that all my documents are in one place and the admin team was thorough but friendly during verification. I felt like they genuinely cared about quality, not just ticking boxes.\n\nMargaret Sithole\n\nNanny · Johannesburg · 9 years exp.\n\nThe booking system is so simple my husband set it up in five minutes. We love being able to message the nanny before the booking — it gives us real peace of mind.\n\nNomsa Ncube\n\nParent · Durban\n\nBe part of our community\n\nJoin thousands of South African families and nannies who trust Nanny-App for safe, professional childcare.",
     "blocks": [
       {
         "type": "eyebrow",
@@ -607,7 +607,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🤝"
+            "text": "handshake"
           },
           {
             "type": "h3",
@@ -624,7 +624,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "⭐"
+            "text": "star"
           },
           {
             "type": "h3",
@@ -641,7 +641,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🌍"
+            "text": "globe"
           },
           {
             "type": "h3",
@@ -658,7 +658,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🔒"
+            "text": "lock"
           },
           {
             "type": "h3",
@@ -675,7 +675,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "💬"
+            "text": "message-circle"
           },
           {
             "type": "h3",
@@ -692,7 +692,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "📚"
+            "text": "library"
           },
           {
             "type": "h3",
@@ -711,6 +711,132 @@
       {
         "type": "h2",
         "text": "Tips from our community"
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "smile"
+          },
+          {
+            "type": "tag",
+            "text": "Parenting"
+          },
+          {
+            "type": "h3",
+            "text": "The importance of routine for young children"
+          },
+          {
+            "type": "p",
+            "text": "Consistent routines reduce anxiety and help children feel safe, loved and ready to learn. Here's how to create one that works."
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "apple"
+          },
+          {
+            "type": "tag",
+            "text": "Nutrition"
+          },
+          {
+            "type": "h3",
+            "text": "Healthy snack ideas your nanny can prepare"
+          },
+          {
+            "type": "p",
+            "text": "Quick, nutritious snacks that nannies can make with ingredients already in your kitchen — loved by toddlers and school-age children alike."
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "shield-check"
+          },
+          {
+            "type": "tag",
+            "text": "Safety"
+          },
+          {
+            "type": "h3",
+            "text": "Teaching children about stranger safety"
+          },
+          {
+            "type": "p",
+            "text": "Age-appropriate ways to talk to your child about personal safety without causing unnecessary fear. Practical scripts for parents and nannies."
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "sprout"
+          },
+          {
+            "type": "tag",
+            "text": "Development"
+          },
+          {
+            "type": "h3",
+            "text": "Screen time guidelines by age group"
+          },
+          {
+            "type": "p",
+            "text": "The South African Paediatric Association's recommendations on healthy screen time — and ideas for what to do instead."
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "heart"
+          },
+          {
+            "type": "tag",
+            "text": "Wellbeing"
+          },
+          {
+            "type": "h3",
+            "text": "Supporting your nanny's mental health"
+          },
+          {
+            "type": "p",
+            "text": "Childcare is emotionally demanding work. Small gestures of appreciation go a long way in building a healthy, sustainable working relationship."
+          }
+        ]
+      },
+      {
+        "type": "card",
+        "blocks": [
+          {
+            "type": "icon",
+            "text": "book-open"
+          },
+          {
+            "type": "tag",
+            "text": "Education"
+          },
+          {
+            "type": "h3",
+            "text": "Reading aloud every day"
+          },
+          {
+            "type": "p",
+            "text": "Research shows that reading 20 minutes a day with a child dramatically boosts vocabulary, empathy and school readiness. Tips on making it fun."
+          }
+        ]
       },
       {
         "type": "eyebrow",
@@ -734,10 +860,6 @@
           {
             "type": "p",
             "text": "Parent · Sandton, Johannesburg"
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -755,10 +877,6 @@
           {
             "type": "p",
             "text": "Parent · Centurion, Pretoria"
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -776,10 +894,6 @@
           {
             "type": "p",
             "text": "Nanny · Sandton · 7 years exp."
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -797,10 +911,6 @@
           {
             "type": "p",
             "text": "Parent · Midrand, Johannesburg"
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -818,10 +928,6 @@
           {
             "type": "p",
             "text": "Nanny · Johannesburg · 9 years exp."
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -839,10 +945,6 @@
           {
             "type": "p",
             "text": "Parent · Durban"
-          },
-          {
-            "type": "tag",
-            "text": "★★★★★"
           }
         ]
       },
@@ -851,7 +953,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "💛"
+            "text": "heart"
           },
           {
             "type": "h2",
@@ -868,7 +970,7 @@
   "resources": {
     "pageKey": "resources",
     "title": "Resources",
-    "body": "Resources\n\nGuides for parents & nannies\n\nPractical childcare tips, safety guides and expert advice to help your family thrive.\n\nFor parents\n\nFind care with confidence\n\nHiring\n\n10 questions to ask before hiring\n\nFirst aid certification, discipline philosophy, references and experience — the essential questions that protect your family.\n\nRelationships\n\nBuilding trust with your nanny\n\nHow to establish a positive, trusting relationship between your family and your nanny from day one.\n\nScheduling\n\nBuild a schedule that works\n\nCreate a balanced schedule that meets your family's needs while respecting your nanny's time and boundaries.\n\nSafety\n\nChild safety essentials\n\nEmergency contacts, allergy information, home safety and what to brief your nanny before every session.\n\nChild development\n\nAge-appropriate activities\n\nFun, educational activities for newborns, toddlers, school-age children and teenagers that nannies can use.\n\nCommunication\n\nGiving feedback to your nanny\n\nHow to give constructive, respectful feedback that improves care quality and keeps the relationship strong.\n\nFor nannies\n\nBuild a successful career\n\n👤\n\nBuilding a great profile\n\nA warm bio, clear skills list, professional photo and honest rate help families choose you with confidence.\n\n✅\n\nGetting verified\n\nUpload your ID, qualifications and certificates to our secure portal. Admin verification typically takes 1–3 business days.\n\n📋\n\nManaging bookings\n\nRespond to requests promptly, confirm details and mark sessions complete to maintain a strong track record.\n\n⭐\n\nEarning great reviews\n\nPunctuality, clear communication and going the extra mile earn 5-star reviews that attract more families.\n\n💰\n\nSetting your rate\n\nResearch market rates for your area, experience level and specialisations. You can update your rate any time.\n\n🗓️\n\nManaging availability\n\nKeep your availability calendar up to date so parents can see when you're free and book with confidence.\n\n🚨 South African Emergency Numbers\n\nPolice\n\n10111\n\nSAPS emergency line\n\nAmbulance\n\n10177\n\nNational ambulance service\n\nFire\n\n10177\n\nFire and rescue services\n\nChildline SA\n\n116\n\nFree 24/7 child helpline\n\nER24\n\n084 124\n\nPrivate emergency response\n\nStop Crime\n\n0860 010 111\n\nAnonymous crime reporting\n\nChild development\n\nKey milestones by age\n\n0–12 months\n\n👶 Newborn & infant\n\nEye contact by 6 weeks, social smiling by 2 months, sitting independently by 6–8 months, first words around 12 months. Nannies should track and record developmental milestones for parents.\n\n1–3 years\n\n🚶 Toddler\n\nWalking, climbing, 2-word phrases at 2 years, toilet training from 18–24 months, imaginative play begins. Structured routine and consistent caregivers are critical at this stage.\n\n3–5 years\n\n🎨 Pre-school\n\nSentences of 4–5 words, drawing basic shapes, dressing independently, beginning to share and cooperate. Creative play and reading aloud make a big difference.\n\n5–8 years\n\n📚 Early school\n\nReading begins, more complex social interactions, understanding rules and fairness. Homework help and after-school structure are valuable at this age.\n\n8–12 years\n\n⚽ Middle childhood\n\nStrong friendships, logical thinking, hobbies develop. Nannies can support transport to activities, homework, and emotional regulation.\n\n12+ years\n\n💬 Adolescence\n\nIncreasing independence and privacy. A trusted older presence still matters — especially for after-school supervision and emotional support.\n\n🥗 Healthy meal ideas for nannies\n\nQuick, nutritious meals and snacks that nannies can prepare with everyday kitchen ingredients.\n\nToddlers (1–3)\n\nSoft fruit pieces · Cheese cubes · Peanut butter on rice cakes · Yoghurt with berries · Steamed veg with hummus\n\nSchool age (4–10)\n\nAvo and egg on toast · Mini wraps with cheese · Fruit smoothies · Baked sweet potato · Brown rice with chicken\n\nTeens\n\nPasta with tomato sauce · Stir-fried veg with noodles · Oats with banana · Boiled eggs and whole-wheat toast · Soup with bread\n\nQuick answers\n\nFrequently asked questions\n\nHow does NannyApp verify nannies?\n\nEvery nanny goes through a manual ID check, qualification review, and background screening by our admin team before receiving the Verified badge. This typically takes 1–3 business days.\n\nCan I cancel a booking?\n\nYes. Cancel at least 24 hours before the session start time for a full refund. Late cancellations may incur a cancellation fee. Contact support if you have exceptional circumstances.\n\nWhat payment methods are accepted?\n\nWe accept all major debit and credit cards through our secure payment gateway. Funds are held and released to the nanny only after the session is completed.\n\nHow are nanny rates set?\n\nNannies set their own hourly rates based on their experience, qualifications, and location. You can filter search results by rate range to find the right fit for your budget.\n\nWhat if I have a problem during a session?\n\nContact your nanny directly via the in-app message system. For emergencies, call the relevant South African emergency number. For platform issues, open a support ticket or call our support line.\n\nIs NannyApp available outside Johannesburg?\n\nYes. We currently have active nannies in Johannesburg, Sandton, Pretoria, Centurion, Midrand, Cape Town, Durban, and growing. More areas are added as we verify nannies in new regions.\n\nReady to get started?\n\nCreate your free account and join the Nanny-App community today.",
+    "body": "Resources\n\nGuides for parents & nannies\n\nPractical childcare tips, safety guides and expert advice to help your family thrive.\n\nFor parents\n\nFind care with confidence\n\nHiring\n\n10 questions to ask before hiring\n\nFirst aid certification, discipline philosophy, references and experience — the essential questions that protect your family.\n\nRelationships\n\nBuilding trust with your nanny\n\nHow to establish a positive, trusting relationship between your family and your nanny from day one.\n\nScheduling\n\nBuild a schedule that works\n\nCreate a balanced schedule that meets your family's needs while respecting your nanny's time and boundaries.\n\nSafety\n\nChild safety essentials\n\nEmergency contacts, allergy information, home safety and what to brief your nanny before every session.\n\nChild development\n\nAge-appropriate activities\n\nFun, educational activities for newborns, toddlers, school-age children and teenagers that nannies can use.\n\nCommunication\n\nGiving feedback to your nanny\n\nHow to give constructive, respectful feedback that improves care quality and keeps the relationship strong.\n\nFor nannies\n\nBuild a successful career\n\nBuilding a great profile\n\nA warm bio, clear skills list, professional photo and honest rate help families choose you with confidence.\n\nGetting verified\n\nUpload your ID, qualifications and certificates to our secure portal. Admin verification typically takes 1–3 business days.\n\nManaging bookings\n\nRespond to requests promptly, confirm details and mark sessions complete to maintain a strong track record.\n\nEarning great reviews\n\nPunctuality, clear communication and going the extra mile earn 5-star reviews that attract more families.\n\nSetting your rate\n\nResearch market rates for your area, experience level and specialisations. You can update your rate any time.\n\nManaging availability\n\nKeep your availability calendar up to date so parents can see when you're free and book with confidence.\n\nSouth African Emergency Numbers\n\nPolice\n\n10111\n\nSAPS emergency line\n\nAmbulance\n\n10177\n\nNational ambulance service\n\nFire\n\n10177\n\nFire and rescue services\n\nChildline SA\n\n116\n\nFree 24/7 child helpline\n\nER24\n\n084 124\n\nPrivate emergency response\n\nStop Crime\n\n0860 010 111\n\nAnonymous crime reporting\n\nChild development\n\nKey milestones by age\n\nNewborn & infant\n\nEye contact by 6 weeks, social smiling by 2 months, sitting independently by 6–8 months, first words around 12 months. Nannies should track and record developmental milestones for parents.\n\nToddler\n\nWalking, climbing, 2-word phrases at 2 years, toilet training from 18–24 months, imaginative play begins. Structured routine and consistent caregivers are critical at this stage.\n\nPre-school\n\nSentences of 4–5 words, drawing basic shapes, dressing independently, beginning to share and cooperate. Creative play and reading aloud make a big difference.\n\nEarly school\n\nReading begins, more complex social interactions, understanding rules and fairness. Homework help and after-school structure are valuable at this age.\n\nMiddle childhood\n\nStrong friendships, logical thinking, hobbies develop. Nannies can support transport to activities, homework, and emotional regulation.\n\nAdolescence\n\nIncreasing independence and privacy. A trusted older presence still matters — especially for after-school supervision and emotional support.\n\nHealthy meal ideas for nannies\n\nQuick, nutritious meals and snacks that nannies can prepare with everyday kitchen ingredients.\n\nToddlers (1–3)\n\nSoft fruit pieces · Cheese cubes · Peanut butter on rice cakes · Yoghurt with berries · Steamed veg with hummus\n\nSchool age (4–10)\n\nAvo and egg on toast · Mini wraps with cheese · Fruit smoothies · Baked sweet potato · Brown rice with chicken\n\nTeens\n\nPasta with tomato sauce · Stir-fried veg with noodles · Oats with banana · Boiled eggs and whole-wheat toast · Soup with bread\n\nQuick answers\n\nFrequently asked questions\n\nHow does NannyApp verify nannies?\n\nEvery nanny goes through a manual ID check, qualification review, and background screening by our admin team before receiving the Verified badge. This typically takes 1–3 business days.\n\nCan I cancel a booking?\n\nYes. Cancel at least 24 hours before the session start time for a full refund. Late cancellations may incur a cancellation fee. Contact support if you have exceptional circumstances.\n\nWhat payment methods are accepted?\n\nWe accept all major debit and credit cards through our secure payment gateway. Funds are held and released to the nanny only after the session is completed.\n\nHow are nanny rates set?\n\nNannies set their own hourly rates based on their experience, qualifications, and location. You can filter search results by rate range to find the right fit for your budget.\n\nWhat if I have a problem during a session?\n\nContact your nanny directly via the in-app message system. For emergencies, call the relevant South African emergency number. For platform issues, open a support ticket or call our support line.\n\nIs NannyApp available outside Johannesburg?\n\nYes. We currently have active nannies in Johannesburg, Sandton, Pretoria, Centurion, Midrand, Cape Town, Durban, and growing. More areas are added as we verify nannies in new regions.\n\nReady to get started?\n\nCreate your free account and join the Nanny-App community today.",
     "blocks": [
       {
         "type": "eyebrow",
@@ -1005,7 +1107,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "👤"
+            "text": "user"
           },
           {
             "type": "h3",
@@ -1022,7 +1124,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "✅"
+            "text": "circle-check"
           },
           {
             "type": "h3",
@@ -1039,7 +1141,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "📋"
+            "text": "clipboard-list"
           },
           {
             "type": "h3",
@@ -1056,7 +1158,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "⭐"
+            "text": "star"
           },
           {
             "type": "h3",
@@ -1073,7 +1175,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "💰"
+            "text": "wallet"
           },
           {
             "type": "h3",
@@ -1090,7 +1192,7 @@
         "blocks": [
           {
             "type": "icon",
-            "text": "🗓️"
+            "text": "calendar-days"
           },
           {
             "type": "h3",
@@ -1107,7 +1209,7 @@
         "blocks": [
           {
             "type": "h2",
-            "text": "🚨 South African Emergency Numbers"
+            "text": "South African Emergency Numbers"
           },
           {
             "type": "p",
@@ -1200,7 +1302,7 @@
           },
           {
             "type": "tag",
-            "text": "👶 Newborn & infant"
+            "text": "Newborn & infant"
           },
           {
             "type": "p",
@@ -1217,7 +1319,7 @@
           },
           {
             "type": "tag",
-            "text": "🚶 Toddler"
+            "text": "Toddler"
           },
           {
             "type": "p",
@@ -1234,7 +1336,7 @@
           },
           {
             "type": "tag",
-            "text": "🎨 Pre-school"
+            "text": "Pre-school"
           },
           {
             "type": "p",
@@ -1251,7 +1353,7 @@
           },
           {
             "type": "tag",
-            "text": "📚 Early school"
+            "text": "Early school"
           },
           {
             "type": "p",
@@ -1268,7 +1370,7 @@
           },
           {
             "type": "tag",
-            "text": "⚽ Middle childhood"
+            "text": "Middle childhood"
           },
           {
             "type": "p",
@@ -1285,7 +1387,7 @@
           },
           {
             "type": "tag",
-            "text": "💬 Adolescence"
+            "text": "Adolescence"
           },
           {
             "type": "p",
@@ -1298,7 +1400,7 @@
         "blocks": [
           {
             "type": "h2",
-            "text": "🥗 Healthy meal ideas for nannies"
+            "text": "Healthy meal ideas for nannies"
           },
           {
             "type": "p",
@@ -1404,7 +1506,7 @@
   "contact": {
     "pageKey": "contact",
     "title": "Contact",
-    "body": "Contact\n\nGet in touch\n\nQuestions, feedback or a safety concern? Send us a message and our team will get back to you.\n\nSupport\n\nOther ways to reach us\n\n📧\n\nEmail\nsupport@nanny.app\n\n📞\n\nPhone\n+27 67 000 0000 (Mon–Fri, 9–5)\n\n🛡️\n\nSafety concerns\nRead our safety guide or report an issue here.\n\n📍\n\nTeam Knights\nBuilt for the Nanny-App project.\n\nNeed urgent help?\n\nWe take safety reports seriously\n\nIf this is a safeguarding issue, include as much detail as possible and we will prioritize your message.",
+    "body": "Contact\n\nGet in touch\n\nQuestions, feedback or a safety concern? Send us a message and our team will get back to you.\n\nSupport\n\nOther ways to reach us\n\nEmail\nsupport@nanny.app\n\nPhone\n+27 67 000 0000 (Mon–Fri, 9–5)\n\nSafety concerns\nRead our safety guide or report an issue here.\n\nTeam Knights\nBuilt for the Nanny-App project.\n\nNeed urgent help?\n\nWe take safety reports seriously\n\nIf this is a safeguarding issue, include as much detail as possible and we will prioritize your message.",
     "blocks": [
       {
         "type": "eyebrow",
@@ -1431,7 +1533,7 @@
           },
           {
             "type": "icon",
-            "text": "📧"
+            "text": "mail"
           },
           {
             "type": "p",
@@ -1439,7 +1541,7 @@
           },
           {
             "type": "icon",
-            "text": "📞"
+            "text": "phone"
           },
           {
             "type": "p",
@@ -1447,7 +1549,7 @@
           },
           {
             "type": "icon",
-            "text": "🛡️"
+            "text": "shield-check"
           },
           {
             "type": "p",
@@ -1455,7 +1557,7 @@
           },
           {
             "type": "icon",
-            "text": "📍"
+            "text": "map-pin"
           },
           {
             "type": "p",

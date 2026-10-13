@@ -116,7 +116,7 @@ require __DIR__ . '/../includes/header.php';
     <div class="card card-shell">
         <?php if (!$tickets): ?>
             <div class="empty empty-pad">
-                <div class="empty-ico">✅</div>
+                <div class="empty-ico"><?= icon('circle-check') ?></div>
                 <h3>No tickets found</h3>
                 <p>No support tickets match your current filters.</p>
             </div>
@@ -199,7 +199,7 @@ require __DIR__ . '/../includes/header.php';
     <?php else: ?>
     <div class="card ticket-empty">
         <div class="center">
-            <div class="emoji-lg">📋</div>
+            <div class="emoji-lg"><?= icon('clipboard-list') ?></div>
             <p class="muted-tight">Select a ticket to view details</p>
         </div>
     </div>

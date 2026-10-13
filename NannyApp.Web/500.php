@@ -8,7 +8,7 @@ require __DIR__ . '/includes/header.php';
 ?>
 <section class="section error-shell">
     <div class="card stack error-card">
-        <div class="empty-ico empty-ico-tight">⚠️</div>
+        <div class="empty-ico empty-ico-tight"><?= icon('triangle-alert') ?></div>
         <p class="h-eyebrow">500 Error</p>
         <h1 class="heading-tight">Something Went Wrong</h1>
         <p class="muted error-body error-body-lg">

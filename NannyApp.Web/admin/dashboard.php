@@ -157,14 +157,14 @@ require __DIR__ . '/../includes/header.php';
 
 <!-- Primary stats -->
 <div class="stats section section-no-top">
-    <div class="stat"><span class="stat-ico">👥</span><b><?= (int)$stats['users'] ?></b>Total users</div>
-    <div class="stat"><span class="stat-ico">👪</span><b><?= (int)$stats['parents'] ?></b>Parents</div>
-    <div class="stat"><span class="stat-ico">🧑‍🍼</span><b><?= (int)$stats['nannies'] ?></b>Nannies</div>
-    <div class="stat"><span class="stat-ico">✅</span><b><?= (int)$stats['verified_nannies'] ?></b>Verified nannies</div>
-    <div class="stat"><span class="stat-ico">📋</span><b><?= (int)$stats['bookings'] ?></b>Total bookings</div>
-    <div class="stat"><span class="stat-ico">⏳</span><b><?= (int)$stats['pending_bookings'] ?></b>Pending bookings</div>
-    <div class="stat"><span class="stat-ico">💰</span><b>R<?= number_format((float)$stats['revenue'], 0) ?></b>Revenue (paid)</div>
-    <div class="stat"><span class="stat-ico">🕓</span><b><?= (int)$stats['pending_verifications'] ?></b>Profiles pending</div>
+    <div class="stat"><span class="stat-ico"><?= icon('users') ?></span><b><?= (int)$stats['users'] ?></b>Total users</div>
+    <div class="stat"><span class="stat-ico"><?= icon('users-round') ?></span><b><?= (int)$stats['parents'] ?></b>Parents</div>
+    <div class="stat"><span class="stat-ico"><?= icon('baby') ?></span><b><?= (int)$stats['nannies'] ?></b>Nannies</div>
+    <div class="stat"><span class="stat-ico"><?= icon('circle-check') ?></span><b><?= (int)$stats['verified_nannies'] ?></b>Verified nannies</div>
+    <div class="stat"><span class="stat-ico"><?= icon('clipboard-list') ?></span><b><?= (int)$stats['bookings'] ?></b>Total bookings</div>
+    <div class="stat"><span class="stat-ico"><?= icon('hourglass') ?></span><b><?= (int)$stats['pending_bookings'] ?></b>Pending bookings</div>
+    <div class="stat"><span class="stat-ico"><?= icon('wallet') ?></span><b>R<?= number_format((float)$stats['revenue'], 0) ?></b>Revenue (paid)</div>
+    <div class="stat"><span class="stat-ico"><?= icon('clock') ?></span><b><?= (int)$stats['pending_verifications'] ?></b>Profiles pending</div>
 </div>
 
 <!-- Charts row -->
@@ -186,7 +186,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">📊</div><p>No revenue data yet.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('chart-column') ?></div><p>No revenue data yet.</p></div>
         <?php endif; ?>
     </div>
 
@@ -206,7 +206,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">👥</div><p>No sign-up data yet.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('users') ?></div><p>No sign-up data yet.</p></div>
         <?php endif; ?>
     </div>
 
@@ -230,7 +230,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">📊</div><p>No booking data yet.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('chart-column') ?></div><p>No booking data yet.</p></div>
         <?php endif; ?>
     </div>
 
@@ -253,7 +253,7 @@ require __DIR__ . '/../includes/header.php';
         <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">📍</div><p>No location data yet.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('map-pin') ?></div><p>No location data yet.</p></div>
         <?php endif; ?>
     </div>
 
@@ -319,7 +319,7 @@ require __DIR__ . '/../includes/header.php';
 <!-- Quick-action admin panel -->
 <div class="grid grid-3 section section-no-top">
     <a class="card action-card" href="<?= url('admin/verifications.php') ?>">
-        <div class="stat-ico">🔍</div>
+        <div class="stat-ico"><?= icon('search') ?></div>
         <div>
             <strong>Verifications</strong>
             <?php if ($stats['pending_verifications'] + $pendingDocs > 0): ?>
@@ -332,23 +332,23 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </a>
     <a class="card action-card" href="<?= url('admin/users.php') ?>">
-        <div class="stat-ico">👥</div>
+        <div class="stat-ico"><?= icon('users') ?></div>
         <div><strong>User Management</strong><div class="muted meta"><?= (int)$stats['users'] ?> registered</div></div>
     </a>
     <a class="card action-card" href="<?= url('admin/bookings.php') ?>">
-        <div class="stat-ico">📋</div>
+        <div class="stat-ico"><?= icon('clipboard-list') ?></div>
         <div><strong>Bookings</strong><div class="muted meta"><?= (int)$stats['confirmed_bookings'] ?> active</div></div>
     </a>
     <a class="card action-card" href="<?= url('admin/payments.php') ?>">
-        <div class="stat-ico">💳</div>
+        <div class="stat-ico"><?= icon('credit-card') ?></div>
         <div><strong>Payments</strong><div class="muted meta">R<?= number_format((float)$stats['pending_revenue'],0) ?> pending</div></div>
     </a>
     <a class="card action-card" href="<?= url('admin/reports.php') ?>">
-        <div class="stat-ico">📊</div>
+        <div class="stat-ico"><?= icon('chart-column') ?></div>
         <div><strong>Reports</strong><div class="muted meta">Export &amp; PDF</div></div>
     </a>
     <a class="card action-card" href="<?= url('admin/notify.php') ?>">
-        <div class="stat-ico">📢</div>
+        <div class="stat-ico"><?= icon('megaphone') ?></div>
         <div><strong>Notifications</strong><div class="muted meta">Send announcements</div></div>
     </a>
 </div>
@@ -424,7 +424,7 @@ require __DIR__ . '/../includes/header.php';
             <tr>
                 <td><strong><?= e($n['full_name']) ?></strong></td>
                 <td><?= status_badge($n['verification_status']) ?></td>
-                <td>⭐ <?= number_format((float)$n['average_rating'],1) ?></td>
+                <td><?= icon('star') ?> <?= number_format((float)$n['average_rating'],1) ?></td>
                 <td><?= (int)$n['jobs'] ?></td>
                 <td><strong>R<?= number_format((float)$n['earned'],0) ?></strong></td>
             </tr>

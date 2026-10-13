@@ -312,7 +312,7 @@ require __DIR__ . '/includes/header.php';
                         <article class="card tcard reveal-item">
                             <div class="t-stars" aria-label="Rated <?= (int)$t['rating'] ?> out of 5">
                                 <?php for ($i = 1; $i <= 5; $i++): ?>
-                                    <?= $i <= (int)$t['rating'] ? '★' : '☆' ?>
+                                    <?= icon('star', $i <= (int)$t['rating'] ? 'ico-fill' : 'ico-fill ico-off') ?>
                                 <?php endfor; ?>
                             </div>
                             <blockquote>"<?= e($t['comment']) ?>"</blockquote>

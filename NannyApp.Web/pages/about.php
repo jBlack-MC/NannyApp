@@ -13,19 +13,19 @@ require __DIR__ . '/../includes/header.php';
 
 <section class="section grid grid-3">
     <div class="card stack">
-        <div class="feature-ico">🛡️</div>
+        <div class="feature-ico"><?= icon('shield-check') ?></div>
         <h3 class="no-margin">Trust first</h3>
         <p class="muted no-margin">Every nanny is reviewed and verified by our admin team
             before they appear in search results.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">💙</div>
+        <div class="feature-ico"><?= icon('heart-handshake') ?></div>
         <h3 class="no-margin">Built on care</h3>
         <p class="muted no-margin">From newborn specialists to playful all-rounders, we help
             you find the right match for your family.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">⚡</div>
+        <div class="feature-ico"><?= icon('zap') ?></div>
         <h3 class="no-margin">Refreshingly simple</h3>
         <p class="muted no-margin">Search, request a booking and track everything in one
             place — on your phone or computer.</p>

@@ -41,7 +41,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if (!$nannies): ?>
 <div class="empty">
-    <div class="empty-ico">❤️</div>
+    <div class="empty-ico"><?= icon('heart') ?></div>
     <h3>No saved nannies yet</h3>
     <p>Browse nannies and tap the heart icon to save profiles you love for quick access.</p>
     <a class="btn btn-primary" href="<?= url('parent/nannies.php') ?>">Find a nanny</a>
@@ -61,7 +61,7 @@ require __DIR__ . '/../includes/header.php';
                     <h3 class="pn-title"><a href="<?= $bookUrl ?>"><?= e($n['full_name']) ?></a></h3>
                     <div class="muted pn-loc"><?= e($n['location'] ?: 'Location N/A') ?></div>
                     <div class="rating-line">
-                        <span class="stars"><?php for ($i=1;$i<=5;$i++): ?><span class="<?= $i<=round($rating)?'':'off' ?>">★</span><?php endfor; ?></span>
+                        <span class="stars"><?php for ($i=1;$i<=5;$i++): ?><span class="<?= $i<=round($rating)?'':'off' ?>"><?= icon('star', 'ico-fill') ?></span><?php endfor; ?></span>
                         <?php if ($reviews > 0): ?>
                             <span><?= number_format($rating,1) ?> (<?= $reviews ?>)</span>
                         <?php else: ?><span class="badge-new">New</span><?php endif; ?>
@@ -71,7 +71,7 @@ require __DIR__ . '/../includes/header.php';
             <div class="rate">R<?= number_format((float)$n['hourly_rate'],0) ?><div class="muted pn-rate-unit">/hr</div></div>
         </div>
         <div class="nanny-meta">
-            <span class="verified-badge">✓ Verified</span>
+            <span class="verified-badge"><?= icon('check') ?> Verified</span>
             <span><?= (int)$n['experience_years'] ?>+ yrs</span>
             <?php if ($n['languages']): ?><span><?= e(explode(',', $n['languages'])[0]) ?></span><?php endif; ?>
         </div>

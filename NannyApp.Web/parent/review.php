@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->commit();
 
         notify((int) $booking['nanny_id'], 'New review',
-            current_user()['full_name'] . ' left you a ' . $rating . '★ review.',
+            current_user()['full_name'] . ' left you a ' . $rating . '-star review.',
             'nanny/reviews.php');
 
         flash('Thanks for your review of ' . $booking['nanny_name'] . '!');
@@ -72,7 +72,7 @@ require __DIR__ . '/../includes/header.php';
             <div class="star-input">
                 <?php for ($i = 5; $i >= 1; $i--): ?>
                     <input type="radio" id="star<?= $i ?>" name="rating" value="<?= $i ?>" <?= $i === 5 ? 'required' : '' ?>>
-                    <label for="star<?= $i ?>" title="<?= $i ?> star<?= $i > 1 ? 's' : '' ?>">★</label>
+                    <label for="star<?= $i ?>" title="<?= $i ?> star<?= $i > 1 ? 's' : '' ?>"><?= icon('star', 'ico-fill') ?></label>
                 <?php endfor; ?>
             </div>
         </div>

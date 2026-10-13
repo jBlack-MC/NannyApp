@@ -64,7 +64,7 @@ require __DIR__ . '/../includes/header.php';
 <div class="card section">
     <?php if (!$rows): ?>
         <div class="empty">
-            <span class="empty-ico">📭</span>
+            <span class="empty-ico"><?= icon('inbox') ?></span>
             <h3>No contact messages yet</h3>
             <p>Messages submitted through the public contact form will appear here.</p>
         </div>

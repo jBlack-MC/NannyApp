@@ -70,7 +70,7 @@ require __DIR__ . '/includes/header.php';
             <div class="pro-banner">
                 <!-- gradient from CSS default — parents don't have banner photos -->
                 <div class="pfp-banner-inner">
-                    <span class="pfp-banner-ico">👨‍👩‍👧‍👦</span>
+                    <span class="pfp-banner-ico"><?= icon('users-round') ?></span>
                     <span class="pfp-banner-label">Parent Profile</span>
                 </div>
             </div>
@@ -79,14 +79,14 @@ require __DIR__ . '/includes/header.php';
                 <div class="pro-avatar-wrap">
                     <?= avatar($profile['full_name'], $profile['profile_image'] ?? null, 'avatar avatar-xl') ?>
                     <?php if ($profile['email_verified']): ?>
-                        <span class="pro-verified-badge" title="Verified account">✓</span>
+                        <span class="pro-verified-badge" title="Verified account"><?= icon('check') ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="pb-flex-1">
                     <h1 class="heading-tight"><?= e($profile['full_name']) ?></h1>
                     <div class="muted mt-2">Parent · Member since <?= $memberYear ?></div>
                     <?php if ($profile['email_verified']): ?>
-                        <div style="margin-top:6px"><span class="badge badge-ok">✓ Verified account</span></div>
+                        <div style="margin-top:6px"><span class="badge badge-ok"><?= icon('check') ?> Verified account</span></div>
                     <?php endif; ?>
                 </div>
             </div>
@@ -116,19 +116,19 @@ require __DIR__ . '/includes/header.php';
             <h3 class="pfp-trust-title">Why trust this parent?</h3>
             <ul class="pfp-trust-list">
                 <?php if ($profile['email_verified']): ?>
-                    <li>✅ Email verified — real person, real account</li>
+                    <li><?= icon('circle-check') ?> Email verified — real person, real account</li>
                 <?php endif; ?>
                 <?php if ($completedBookings >= 1): ?>
-                    <li>✅ <?= $completedBookings ?> completed booking<?= $completedBookings > 1 ? 's' : '' ?> on NannyApp</li>
+                    <li><?= icon('circle-check') ?> <?= $completedBookings ?> completed booking<?= $completedBookings > 1 ? 's' : '' ?> on NannyApp</li>
                 <?php endif; ?>
                 <?php if ($reviewCount >= 1): ?>
-                    <li>✅ Actively leaves reviews — communicates with nannies</li>
+                    <li><?= icon('circle-check') ?> Actively leaves reviews — communicates with nannies</li>
                 <?php endif; ?>
                 <?php if ($childCount): ?>
-                    <li>✅ <?= $childCount ?> child profile<?= $childCount > 1 ? 's' : '' ?> added to their account</li>
+                    <li><?= icon('circle-check') ?> <?= $childCount ?> child profile<?= $childCount > 1 ? 's' : '' ?> added to their account</li>
                 <?php endif; ?>
                 <?php if ($memberYears >= 1): ?>
-                    <li>✅ Established member — joined in <?= $memberYear ?></li>
+                    <li><?= icon('circle-check') ?> Established member — joined in <?= $memberYear ?></li>
                 <?php endif; ?>
                 <?php if (!$profile['email_verified'] && !$completedBookings && !$reviewCount): ?>
                     <li class="muted">This parent is new to NannyApp. All payments are protected by the platform.</li>
@@ -148,7 +148,7 @@ require __DIR__ . '/includes/header.php';
                         <?= avatar($rv['nanny_name'], $rv['nanny_img'] ?? null, 'avatar-sm') ?>
                         <div>
                             <strong>For <?= e($rv['nanny_name']) ?></strong>
-                            <div class="pb-review-stars"><?= str_repeat('★', (int)$rv['rating']) ?><?= str_repeat('☆', 5-(int)$rv['rating']) ?></div>
+                            <div class="pb-review-stars"><?= str_repeat(icon('star', 'ico-fill'), (int)$rv['rating']) ?><?= str_repeat(icon('star', 'ico-fill ico-off'), 5-(int)$rv['rating']) ?></div>
                         </div>
                         <span class="muted pb-review-date"><?= date('d M Y', strtotime($rv['created_at'])) ?></span>
                     </div>
@@ -163,7 +163,7 @@ require __DIR__ . '/includes/header.php';
         <div class="card pb-card-mt">
             <h3>Reviews</h3>
             <div class="empty" style="padding:24px 0">
-                <div class="empty-ico" style="font-size:2rem">📝</div>
+                <div class="empty-ico" style="font-size:2rem"><?= icon('file-text') ?></div>
                 <p class="muted">No reviews written yet — this may be a new parent.</p>
             </div>
         </div>
@@ -178,17 +178,17 @@ require __DIR__ . '/includes/header.php';
                 <a class="btn btn-primary btn-block" href="<?= url('auth/login.php') ?>">Log in</a>
             <?php elseif (user_role() === 'nanny'): ?>
                 <p class="muted" style="font-size:.88rem;margin:0">Start a conversation before or after a booking.</p>
-                <a class="btn btn-primary btn-block" href="<?= url('messages.php?with=' . $profileId) ?>">💬 Message this parent</a>
+                <a class="btn btn-primary btn-block" href="<?= url('messages.php?with=' . $profileId) ?>"><?= icon('message-circle') ?> Message this parent</a>
             <?php elseif (current_user()['id'] === $profileId): ?>
                 <a class="btn btn-primary btn-block" href="<?= url('account.php') ?>">Edit my profile</a>
             <?php else: ?>
-                <a class="btn btn-block" href="<?= url('messages.php?with=' . $profileId) ?>">💬 Send a message</a>
+                <a class="btn btn-block" href="<?= url('messages.php?with=' . $profileId) ?>"><?= icon('message-circle') ?> Send a message</a>
             <?php endif; ?>
 
             <ul class="pb-side-list">
-                <li>✅ All payments held securely</li>
-                <li>✅ Profiles verified by admin</li>
-                <li>✅ 24/7 support available</li>
+                <li><?= icon('circle-check') ?> All payments held securely</li>
+                <li><?= icon('circle-check') ?> Profiles verified by admin</li>
+                <li><?= icon('circle-check') ?> 24/7 support available</li>
             </ul>
         </div>
     </div>

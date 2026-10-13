@@ -105,7 +105,7 @@ require __DIR__ . '/../includes/header.php';
 ?>
 <div class="dash-head">
     <div>
-        <h1>Hi, <?= e(explode(' ', $me['full_name'])[0]) ?> 👋</h1>
+        <h1>Hi, <?= e(explode(' ', $me['full_name'])[0]) ?></h1>
         <p class="muted dash-head-sub">Here's your childcare overview</p>
     </div>
     <a class="btn btn-primary" href="<?= url('parent/nannies.php') ?>">
@@ -115,12 +115,12 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="stats section">
-    <div class="stat"><span class="stat-ico">🗓️</span><b><?= (int)($c['upcoming'] ?? 0) ?></b>Upcoming</div>
-    <div class="stat"><span class="stat-ico">✅</span><b><?= (int)($c['completed'] ?? 0) ?></b>Completed</div>
-    <div class="stat"><span class="stat-ico">💰</span><b>R<?= number_format($totalSpent, 0) ?></b>Total spent</div>
-    <div class="stat"><span class="stat-ico">❤️</span><b><?= $savedCount ?></b>Saved nannies</div>
-    <div class="stat"><span class="stat-ico">👶</span><b><?= $childCount ?></b>Children</div>
-    <div class="stat"><span class="stat-ico">💬</span><b><?= $unreadMsgs ?></b>Unread messages</div>
+    <div class="stat"><span class="stat-ico"><?= icon('calendar-days') ?></span><b><?= (int)($c['upcoming'] ?? 0) ?></b>Upcoming</div>
+    <div class="stat"><span class="stat-ico"><?= icon('circle-check') ?></span><b><?= (int)($c['completed'] ?? 0) ?></b>Completed</div>
+    <div class="stat"><span class="stat-ico"><?= icon('wallet') ?></span><b>R<?= number_format($totalSpent, 0) ?></b>Total spent</div>
+    <div class="stat"><span class="stat-ico"><?= icon('heart') ?></span><b><?= $savedCount ?></b>Saved nannies</div>
+    <div class="stat"><span class="stat-ico"><?= icon('baby') ?></span><b><?= $childCount ?></b>Children</div>
+    <div class="stat"><span class="stat-ico"><?= icon('message-circle') ?></span><b><?= $unreadMsgs ?></b>Unread messages</div>
 </div>
 
 <?php if ($upcomingRows): ?>
@@ -162,7 +162,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">📊</div><p class="muted">No bookings in the last 6 months.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('chart-column') ?></div><p class="muted">No bookings in the last 6 months.</p></div>
         <?php endif; ?>
     </div>
     <div class="card">
@@ -180,7 +180,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endforeach; ?>
         </div>
         <?php else: ?>
-        <div class="empty"><div class="empty-ico">💰</div><p class="muted">No payments yet.</p></div>
+        <div class="empty"><div class="empty-ico"><?= icon('wallet') ?></div><p class="muted">No payments yet.</p></div>
         <?php endif; ?>
     </div>
 </div>
@@ -189,27 +189,27 @@ require __DIR__ . '/../includes/header.php';
 <!-- Quick actions -->
 <div class="grid grid-3 section">
     <a class="card action-card" href="<?= url('parent/children.php') ?>">
-        <div class="stat-ico">👶</div>
+        <div class="stat-ico"><?= icon('baby') ?></div>
         <div><strong>My Children</strong><div class="muted meta"><?= $childCount ?> profile<?= $childCount === 1 ? '' : 's' ?></div></div>
     </a>
     <a class="card action-card" href="<?= url('parent/saved.php') ?>">
-        <div class="stat-ico">❤️</div>
+        <div class="stat-ico"><?= icon('heart') ?></div>
         <div><strong>Saved Nannies</strong><div class="muted meta"><?= $savedCount ?> favourite<?= $savedCount === 1 ? '' : 's' ?></div></div>
     </a>
     <a class="card action-card" href="<?= url('parent/payments.php') ?>">
-        <div class="stat-ico">💳</div>
+        <div class="stat-ico"><?= icon('credit-card') ?></div>
         <div><strong>Payments</strong><div class="muted meta">R<?= number_format($totalSpent, 0) ?> total</div></div>
     </a>
     <a class="card action-card" href="<?= url('parent/bookings.php') ?>">
-        <div class="stat-ico">📋</div>
+        <div class="stat-ico"><?= icon('clipboard-list') ?></div>
         <div><strong>All Bookings</strong><div class="muted meta"><?= (int)$c['total'] ?> total</div></div>
     </a>
     <a class="card action-card" href="<?= url('messages.php') ?>">
-        <div class="stat-ico">💬</div>
+        <div class="stat-ico"><?= icon('message-circle') ?></div>
         <div><strong>Messages</strong><?php if ($unreadMsgs): ?><div class="muted meta"><?= $unreadMsgs ?> unread</div><?php else: ?><div class="muted meta">All caught up</div><?php endif; ?></div>
     </a>
     <a class="card action-card" href="<?= url('account.php') ?>">
-        <div class="stat-ico">⚙️</div>
+        <div class="stat-ico"><?= icon('settings') ?></div>
         <div><strong>Account Settings</strong><div class="muted meta">Profile &amp; security</div></div>
     </a>
 </div>
@@ -221,7 +221,7 @@ require __DIR__ . '/../includes/header.php';
     </div>
     <?php if (!$rows): ?>
         <div class="empty">
-            <div class="empty-ico">🗓️</div>
+            <div class="empty-ico"><?= icon('calendar-days') ?></div>
             <h3>No bookings yet</h3>
             <p><a href="<?= url('parent/nannies.php') ?>">Find a nanny</a> to get started.</p>
         </div>

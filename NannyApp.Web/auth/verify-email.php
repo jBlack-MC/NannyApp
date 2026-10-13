@@ -31,7 +31,7 @@ require __DIR__ . '/../includes/header.php';
         <p class="h-eyebrow">Email Verification</p>
         
         <?php if ($success): ?>
-            <h1>✓ Email Verified!</h1>
+            <h1><?= icon('check') ?> Email Verified!</h1>
             <p class="muted auth-footnote">Your email has been successfully verified. Welcome to <?php echo e(APP_NAME); ?>!</p>
             <a class="btn btn-primary auth-action-gap btn-inline" href="<?php echo url('auth/login.php'); ?>">Log in →</a>
         <?php else: ?>
@@ -47,12 +47,12 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <aside class="auth-aside">
-        <span class="pill">✓ Account Security</span>
+        <span class="pill"><?= icon('check') ?> Account Security</span>
         <h2>Email verified.</h2>
         <ul class="auth-list">
-            <li><span class="ck">✓</span> Your account is now active</li>
-            <li><span class="ck">✓</span> You can start using the platform</li>
-            <li><span class="ck">✓</span> Keep your email private</li>
+            <li><span class="ck"><?= icon('check') ?></span> Your account is now active</li>
+            <li><span class="ck"><?= icon('check') ?></span> You can start using the platform</li>
+            <li><span class="ck"><?= icon('check') ?></span> Keep your email private</li>
         </ul>
     </aside>
 </div>

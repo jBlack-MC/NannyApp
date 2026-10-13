@@ -88,19 +88,19 @@ require __DIR__ . '/../includes/header.php';
             <p class="h-eyebrow">Support</p>
             <h2>Other ways to reach us</h2>
             <div class="feature contact-feature">
-                <span class="feature-ico">📧</span>
+                <span class="feature-ico"><?= icon('mail') ?></span>
                 <div><strong>Email</strong><br><span class="muted">support@nanny.app</span></div>
             </div>
             <div class="feature contact-feature">
-                <span class="feature-ico">📞</span>
+                <span class="feature-ico"><?= icon('phone') ?></span>
                 <div><strong>Phone</strong><br><span class="muted">+27 67 000 0000 (Mon–Fri, 9–5)</span></div>
             </div>
             <div class="feature contact-feature">
-                <span class="feature-ico">🛡️</span>
+                <span class="feature-ico"><?= icon('shield-check') ?></span>
                 <div><strong>Safety concerns</strong><br><span class="muted">Read our <a href="<?= url('pages/safety.php') ?>">safety guide</a> or report an issue here.</span></div>
             </div>
             <div class="feature contact-feature">
-                <span class="feature-ico">📍</span>
+                <span class="feature-ico"><?= icon('map-pin') ?></span>
                 <div><strong>Team Knights</strong><br><span class="muted">Built for the Nanny-App project.</span></div>
             </div>
         </aside>

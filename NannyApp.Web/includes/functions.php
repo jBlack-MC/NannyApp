@@ -357,12 +357,30 @@ function save_uploaded_image(array $file, string $subdir = 'uploads'): array
     return ['ok' => true, 'path' => $path];
 }
 
+/**
+ * Inline SVG icon from assets/icons (Lucide, ISC licence). Icons inherit the text colour
+ * and size, so they sit in a line of text or fill an icon tile without extra markup.
+ * Add a file to assets/icons to make a new name available; pass 'ico-fill' for a solid shape.
+ */
+function icon(string $name, string $class = ''): string
+{
+    static $paths = [];
+    if (!isset($paths[$name])) {
+        $file = __DIR__ . '/../assets/icons/' . $name . '.svg';
+        $svg = preg_match('/^[a-z0-9-]+$/', $name) && is_file($file) ? (string) file_get_contents($file) : '';
+        $paths[$name] = preg_match('~<svg[^>]*>(.*)</svg>~s', $svg, $m) ? trim(preg_replace('/\s+/', ' ', $m[1])) : '';
+    }
+    return '<svg class="ico' . ($class !== '' ? ' ' . e($class) : '') . '" data-icon="' . e($name)
+        . '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"'
+        . ' stroke-linejoin="round" aria-hidden="true" focusable="false">' . $paths[$name] . '</svg>';
+}
+
 function stars_html(float $rating): string
 {
     $full = (int) round($rating);
     $out = '<span class="stars">';
     for ($i = 1; $i <= 5; $i++) {
-        $out .= '<span class="' . ($i <= $full ? '' : 'off') . '">★</span>';
+        $out .= '<span class="' . ($i <= $full ? '' : 'off') . '">' . icon('star', 'ico-fill') . '</span>';
     }
     return $out . '</span>';
 }

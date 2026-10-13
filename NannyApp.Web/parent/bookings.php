@@ -39,7 +39,7 @@ require __DIR__ . '/../includes/header.php';
 <div class="card section">
     <?php if (!$rows): ?>
         <div class="empty">
-            <span class="empty-ico">🗓️</span>
+            <span class="empty-ico"><?= icon('calendar-days') ?></span>
             <h3>No bookings yet</h3>
             <p>When you book a nanny, your sessions and their status will show up here.</p>
             <a class="btn btn-primary" href="<?= url('parent/nannies.php') ?>">Find a nanny</a>
@@ -87,7 +87,7 @@ require __DIR__ . '/../includes/header.php';
                             <form method="post" class="form-zero mb-4">
                                 <?= csrf_field() ?>
                                 <input type="hidden" name="booking_id" value="<?= (int)$r['id'] ?>">
-                                <button class="btn btn-sm btn-primary" name="action" value="confirm" data-confirm="Confirm the session happened and release payment to the nanny?">✓ Confirm &amp; release payment</button>
+                                <button class="btn btn-sm btn-primary" name="action" value="confirm" data-confirm="Confirm the session happened and release payment to the nanny?"><?= icon('check') ?> Confirm &amp; release payment</button>
                             </form>
                             <details class="dispute-details">
                                 <summary class="muted text-xs">Something wrong?</summary>
@@ -116,7 +116,7 @@ require __DIR__ . '/../includes/header.php';
                         <?php elseif ($r['status'] === 'completed' && !(int)$r['reviewed']): ?>
                             <a class="btn btn-sm btn-primary" href="<?= url('parent/review.php?booking=' . (int)$r['id']) ?>">Leave review</a>
                         <?php elseif ($r['status'] === 'completed' && (int)$r['reviewed']): ?>
-                            <span class="muted">Reviewed ✓</span>
+                            <span class="muted">Reviewed <?= icon('check') ?></span>
                         <?php elseif ($r['status'] === 'disputed'): ?>
                             <span class="muted">Under review by support</span>
                         <?php endif; ?>

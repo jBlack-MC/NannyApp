@@ -77,12 +77,12 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <aside class="auth-aside">
-        <span class="pill">🔒 Account security</span>
+        <span class="pill"><?= icon('lock') ?> Account security</span>
         <h2>Keep your account safe.</h2>
         <ul class="auth-list">
-            <li><span class="ck">✓</span> Reset link sent to your email only</li>
-            <li><span class="ck">✓</span> Link expires in 1 hour</li>
-            <li><span class="ck">✓</span> Old passwords are never stored</li>
+            <li><span class="ck"><?= icon('check') ?></span> Reset link sent to your email only</li>
+            <li><span class="ck"><?= icon('check') ?></span> Link expires in 1 hour</li>
+            <li><span class="ck"><?= icon('check') ?></span> Old passwords are never stored</li>
         </ul>
     </aside>
 </div>

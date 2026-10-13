@@ -42,16 +42,16 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="stats stats-wide">
-    <div class="stat"><span class="stat-ico">💳</span><b>R<?= number_format((float)$t['total_paid'], 0) ?></b>Payments recorded</div>
-    <div class="stat"><span class="stat-ico">⏳</span><b>R<?= number_format((float)$t['total_pending'], 0) ?></b>Awaiting manual payment</div>
-    <div class="stat"><span class="stat-ico">🧾</span><b><?= (int)$t['paid_count'] ?></b>Recorded payments</div>
-    <div class="stat"><span class="stat-ico">📋</span><b><?= (int)$t['total_count'] ?></b>Total transactions</div>
+    <div class="stat"><span class="stat-ico"><?= icon('credit-card') ?></span><b>R<?= number_format((float)$t['total_paid'], 0) ?></b>Payments recorded</div>
+    <div class="stat"><span class="stat-ico"><?= icon('hourglass') ?></span><b>R<?= number_format((float)$t['total_pending'], 0) ?></b>Awaiting manual payment</div>
+    <div class="stat"><span class="stat-ico"><?= icon('receipt') ?></span><b><?= (int)$t['paid_count'] ?></b>Recorded payments</div>
+    <div class="stat"><span class="stat-ico"><?= icon('clipboard-list') ?></span><b><?= (int)$t['total_count'] ?></b>Total transactions</div>
 </div>
 
 <div class="card">
     <?php if (!$rows): ?>
         <div class="empty">
-            <div class="empty-ico">💳</div>
+            <div class="empty-ico"><?= icon('credit-card') ?></div>
             <h3>No payments yet</h3>
             <p>Your payment history will appear here once you book a nanny.</p>
         </div>

@@ -47,7 +47,7 @@ require __DIR__ . '/includes/header.php';
 <div class="card section notif-card-flat">
     <?php if (!$rows): ?>
         <div class="empty">
-            <span class="empty-ico">🔔</span>
+            <span class="empty-ico"><?= icon('bell') ?></span>
             <h3>You're all caught up</h3>
             <p>Booking updates, messages and reviews will show up here as they happen.</p>
         </div>

@@ -130,7 +130,7 @@ require __DIR__ . '/../includes/header.php';
         </div>
     <?php else: ?>
         <div class="empty">
-            <div class="empty-ico">📊</div>
+            <div class="empty-ico"><?= icon('chart-column') ?></div>
             <h3>No earnings data yet</h3>
             <p>Accept bookings and complete them to start seeing your earnings here.</p>
         </div>

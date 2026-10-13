@@ -103,10 +103,10 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <div class="stats section section-no-top">
-    <div class="stat"><span class="stat-ico">👥</span><b><?= (int)$snapshot['users'] ?></b>Total users</div>
-    <div class="stat"><span class="stat-ico">🔍</span><b><?= (int)$snapshot['pending_verifications'] ?></b>Verifications pending</div>
-    <div class="stat"><span class="stat-ico">🎫</span><b><?= (int)$snapshot['open_tickets'] ?></b>Open tickets</div>
-    <div class="stat"><span class="stat-ico">⚠️</span><b><?= (int)$snapshot['disputed_bookings'] ?></b>Disputed bookings</div>
+    <div class="stat"><span class="stat-ico"><?= icon('users') ?></span><b><?= (int)$snapshot['users'] ?></b>Total users</div>
+    <div class="stat"><span class="stat-ico"><?= icon('search') ?></span><b><?= (int)$snapshot['pending_verifications'] ?></b>Verifications pending</div>
+    <div class="stat"><span class="stat-ico"><?= icon('ticket') ?></span><b><?= (int)$snapshot['open_tickets'] ?></b>Open tickets</div>
+    <div class="stat"><span class="stat-ico"><?= icon('triangle-alert') ?></span><b><?= (int)$snapshot['disputed_bookings'] ?></b>Disputed bookings</div>
 </div>
 
 <form method="post" class="card stack section section-no-top">
@@ -131,7 +131,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if ((int) $snapshot['disputed_bookings'] > 0): ?>
 <div class="card card-note-info section section-no-top">
-    <h3>⚠️ Disputed bookings need review</h3>
+    <h3><?= icon('triangle-alert') ?> Disputed bookings need review</h3>
     <p class="muted">There are bookings where a parent reported the nanny never arrived. Review and resolve them from <a href="<?= url('admin/payments.php') ?>">Payments</a>.</p>
 </div>
 <?php endif; ?>

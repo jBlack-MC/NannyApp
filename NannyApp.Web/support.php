@@ -75,7 +75,7 @@ require __DIR__ . '/includes/header.php';
 
         <?php if ($done): ?>
             <div class="card stack support-success">
-                <div class="emoji-xl">✅</div>
+                <div class="emoji-xl"><?= icon('circle-check') ?></div>
                 <h2 class="tight-heading">Ticket submitted!</h2>
                 <p class="muted">We've sent a confirmation to your email. Our team will be in touch within 24 hours on business days.</p>
                 <a class="btn btn-primary btn-align-self-center" href="<?= url('index.php') ?>">Back to home</a>
@@ -155,7 +155,7 @@ require __DIR__ . '/includes/header.php';
         <div class="card stack">
             <h3 class="tight-heading">Emergency?</h3>
             <p class="muted muted-tight">For immediate safety concerns, please call emergency services or use the emergency button in your dashboard.</p>
-            <a class="btn btn-emergency" href="tel:10111">🚨 Emergency: 10111</a>
+            <a class="btn btn-emergency" href="tel:10111"><?= icon('siren') ?> Emergency: 10111</a>
         </div>
     </div>
 

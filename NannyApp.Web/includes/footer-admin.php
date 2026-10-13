@@ -29,13 +29,13 @@
                 <!-- Quick Action Buttons -->
                 <div class="footer-admin-actions">
                     <a class="btn btn-sm" href="<?= url('admin/support.php') ?>">
-                        🎫 Resolve Support Tickets
+                        <?= icon('ticket') ?> Resolve Support Tickets
                     </a>
                     <a class="btn btn-sm" href="<?= url('admin/verifications.php') ?>">
-                        ✓ Review Verifications
+                        <?= icon('check') ?> Review Verifications
                     </a>
                     <a class="btn btn-sm btn-primary" href="<?= url('admin/notify.php') ?>">
-                        📢 Broadcast Alert
+                        <?= icon('megaphone') ?> Broadcast Alert
                     </a>
                 </div>
             </div>
@@ -44,7 +44,7 @@
             <div class="footer-admin-grid">
                 <!-- System Management -->
                 <div class="footer-admin-col">
-                    <h4>🔧 System Management</h4>
+                    <h4><?= icon('wrench') ?> System Management</h4>
                     <a href="<?= url('admin/dashboard.php') ?>">Dashboard</a>
                     <a href="<?= url('admin/users.php') ?>">User Management</a>
                     <a href="<?= url('admin/bookings.php') ?>">Bookings</a>
@@ -55,7 +55,7 @@
 
                 <!-- Support & Moderation -->
                 <div class="footer-admin-col">
-                    <h4>🛡️ Support & Moderation</h4>
+                    <h4><?= icon('shield-check') ?> Support & Moderation</h4>
                     <a href="<?= url('admin/support.php') ?>">Support Tickets</a>
                     <a href="<?= url('admin/contacts.php') ?>">Contact Requests</a>
                     <a href="<?= url('admin/messages.php') ?>">Disputes & Reports</a>
@@ -66,7 +66,7 @@
 
                 <!-- Analytics & Operations -->
                 <div class="footer-admin-col">
-                    <h4>📊 Analytics & Operations</h4>
+                    <h4><?= icon('chart-column') ?> Analytics & Operations</h4>
                     <a href="<?= url('admin/reports.php') ?>">Reports & Analytics</a>
                     <a href="<?= url('admin/dashboard.php') ?>">System Status</a>
                     <a href="<?= url('admin/payments.php') ?>">Revenue Report</a>

@@ -83,32 +83,32 @@ require __DIR__ . '/../includes/header.php';
     <h2 class="res-section-title">Build a successful career</h2>
     <div class="grid grid-3">
         <div class="card stack reveal-item">
-            <div class="feature-ico">👤</div>
+            <div class="feature-ico"><?= icon('user') ?></div>
             <h3 class="no-margin">Building a great profile</h3>
             <p class="muted no-margin">A warm bio, clear skills list, professional photo and honest rate help families choose you with confidence.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">✅</div>
+            <div class="feature-ico"><?= icon('circle-check') ?></div>
             <h3 class="no-margin">Getting verified</h3>
             <p class="muted no-margin">Upload your ID, qualifications and certificates to our secure portal. Admin verification typically takes 1–3 business days.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">📋</div>
+            <div class="feature-ico"><?= icon('clipboard-list') ?></div>
             <h3 class="no-margin">Managing bookings</h3>
             <p class="muted no-margin">Respond to requests promptly, confirm details and mark sessions complete to maintain a strong track record.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">⭐</div>
+            <div class="feature-ico"><?= icon('star') ?></div>
             <h3 class="no-margin">Earning great reviews</h3>
             <p class="muted no-margin">Punctuality, clear communication and going the extra mile earn 5-star reviews that attract more families.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">💰</div>
+            <div class="feature-ico"><?= icon('wallet') ?></div>
             <h3 class="no-margin">Setting your rate</h3>
             <p class="muted no-margin">Research market rates for your area, experience level and specialisations. You can update your rate any time.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">🗓️</div>
+            <div class="feature-ico"><?= icon('calendar-days') ?></div>
             <h3 class="no-margin">Managing availability</h3>
             <p class="muted no-margin">Keep your availability calendar up to date so parents can see when you're free and book with confidence.</p>
         </div>
@@ -117,7 +117,7 @@ require __DIR__ . '/../includes/header.php';
 
 <!-- Emergency contacts South Africa -->
 <div class="card reveal-item res-emergency-card">
-    <h2 class="res-emergency-title">🚨 South African Emergency Numbers</h2>
+    <h2 class="res-emergency-title"><?= icon('siren') ?> South African Emergency Numbers</h2>
     <div class="grid grid-3 res-grid-tight">
         <?php
         $emerg = [
@@ -145,18 +145,18 @@ require __DIR__ . '/../includes/header.php';
     <div class="grid grid-3">
         <?php
         $milestones = [
-            ['0–12 months', 'tip-blue', '👶', 'Newborn & infant', 'Eye contact by 6 weeks, social smiling by 2 months, sitting independently by 6–8 months, first words around 12 months. Nannies should track and record developmental milestones for parents.'],
-            ['1–3 years', 'tip-green', '🚶', 'Toddler', 'Walking, climbing, 2-word phrases at 2 years, toilet training from 18–24 months, imaginative play begins. Structured routine and consistent caregivers are critical at this stage.'],
-            ['3–5 years', 'tip-violet', '🎨', 'Pre-school', 'Sentences of 4–5 words, drawing basic shapes, dressing independently, beginning to share and cooperate. Creative play and reading aloud make a big difference.'],
-            ['5–8 years', 'tip-blue', '📚', 'Early school', 'Reading begins, more complex social interactions, understanding rules and fairness. Homework help and after-school structure are valuable at this age.'],
-            ['8–12 years', 'tip-green', '⚽', 'Middle childhood', 'Strong friendships, logical thinking, hobbies develop. Nannies can support transport to activities, homework, and emotional regulation.'],
-            ['12+ years', 'tip-violet', '💬', 'Adolescence', 'Increasing independence and privacy. A trusted older presence still matters — especially for after-school supervision and emotional support.'],
+            ['0–12 months', 'tip-blue', 'baby', 'Newborn & infant', 'Eye contact by 6 weeks, social smiling by 2 months, sitting independently by 6–8 months, first words around 12 months. Nannies should track and record developmental milestones for parents.'],
+            ['1–3 years', 'tip-green', 'footprints', 'Toddler', 'Walking, climbing, 2-word phrases at 2 years, toilet training from 18–24 months, imaginative play begins. Structured routine and consistent caregivers are critical at this stage.'],
+            ['3–5 years', 'tip-violet', 'palette', 'Pre-school', 'Sentences of 4–5 words, drawing basic shapes, dressing independently, beginning to share and cooperate. Creative play and reading aloud make a big difference.'],
+            ['5–8 years', 'tip-blue', 'library', 'Early school', 'Reading begins, more complex social interactions, understanding rules and fairness. Homework help and after-school structure are valuable at this age.'],
+            ['8–12 years', 'tip-green', 'bike', 'Middle childhood', 'Strong friendships, logical thinking, hobbies develop. Nannies can support transport to activities, homework, and emotional regulation.'],
+            ['12+ years', 'tip-violet', 'message-circle', 'Adolescence', 'Increasing independence and privacy. A trusted older presence still matters — especially for after-school supervision and emotional support.'],
         ];
         foreach ($milestones as $m): ?>
         <div class="card tip-card reveal-item">
             <div class="tip-head <?= $m[1] ?>"><?= $m[0] ?></div>
             <div class="tip-body">
-                <span class="tip-cat"><?= $m[2] ?> <?= $m[3] ?></span>
+                <span class="tip-cat"><?= icon($m[2]) ?> <?= $m[3] ?></span>
                 <p><?= $m[4] ?></p>
             </div>
         </div>
@@ -166,7 +166,7 @@ require __DIR__ . '/../includes/header.php';
 
 <!-- Nutrition tips -->
 <div class="card reveal-item res-meal-card">
-    <h2 class="res-meal-title">🥗 Healthy meal ideas for nannies</h2>
+    <h2 class="res-meal-title"><?= icon('salad') ?> Healthy meal ideas for nannies</h2>
     <p class="muted res-meal-copy">Quick, nutritious meals and snacks that nannies can prepare with everyday kitchen ingredients.</p>
     <div class="grid grid-3 res-grid-tight">
         <?php

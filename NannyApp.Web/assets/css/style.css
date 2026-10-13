@@ -1975,3 +1975,19 @@ details[open]{background:var(--bg)}
     .ws-label{display:none}
     .booking-sidebar{position:static}
 }
+
+/* ---------- Icons ----------
+   Inline Lucide SVGs from icon() in includes/functions.php. They take the size and colour
+   of the surrounding text, so the tiles below only set a colour and a font-size. */
+.ico{width:1.2em;height:1.2em;flex:none;display:inline-block;vertical-align:-.22em}
+.ico-fill{fill:currentColor}
+.ico-off{color:var(--line)}
+.stat-ico,.empty-ico,.role-ico,.child-avatar,.pfp-banner-ico,.emoji-lg,.emoji-xl,.font-4xl{color:var(--blue-700)}
+.child-avatar.girl{color:#be185d}
+.feature-ico{display:inline-grid;place-items:center;width:48px;height:48px;border-radius:13px;
+    background:var(--blue-50);color:var(--blue-700);font-size:1.25rem}
+.card > .feature-ico{margin-bottom:6px}
+.feature .feature-ico{width:40px;height:40px;border-radius:11px;font-size:1.05rem;flex:none}
+.tip-head .ico{width:46px;height:46px}
+.save-btn.saved .ico{fill:currentColor}
+.btn .ico,.pill .ico,.badge .ico,.verified-badge .ico{vertical-align:-.2em}

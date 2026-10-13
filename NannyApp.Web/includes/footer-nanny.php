@@ -12,19 +12,19 @@ $user = current_user();
         <!-- Quick Actions Bar -->
         <div class="footer-nanny-actions">
             <a class="btn btn-sm" href="<?= url('nanny/dashboard.php') ?>">
-                📊 Dashboard
+                <?= icon('chart-column') ?> Dashboard
             </a>
             <a class="btn btn-sm" href="<?= url('nanny/bookings.php') ?>">
-                📅 Bookings
+                <?= icon('calendar') ?> Bookings
             </a>
             <a class="btn btn-sm" href="<?= url('nanny/availability.php') ?>">
-                ⏰ Set Availability
+                <?= icon('alarm-clock') ?> Set Availability
             </a>
             <a class="btn btn-sm" href="<?= url('nanny/earnings.php') ?>">
-                💰 Earnings
+                <?= icon('wallet') ?> Earnings
             </a>
             <a class="btn btn-sm" href="<?= url('support.php') ?>">
-                💬 Support
+                <?= icon('message-circle') ?> Support
             </a>
         </div>
 

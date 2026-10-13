@@ -96,12 +96,12 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <aside class="auth-aside">
-        <span class="pill">🔒 Secure reset</span>
+        <span class="pill"><?= icon('lock') ?> Secure reset</span>
         <h2>Your security matters.</h2>
         <ul class="auth-list">
-            <li><span class="ck">✓</span> Use at least 8 characters</li>
-            <li><span class="ck">✓</span> Mix letters, numbers and symbols</li>
-            <li><span class="ck">✓</span> Never share your password</li>
+            <li><span class="ck"><?= icon('check') ?></span> Use at least 8 characters</li>
+            <li><span class="ck"><?= icon('check') ?></span> Mix letters, numbers and symbols</li>
+            <li><span class="ck"><?= icon('check') ?></span> Never share your password</li>
         </ul>
     </aside>
 </div>

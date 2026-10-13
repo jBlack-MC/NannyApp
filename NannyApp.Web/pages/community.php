@@ -34,32 +34,32 @@ require __DIR__ . '/../includes/header.php';
     </div>
     <div class="grid grid-3">
         <div class="card stack reveal-item">
-            <div class="feature-ico">🤝</div>
+            <div class="feature-ico"><?= icon('handshake') ?></div>
             <h3 class="no-margin">Lasting relationships</h3>
             <p class="muted no-margin">Parents and nannies build long-term bonds through repeat bookings, trust and shared care of the little ones that matter most.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">⭐</div>
+            <div class="feature-ico"><?= icon('star') ?></div>
             <h3 class="no-margin">Honest reviews</h3>
             <p class="muted no-margin">After every completed session, parents leave real reviews. This keeps standards high and helps families find the perfect match.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">🌍</div>
+            <div class="feature-ico"><?= icon('globe') ?></div>
             <h3 class="no-margin">South African roots</h3>
             <p class="muted no-margin">Built for South African families. Our nannies speak English, isiZulu, Sesotho, Afrikaans and more — care in your home language.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">🔒</div>
+            <div class="feature-ico"><?= icon('lock') ?></div>
             <h3 class="no-margin">Safe and verified</h3>
             <p class="muted no-margin">Every nanny in our community is manually verified by our admin team before appearing to parents. Safety is never optional.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">💬</div>
+            <div class="feature-ico"><?= icon('message-circle') ?></div>
             <h3 class="no-margin">Open communication</h3>
             <p class="muted no-margin">Secure in-app messaging lets parents and nannies coordinate, ask questions and stay connected throughout every booking.</p>
         </div>
         <div class="card stack reveal-item">
-            <div class="feature-ico">📚</div>
+            <div class="feature-ico"><?= icon('library') ?></div>
             <h3 class="no-margin">Shared knowledge</h3>
             <p class="muted no-margin">Our resources section is filled with childcare guides, safety tips and development advice contributed by professionals and families.</p>
         </div>
@@ -78,16 +78,16 @@ require __DIR__ . '/../includes/header.php';
     <div class="grid grid-3">
         <?php
         $articles = [
-            ['🧒', 'Parenting', 'The importance of routine for young children', 'Consistent routines reduce anxiety and help children feel safe, loved and ready to learn. Here\'s how to create one that works.', 'tip-blue'],
-            ['🍎', 'Nutrition', 'Healthy snack ideas your nanny can prepare', 'Quick, nutritious snacks that nannies can make with ingredients already in your kitchen — loved by toddlers and school-age children alike.', 'tip-green'],
-            ['🛡️', 'Safety', 'Teaching children about stranger safety', 'Age-appropriate ways to talk to your child about personal safety without causing unnecessary fear. Practical scripts for parents and nannies.', 'tip-violet'],
-            ['🌱', 'Development', 'Screen time guidelines by age group', 'The South African Paediatric Association\'s recommendations on healthy screen time — and ideas for what to do instead.', 'tip-blue'],
-            ['💛', 'Wellbeing', 'Supporting your nanny\'s mental health', 'Childcare is emotionally demanding work. Small gestures of appreciation go a long way in building a healthy, sustainable working relationship.', 'tip-green'],
-            ['📖', 'Education', 'Reading aloud every day', 'Research shows that reading 20 minutes a day with a child dramatically boosts vocabulary, empathy and school readiness. Tips on making it fun.', 'tip-violet'],
+            ['smile', 'Parenting', 'The importance of routine for young children', 'Consistent routines reduce anxiety and help children feel safe, loved and ready to learn. Here\'s how to create one that works.', 'tip-blue'],
+            ['apple', 'Nutrition', 'Healthy snack ideas your nanny can prepare', 'Quick, nutritious snacks that nannies can make with ingredients already in your kitchen — loved by toddlers and school-age children alike.', 'tip-green'],
+            ['shield-check', 'Safety', 'Teaching children about stranger safety', 'Age-appropriate ways to talk to your child about personal safety without causing unnecessary fear. Practical scripts for parents and nannies.', 'tip-violet'],
+            ['sprout', 'Development', 'Screen time guidelines by age group', 'The South African Paediatric Association\'s recommendations on healthy screen time — and ideas for what to do instead.', 'tip-blue'],
+            ['heart', 'Wellbeing', 'Supporting your nanny\'s mental health', 'Childcare is emotionally demanding work. Small gestures of appreciation go a long way in building a healthy, sustainable working relationship.', 'tip-green'],
+            ['book-open', 'Education', 'Reading aloud every day', 'Research shows that reading 20 minutes a day with a child dramatically boosts vocabulary, empathy and school readiness. Tips on making it fun.', 'tip-violet'],
         ];
         foreach ($articles as $a): ?>
         <a class="card tip-card reveal-item" href="<?= url('pages/resources.php') ?>">
-            <div class="tip-head <?= $a[4] ?>"><?= $a[0] ?></div>
+            <div class="tip-head <?= $a[4] ?>"><?= icon($a[0]) ?></div>
             <div class="tip-body">
                 <span class="tip-cat"><?= $a[1] ?></span>
                 <h3><?= $a[2] ?></h3>
@@ -124,7 +124,7 @@ require __DIR__ . '/../includes/header.php';
                 <div>
                     <div class="quote-name"><?= e($t[2]) ?></div>
                     <div class="muted quote-meta"><?= e($t[3]) ?></div>
-                    <div class="quote-stars">★★★★★</div>
+                    <div class="quote-stars"><?= icon('star', 'ico-fill') ?><?= icon('star', 'ico-fill') ?><?= icon('star', 'ico-fill') ?><?= icon('star', 'ico-fill') ?><?= icon('star', 'ico-fill') ?></div>
                 </div>
             </div>
         </div>
@@ -136,7 +136,7 @@ require __DIR__ . '/../includes/header.php';
 <section class="section">
     <div class="final-cta reveal-item">
         <div class="final-cta-bg" aria-hidden="true"></div>
-        <span class="final-ico">💛</span>
+        <span class="final-ico"><?= icon('heart') ?></span>
         <h2>Be part of our community</h2>
         <p>Join thousands of South African families and nannies who trust <?= APP_NAME ?> for safe, professional childcare.</p>
         <div class="hero-cta actions-center">
