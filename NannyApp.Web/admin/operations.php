@@ -16,6 +16,8 @@ $queues = db()->query("SELECT
     (SELECT COUNT(*) FROM email_outbox WHERE status='failed') AS failed_emails,
     (SELECT COUNT(*) FROM notification_outbox WHERE delivered_at IS NULL) AS notifications,
     (SELECT COUNT(*) FROM storage_deletions WHERE completed_at IS NULL) AS deletions")->fetch();
+require_once __DIR__ . '/../../NannyApp.Shared/config/health.php';
+$health = system_health(db());
 $tickets = db()->query("SELECT id, subject, category, status, created_at FROM support_tickets
     WHERE status IN ('open','in_progress')
     ORDER BY (category='safety') DESC, created_at ASC LIMIT 10")->fetchAll();
@@ -68,6 +70,18 @@ require __DIR__ . '/../includes/header.php';
         <div><dt>Pending file deletions</dt><dd><?= (int) $queues['deletions'] ?></dd></div>
     </dl>
     <p class="muted">Queue counts do not confirm email delivery or worker health. Manual ledger updates do not transfer money.</p>
+</section>
+<section class="card section" aria-labelledby="system-health">
+    <h2 id="system-health">System health</h2>
+    <p class="muted"><?= $health['status'] === 'ok' ? 'All checks passed.' : 'One or more checks need attention.' ?>
+        An uptime monitor can watch the same checks at <code>/api/health.php</code>.</p>
+    <dl class="admin-queue-grid">
+        <?php foreach ($health['checks'] as $name => $check): ?>
+            <div><dt><?= e(ucfirst($name)) ?> <span class="badge <?= $check['ok'] ? 'badge-ok' : 'badge-bad' ?>"><?= $check['ok'] ? 'OK' : 'Needs attention' ?></span></dt>
+                <dd class="admin-health-detail"><?= e($check['detail']) ?></dd></div>
+        <?php endforeach; ?>
+    </dl>
+    <p class="muted">When a user reports an error with a reference code, search the server log for that code.</p>
 </section>
 <div class="dash-wrap-actions section">
     <a class="btn" href="<?= url('admin/users.php') ?>">Manage users</a>

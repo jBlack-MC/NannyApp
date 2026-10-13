@@ -6,7 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Shapes
 
 val NannyShapes = Shapes(
-    extraSmall = RoundedCornerShape(6.dp),
+    extraSmall = RoundedCornerShape(11.dp), // text fields, matching .field input
     small = RoundedCornerShape(9.dp),
     medium = RoundedCornerShape(13.dp),
     large = RoundedCornerShape(18.dp),

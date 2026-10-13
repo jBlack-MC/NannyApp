@@ -35,7 +35,7 @@ fun SplashScreen(
 
     LaunchedEffect(Unit) {
         // Gives the logo motion a deliberate, premium feel instead of a flash.
-        delay(900)
+        delay(450)
         minimumDisplayElapsed = true
     }
 

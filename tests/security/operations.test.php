@@ -156,6 +156,22 @@ try {
         $before=(int)$pdo->query('SELECT COUNT(*) FROM nanny_portfolio')->fetchColumn();
         op_check(op_http('/api/nannies/portfolio.php',['file'=>new CURLFile($storage.'/valid.png','image/png','valid.png'),'title'=>'Synthetic','type'=>'photo'],1,true)[0]===400,'HTTP upload rejected at total quota');
         op_check((int)$pdo->query('SELECT COUNT(*) FROM nanny_portfolio')->fetchColumn()===$before,'quota rejection leaves no document reference');
+        // Health checks: rolled back so the queue state above is untouched.
+        require_once __DIR__ . '/../../NannyApp.Shared/config/logging.php';
+        require_once __DIR__ . '/../../NannyApp.Shared/config/health.php';
+        $pdo->beginTransaction();
+        $pdo->exec("UPDATE notification_outbox SET delivered_at=NOW() WHERE delivered_at IS NULL");
+        $pdo->exec("UPDATE email_outbox SET status='sent' WHERE status IN ('pending','sending')");
+        $health=system_health($pdo);
+        op_check($health['status']==='ok' && $health['checks']['notifications']['ok'] && $health['checks']['storage']['ok'],'health is ok when queues are empty');
+        $pdo->exec("INSERT INTO notification_outbox (user_id,title,message,created_at) VALUES (1,'Synthetic','Synthetic',DATE_SUB(NOW(),INTERVAL 20 MINUTE))");
+        $health=system_health($pdo);
+        op_check($health['status']==='degraded' && !$health['checks']['notifications']['ok'] && $health['checks']['emails']['ok'],'health reports a stalled notification worker');
+        $pdo->rollBack();
+        [$code,$body]=op_http('/api/health.php');
+        $reply=json_decode((string)$body,true);
+        op_check(in_array($code,[200,503],true) && ($reply['checks']['database']??'')==='ok' && ($code===200)===($reply['status']==='ok'),'health endpoint returns JSON whose status matches its HTTP code');
+        op_check(array_diff(array_values($reply['checks']),['ok','failed'])===[] && !str_contains((string)$body,'minutes'),'public health endpoint exposes no queue details');
     } finally { proc_terminate($server);foreach ($pipes as $pipe) fclose($pipe);proc_close($server); }
 
 } finally {

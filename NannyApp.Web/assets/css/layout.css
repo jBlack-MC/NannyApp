@@ -26,3 +26,4 @@
 .admin-action-card strong { font-size: 2rem; }
 .admin-action-card:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
 .admin-queue-grid dd { margin: 4px 0 0; font-size: 1.5rem; font-weight: 700; }
+.admin-queue-grid dd.admin-health-detail { font-size: 1rem; font-weight: 400; }

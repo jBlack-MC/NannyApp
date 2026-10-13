@@ -9,5 +9,5 @@ $stmt=db()->prepare('SELECT booking_id FROM payments WHERE id=?');$stmt->execute
 if (!$booking) json_error('Payment not found.',404);
 try { transition_booking(db(),(int)$me['id'],(int)$booking,'refund'); }
 catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
-catch (Throwable $e) { json_error('Could not update ledger.',503); }
+catch (Throwable $e) { log_exception($e); json_error('Could not update ledger.',503); }
 json_response(true,(object)[],'Manual ledger updated; no bank transfer was made.');

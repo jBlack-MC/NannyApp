@@ -40,7 +40,7 @@ fun NannyPortfolioScreen(onBack: () -> Unit, viewModel: NannyPortfolioViewModel 
             )
             else -> LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.items, key = { it.id }) { item ->
-                    ElevatedCard(Modifier.fillMaxWidth()) {
+                    AppCard(Modifier.fillMaxWidth()) {
                         Row(Modifier.padding(14.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                             Icon(if (item.adminVerified) Icons.Filled.CheckCircle else Icons.Filled.HourglassEmpty, contentDescription = null, tint = if (item.adminVerified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline)
                             Spacer(Modifier.width(10.dp))

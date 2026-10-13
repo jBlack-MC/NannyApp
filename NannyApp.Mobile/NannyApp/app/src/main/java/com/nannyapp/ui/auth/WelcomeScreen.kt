@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.nannyapp.ui.components.AppCard
 import com.nannyapp.ui.components.NannyAppBrand
 import com.nannyapp.ui.components.TextActionButton
 
@@ -132,11 +133,7 @@ private fun LandingHero(onFindCare: () -> Unit, onBecomeNanny: () -> Unit) {
 
 @Composable
 private fun TrustStrip() {
-    ElevatedCard(
-        modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
-    ) {
+    AppCard(modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(vertical = 15.dp, horizontal = 10.dp)) {
             TrustItem("Verified", "nannies", Modifier.weight(1f))
             VerticalDivider(modifier = Modifier.height(34.dp))

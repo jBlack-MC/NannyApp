@@ -20,6 +20,7 @@ if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
 // outside any single app's webroot so web + app share the exact same files.
 if (!defined('SHARED_STORAGE_DIR')) define('SHARED_STORAGE_DIR', getenv('NANNYAPP_STORAGE_DIR') ?: __DIR__ . '/../storage');
 
+require_once __DIR__ . '/logging.php';
 require_once __DIR__ . '/storage.php';
 
 function db(): PDO
@@ -44,8 +45,8 @@ function db(): PDO
             // CLI workers must fail with a nonzero exit, not exit(string)'s success code.
             if (PHP_SAPI === 'cli') throw $e;
             http_response_code(500);
-            error_log('NannyApp database connection failed: ' . $e->getMessage());
-            exit('Database connection failed. Check the server configuration and database migration status.');
+            log_exception($e, 'database_connection_failed');
+            exit('Database connection failed. Check the server configuration and database migration status. Reference: ' . request_ref());
         }
     }
 

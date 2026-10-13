@@ -33,7 +33,7 @@ fun SupportScreen(onNewTicket: () -> Unit, viewModel: SupportViewModel = hiltVie
             )
             else -> LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.tickets, key = { it.id }) { ticket ->
-                    ElevatedCard(Modifier.fillMaxWidth()) {
+                    AppCard(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(14.dp)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(ticket.subject, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))

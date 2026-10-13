@@ -7,6 +7,8 @@ import com.nannyapp.domain.repository.NannyRepository
 import com.nannyapp.domain.repository.SavedNannyRepository
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +30,7 @@ class FindNanniesViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(FindNanniesUiState())
     val state: StateFlow<FindNanniesUiState> = _state.asStateFlow()
+    private var searchJob: Job? = null
 
     init {
         search()
@@ -36,7 +39,8 @@ class FindNanniesViewModel @Inject constructor(
 
     fun onQueryChange(q: String) {
         _state.value = _state.value.copy(filters = _state.value.filters.copy(query = q))
-        search()
+        // Wait for a pause in typing rather than sending one request per keystroke.
+        search(debounceMillis = 350)
     }
 
     fun updateFilters(transform: (NannySearchFilters) -> NannySearchFilters) {
@@ -50,8 +54,11 @@ class FindNanniesViewModel @Inject constructor(
 
     fun toggleFilterSheet(show: Boolean) { _state.value = _state.value.copy(showFilterSheet = show) }
 
-    fun search() {
-        viewModelScope.launch {
+    fun search(debounceMillis: Long = 0) {
+        // Cancelling the previous search stops a slow, older response overwriting newer results.
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(debounceMillis)
             nannyRepository.searchNannies(_state.value.filters).collect { result ->
                 when (result) {
                     Resource.Loading -> _state.value = _state.value.copy(loading = true, error = null)

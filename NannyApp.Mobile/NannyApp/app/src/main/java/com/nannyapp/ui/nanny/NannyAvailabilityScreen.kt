@@ -23,7 +23,7 @@ fun NannyAvailabilityScreen(onBack: () -> Unit, viewModel: NannyAvailabilityView
             state.error != null -> ErrorState(message = state.error!!, modifier = Modifier.padding(padding), onRetry = viewModel::load)
             else -> Column(Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState()).padding(20.dp)) {
                 state.days.forEach { day ->
-                    ElevatedCard(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
+                    AppCard(Modifier.fillMaxWidth().padding(bottom = 10.dp)) {
                         Column(Modifier.padding(14.dp)) {
                             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                                 Text(DAY_NAMES[day.dayOfWeek], fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))

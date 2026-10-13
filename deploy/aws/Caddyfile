@@ -1,4 +1,5 @@
 {$NANNYAPP_DOMAIN} {
+    encode zstd gzip
     reverse_proxy app:80
     header Strict-Transport-Security "max-age=31536000"
 }

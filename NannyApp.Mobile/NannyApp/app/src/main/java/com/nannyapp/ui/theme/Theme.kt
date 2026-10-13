@@ -32,7 +32,19 @@ private val LightColors = lightColorScheme(
     surfaceVariant = NannySurfaceVariant,
     onSurfaceVariant = NannyOnSurfaceVariant,
     outline = NannyOutline,
+    outlineVariant = NannyOutline,
     error = NannyError,
+    // Material's defaults for these roles are lavender-tinted; cards, sheets, menus and
+    // dialogs must be the website's white cards on its pale blue page instead. Tinting
+    // with the surface colour itself keeps raised surfaces from being washed with the primary colour.
+    surfaceTint = NannySurface,
+    surfaceBright = NannySurface,
+    surfaceDim = Color(0xFFEDF3F9),
+    surfaceContainerLowest = NannySurface,
+    surfaceContainerLow = NannySurface,
+    surfaceContainer = NannySurface,
+    surfaceContainerHigh = NannySurface,
+    surfaceContainerHighest = NannySurfaceVariant,
 )
 
 private val DarkColors = darkColorScheme(
@@ -53,6 +65,15 @@ private val DarkColors = darkColorScheme(
     surfaceVariant = Color(0xFF28394D),
     onSurfaceVariant = Color(0xFFB8C8D9),
     outline = Color(0xFF8C9FB4),
+    outlineVariant = Color(0xFF334155),
+    surfaceTint = Color(0xFF1E293B),
+    surfaceBright = Color(0xFF28394D),
+    surfaceDim = Color(0xFF0F172A),
+    surfaceContainerLowest = Color(0xFF0F172A),
+    surfaceContainerLow = Color(0xFF1E293B),
+    surfaceContainer = Color(0xFF1E293B),
+    surfaceContainerHigh = Color(0xFF243347),
+    surfaceContainerHighest = Color(0xFF28394D),
     error = Color(0xFFFFB4AB),
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),

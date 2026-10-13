@@ -1,5 +1,6 @@
 package com.nannyapp.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,6 +24,27 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.nannyapp.domain.model.Booking
 import com.nannyapp.domain.model.NannyProfile
+
+/**
+ * The website's .card: white surface, hairline border, large radius and a soft shadow.
+ * Use this instead of Material's ElevatedCard so every screen shares one card style.
+ */
+@Composable
+fun AppCard(
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.large,
+    border: BorderStroke = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    val elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+    if (onClick != null) {
+        Card(onClick = onClick, modifier = modifier, shape = shape, colors = colors, elevation = elevation, border = border, content = content)
+    } else {
+        Card(modifier = modifier, shape = shape, colors = colors, elevation = elevation, border = border, content = content)
+    }
+}
 
 @Composable
 fun NannyCard(
@@ -31,13 +54,7 @@ fun NannyCard(
     onToggleSave: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ElevatedCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp),
-    ) {
+    AppCard(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Column {
             Box {
                 AsyncImage(
@@ -119,13 +136,7 @@ fun BookingCard(
     modifier: Modifier = Modifier,
     counterpartLabel: String = "Nanny",
 ) {
-    ElevatedCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-    ) {
+    AppCard(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 Box(
@@ -163,12 +174,7 @@ fun StatCard(
     modifier: Modifier = Modifier,
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
 ) {
-    ElevatedCard(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
-    ) {
+    AppCard(modifier = modifier) {
         Column(Modifier.padding(16.dp)) {
             if (icon != null) {
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))

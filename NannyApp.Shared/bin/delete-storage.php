@@ -5,4 +5,4 @@ require __DIR__ . '/../config/storage_jobs.php';
 try {
     for ($i=0;$i<100 && process_storage_deletion(db());$i++) {}
     echo "Processed $i storage jobs.\n";
-} catch (Throwable $e) { fwrite(STDERR,"Storage worker failed; retry pending jobs.\n");exit(1); }
+} catch (Throwable $e) { log_exception($e,'storage_worker_failed');fwrite(STDERR,"Storage worker failed; retry pending jobs.\n");exit(1); }

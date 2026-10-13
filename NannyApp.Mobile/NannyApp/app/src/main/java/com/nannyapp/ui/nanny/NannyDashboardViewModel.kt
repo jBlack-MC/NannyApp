@@ -6,6 +6,7 @@ import com.nannyapp.domain.model.*
 import com.nannyapp.domain.repository.*
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,12 +41,16 @@ class NannyDashboardViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
-            val bookingsResult = bookingRepository.getBookings(UserRole.NANNY).first { it !is Resource.Loading }
-            val bookings = (bookingsResult as? Resource.Success)?.data.orEmpty()
-            val earningsResult = nannyRepository.getEarnings()
-
+            // Independent requests run together rather than one after another.
+            val bookingsRequest = async { bookingRepository.getBookings(UserRole.NANNY).first { it !is Resource.Loading } }
+            val earningsRequest = async { nannyRepository.getEarnings() }
             // Own profile is fetched by id 0 sentinel resolved server-side to "me" for nanny role.
-            val profileResult = nannyRepository.getNannyDetail(0)
+            val profileRequest = async { nannyRepository.getNannyDetail(0) }
+
+            val bookingsResult = bookingsRequest.await()
+            val bookings = (bookingsResult as? Resource.Success)?.data.orEmpty()
+            val earningsResult = earningsRequest.await()
+            val profileResult = profileRequest.await()
 
             _state.value = _state.value.copy(
                 loading = false,

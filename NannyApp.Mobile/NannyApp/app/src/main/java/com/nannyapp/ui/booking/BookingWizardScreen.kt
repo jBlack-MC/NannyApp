@@ -71,7 +71,7 @@ private fun StepNanny(state: BookingWizardUiState) {
     val nanny = state.wizard.nanny ?: return
     Text("You're booking", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(10.dp))
-    ElevatedCard(Modifier.fillMaxWidth()) {
+    AppCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             Text(nanny.fullName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
             RatingView(nanny.averageRating, nanny.reviewCount)

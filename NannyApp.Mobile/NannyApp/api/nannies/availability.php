@@ -47,7 +47,7 @@ if ($method === 'PUT') {
     require_once __DIR__ . '/../../../../NannyApp.Shared/config/bookings.php';
     try { save_booking_availability(db(),(int)$me['id'],json_body()); }
     catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
-    catch (Throwable $e) { json_error('Could not save availability.',503); }
+    catch (Throwable $e) { log_exception($e); json_error('Could not save availability.',503); }
     json_response(true,(object)[]);
 }
 json_error('Method not allowed.',405);

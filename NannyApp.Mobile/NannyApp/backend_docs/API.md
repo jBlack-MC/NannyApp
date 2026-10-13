@@ -9,6 +9,8 @@ Debug/emulator default: `http://10.0.2.2/nannyapp/api/` (see `app/build.gradle.k
 - Auth: send `Authorization: Bearer <token>` on every request except `auth/login.php`, `auth/register.php`, `auth/forgot.php`, `auth/reset.php`, `auth/verify-email.php`, `auth/resend-verification.php`, and `content/page.php`.
 - A `nannyId` / `nanny_id` of `0` (or the parameter omitted) on nanny-scoped endpoints (`nannies/detail.php`, `nannies/availability.php`, `nannies/portfolio.php`) means **"the logged-in nanny"** — the server resolves it from the bearer token rather than trusting a client-supplied id.
 - HTTP status codes are meaningful: `401` = expired/invalid session, `403` = wrong role or suspended, `404` = not found, `409` = conflict (e.g. double-booking, wrong booking status for this action), `429` = rate limited.
+- Server-side failures (`5xx`) add `"ref"`, a short reference also sent as the `X-Request-Ref` header and written on the matching server log line. See `docs/TROUBLESHOOTING.md`.
+- `health.php` (GET, no auth) is the one endpoint outside the envelope: `{ "status": "ok"|"degraded"|"down", "checks": {...} }` with `200` when healthy and `503` otherwise, for uptime monitors.
 
 ## Auth — `/api/auth/`
 | Endpoint | Method | Body | Notes |

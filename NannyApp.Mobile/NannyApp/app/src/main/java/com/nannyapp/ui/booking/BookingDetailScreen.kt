@@ -52,7 +52,7 @@ fun BookingDetailScreen(
 
                     if (state.role == UserRole.PARENT && b.checkInCode != null && b.status == BookingStatus.CONFIRMED) {
                         Spacer(Modifier.height(12.dp))
-                        ElevatedCard(Modifier.fillMaxWidth()) {
+                        AppCard(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(16.dp)) {
                                 Text("Check-in PIN", style = MaterialTheme.typography.titleSmall)
                                 Text("Share this with your nanny when they arrive:", style = MaterialTheme.typography.bodySmall)

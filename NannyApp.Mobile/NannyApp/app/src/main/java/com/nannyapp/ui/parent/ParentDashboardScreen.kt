@@ -110,7 +110,7 @@ fun ParentDashboardScreen(
                     }
                     Spacer(Modifier.height(8.dp))
                     state.recentConversations.forEach { conv ->
-                        ElevatedCard(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = onMessages) {
+                        AppCard(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), onClick = onMessages) {
                             Column(Modifier.padding(12.dp)) {
                                 Text(conv.withUserName, fontWeight = FontWeight.SemiBold)
                                 Text(conv.lastMessage, style = MaterialTheme.typography.bodySmall, maxLines = 1)

@@ -50,7 +50,8 @@ try {
     }
     $token = issue_api_token((int) $user['id'], $_SERVER['HTTP_USER_AGENT'] ?? null);
     $pdo->commit();
-} catch (Throwable) {
+} catch (Throwable $e) {
+    log_exception($e, 'login_failed');
     if ($pdo->inTransaction()) $pdo->rollBack();
     json_error('Could not sign in. Please try again.', 503);
 }

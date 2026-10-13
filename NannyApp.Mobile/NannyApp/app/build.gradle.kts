@@ -40,7 +40,7 @@ tasks.configureEach {
 
 android {
     namespace = "com.nannyapp"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.nannyapp"

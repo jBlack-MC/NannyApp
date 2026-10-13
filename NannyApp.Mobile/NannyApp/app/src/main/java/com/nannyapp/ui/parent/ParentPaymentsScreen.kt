@@ -26,7 +26,7 @@ fun ParentPaymentsScreen(onBack: () -> Unit, viewModel: ParentPaymentsViewModel 
             state.payments.isEmpty() -> EmptyState(title = "No payments yet", message = "Your payment history will appear here.", icon = Icons.Filled.Payments, modifier = Modifier.padding(padding))
             else -> LazyColumn(Modifier.padding(padding), contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(state.payments, key = { it.id }) { payment ->
-                    ElevatedCard(Modifier.fillMaxWidth()) {
+                    AppCard(Modifier.fillMaxWidth()) {
                         Column(Modifier.padding(14.dp)) {
                             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                 Text(payment.bookingRef ?: "Booking #${payment.bookingId}", fontWeight = FontWeight.SemiBold)

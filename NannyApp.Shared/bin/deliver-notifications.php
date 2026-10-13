@@ -6,6 +6,7 @@ try {
     for ($i=0; $i<100 && deliver_notification(db()); $i++) {}
     echo "Delivered $i notifications.\n";
 } catch (Throwable $e) {
+    log_exception($e, 'notification_worker_failed');
     fwrite(STDERR, "Notification delivery failed; pending event retained for retry.\n");
     exit(1);
 }

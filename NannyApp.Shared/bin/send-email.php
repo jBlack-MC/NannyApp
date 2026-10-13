@@ -15,7 +15,8 @@ try {
         $status = deliver_account_email(db(), $job);
         echo json_encode(['event'=>'mail_job','id'=>$job['id'],'status'=>$status]) . "\n";
     }
-} catch (Throwable) {
+} catch (Throwable $e) {
+    log_exception($e, 'mail_worker_failed');
     // A provider acceptance followed by DB failure leaves the leased job retryable.
     fwrite(STDERR, "mail_worker_failed\n");
     exit(1);

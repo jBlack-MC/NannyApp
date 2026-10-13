@@ -243,3 +243,18 @@ data class BookingWizardState(
 ) {
     val estimatedAmount: Double get() = (nanny?.hourlyRate ?: 0.0) * durationHours
 }
+
+/** One of the public information pages (About, Safety, Pricing, ...), mirroring the website. */
+data class StaticPage(
+    val title: String,
+    val body: String,
+    /** Website layout of the page; empty when only plain text is available. */
+    val blocks: List<PageBlock> = emptyList(),
+)
+
+/** `type` is eyebrow, h1, h2, h3, p, li, li_off, icon, tag, price, quote or card (which nests `blocks`). */
+data class PageBlock(
+    val type: String,
+    val text: String = "",
+    val blocks: List<PageBlock> = emptyList(),
+)

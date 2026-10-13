@@ -17,6 +17,10 @@ val NannySurfaceVariant = Color(0xFFEEF7FF)
 val NannyOnSurface = Color(0xFF0D1F33)
 val NannyOnSurfaceVariant = Color(0xFF5E7387)
 val NannyOutline = Color(0xFFE2E8F0)
+val NannyInkSoft = Color(0xFF2D465F)
+// Ends of the website's primary button gradient (--blue-700 to --blue-500).
+val NannyGradientStart = Color(0xFF1E5F9E)
+val NannyGradientEnd = Color(0xFF3B9BE0)
 
 val NannySuccess = Color(0xFF4CAF50)
 val NannyWarning = Color(0xFFFFA000)
