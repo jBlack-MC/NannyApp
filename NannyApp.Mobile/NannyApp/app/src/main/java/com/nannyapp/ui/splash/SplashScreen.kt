@@ -104,7 +104,7 @@ private fun SplashBackgroundWaves() {
         val topPath = Path().apply {
             moveTo(0f, 0f)
             lineTo(width * 0.7f, 0f)
-            quadraticTo(width * 0.3f, height * 0.1f, 0f, height * 0.25f)
+            quadraticBezierTo(width * 0.3f, height * 0.1f, 0f, height * 0.25f)
             close()
         }
         drawPath(topPath, waveColor)
@@ -112,7 +112,7 @@ private fun SplashBackgroundWaves() {
         val topPath2 = Path().apply {
             moveTo(0f, 0f)
             lineTo(width * 0.4f, 0f)
-            quadraticTo(width * 0.1f, height * 0.15f, 0f, height * 0.35f)
+            quadraticBezierTo(width * 0.1f, height * 0.15f, 0f, height * 0.35f)
             close()
         }
         drawPath(topPath2, waveColorLight)
@@ -121,7 +121,7 @@ private fun SplashBackgroundWaves() {
         val bottomPath = Path().apply {
             moveTo(width, height)
             lineTo(width * 0.3f, height)
-            quadraticTo(width * 0.7f, height * 0.9f, width, height * 0.75f)
+            quadraticBezierTo(width * 0.7f, height * 0.9f, width, height * 0.75f)
             close()
         }
         drawPath(bottomPath, waveColor)
@@ -129,7 +129,7 @@ private fun SplashBackgroundWaves() {
         val bottomPath2 = Path().apply {
             moveTo(width, height)
             lineTo(width * 0.5f, height)
-            quadraticTo(width * 0.85f, height * 0.85f, width, height * 0.65f)
+            quadraticBezierTo(width * 0.85f, height * 0.85f, width, height * 0.65f)
             close()
         }
         drawPath(bottomPath2, waveColorLight)

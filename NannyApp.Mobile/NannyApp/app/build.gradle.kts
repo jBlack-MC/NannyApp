@@ -40,7 +40,7 @@ tasks.configureEach {
 
 android {
     namespace = "com.nannyapp"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.nannyapp"
@@ -105,7 +105,7 @@ dependencies {
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.hilt:hilt-navigation-compose:1.4.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.60.1")
@@ -134,8 +134,8 @@ dependencies {
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("androidx.hilt:hilt-work:1.4.0")
-    ksp("androidx.hilt:hilt-compiler:1.4.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
+    ksp("androidx.hilt:hilt-compiler:1.2.0")
 
     // Charts (earnings / admin reports)
     implementation("com.patrykandpatrick.vico:compose-m3:1.13.1")
