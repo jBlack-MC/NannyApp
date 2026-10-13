@@ -30,6 +30,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
+// Uncaught errors are logged with a reference the visitor can quote to support.
+require_once __DIR__ . '/../../NannyApp.Shared/config/logging.php';
+install_error_handlers('web');
+
 // --- HTTPS enforcement ---
 function is_https_request(): bool
 {

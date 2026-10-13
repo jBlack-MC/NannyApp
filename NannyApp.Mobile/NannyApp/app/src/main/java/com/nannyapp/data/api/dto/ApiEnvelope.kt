@@ -7,6 +7,12 @@ data class ApiEnvelope<T>(
     val data: T? = null,
 )
 
+/** Body of a non-2xx response. `ref` is set on server-side failures; see docs/TROUBLESHOOTING.md. */
+data class ErrorEnvelope(
+    val message: String? = null,
+    val ref: String? = null,
+)
+
 data class PagedData<T>(
     val items: List<T>,
     val page: Int,

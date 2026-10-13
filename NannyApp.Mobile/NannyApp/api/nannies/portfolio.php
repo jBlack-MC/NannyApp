@@ -39,7 +39,7 @@ if ($method === 'POST') {
         'INSERT INTO nanny_portfolio (nanny_id, type, title, file_path, admin_verified) VALUES (:nid, :type, :title, :path, 0)'
     );
     try { $stmt->execute(['nid' => $me['id'], 'type' => $type, 'title' => $title, 'path' => $result['path']]); }
-    catch (Throwable $e) { storage_delete($result['path']); json_error('Could not save document.',503); }
+    catch (Throwable $e) { log_exception($e); storage_delete($result['path']); json_error('Could not save document.',503); }
     $id = (int) db()->lastInsertId();
 
     json_response(true, [
@@ -54,7 +54,7 @@ if ($method === 'DELETE') {
     require_once __DIR__ . '/../../../../NannyApp.Shared/config/storage_jobs.php';
     try {
         if (!delete_portfolio_document(db(),(int)$me['id'],$id)) json_error('Document not found.',404);
-    } catch (Throwable $e) { json_error('Could not delete document.',503); }
+    } catch (Throwable $e) { log_exception($e); json_error('Could not delete document.',503); }
     json_response(true,(object)[]);
 }
 

@@ -30,7 +30,7 @@ fun AdminPaymentsScreen(onBack: () -> Unit, viewModel: AdminPaymentsViewModel = 
                 state.payments.isEmpty() -> EmptyState(title = "No payments found", message = "Try a different filter.")
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(state.payments, key = { it.id }) { payment ->
-                        ElevatedCard(Modifier.fillMaxWidth()) {
+                        AppCard(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(payment.bookingRef ?: "Booking #${payment.bookingId}", fontWeight = FontWeight.SemiBold)

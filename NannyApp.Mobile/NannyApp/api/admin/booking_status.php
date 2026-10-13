@@ -8,5 +8,5 @@ $status=$b['status']??null;
 if (!is_string($status) || !isset($map[$status])) json_error('Use a supported ledger resolution: completed or cancelled.',400);
 try { transition_booking(db(),(int)$me['id'],(int)($b['bookingId']??0),$map[$status]); }
 catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
-catch (Throwable $e) { json_error('Could not update ledger.',503); }
+catch (Throwable $e) { log_exception($e); json_error('Could not update ledger.',503); }
 json_response(true,(object)[]);

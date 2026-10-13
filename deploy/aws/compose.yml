@@ -1,5 +1,12 @@
 name: nannyapp-production
+# Docker keeps container logs forever by default; cap them so logs cannot fill the disk.
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
 x-app: &app
+  logging: *logging
   image: nannyapp-production:local
   build:
     context: ../..
@@ -19,6 +26,7 @@ services:
   proxy:
     image: caddy:2
     restart: unless-stopped
+    logging: *logging
     environment:
       NANNYAPP_DOMAIN: ${NANNYAPP_DOMAIN:?Set your domain}
     ports:
@@ -36,6 +44,7 @@ services:
   database:
     image: mariadb:10.11
     restart: unless-stopped
+    logging: *logging
     environment:
       MARIADB_DATABASE: ${NANNYAPP_DB_NAME:?Set database name}
       MARIADB_USER: ${NANNYAPP_DB_USER:?Set database user}

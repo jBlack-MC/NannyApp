@@ -19,6 +19,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
+// Installed before anything else loads so a broken include still returns JSON with a reference.
+require_once __DIR__ . '/../../../NannyApp.Shared/config/logging.php';
+install_error_handlers('api');
+
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 header('Cache-Control: private, no-store');
@@ -54,7 +58,13 @@ const API_TOKEN_TTL_DAYS = 90;
 function json_response(bool $success, mixed $data = null, ?string $message = null, int $httpCode = 200): never
 {
     http_response_code($httpCode);
-    echo json_encode(['success' => $success, 'message' => $message, 'data' => $data], JSON_UNESCAPED_SLASHES);
+    $body = ['success' => $success, 'message' => $message, 'data' => $data];
+    if ($httpCode >= 500) {
+        // Server-side failures carry the reference so support can find the matching log line.
+        log_event('error', 'api_server_error', ['status' => $httpCode, 'reason' => $message]);
+        $body['ref'] = request_ref();
+    }
+    echo json_encode($body, JSON_UNESCAPED_SLASHES);
     exit;
 }
 
@@ -112,7 +122,9 @@ function authenticated_user(): ?array
     $user = $stmt->fetch();
 
     if ($user) {
-        db()->prepare('UPDATE api_tokens SET last_used_at = NOW() WHERE token_hash = :hash')->execute(['hash' => $hash]);
+        // last_used_at is informational; refreshing it at most every five minutes saves a write on every request.
+        db()->prepare('UPDATE api_tokens SET last_used_at = NOW() WHERE token_hash = :hash
+            AND (last_used_at IS NULL OR last_used_at < DATE_SUB(NOW(), INTERVAL 5 MINUTE))')->execute(['hash' => $hash]);
         $cached = $user;
     }
     return $cached;

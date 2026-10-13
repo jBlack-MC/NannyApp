@@ -46,7 +46,7 @@ fun NannyEarningsScreen(onBack: () -> Unit, viewModel: NannyEarningsViewModel = 
                     Text("Recent payments", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(8.dp))
                     s.recentPayments.forEach { p ->
-                        ElevatedCard(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                        AppCard(Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
                             Column(Modifier.padding(12.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(p.bookingRef ?: "Booking #${p.bookingId}", fontWeight = FontWeight.SemiBold)

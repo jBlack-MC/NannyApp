@@ -64,6 +64,7 @@ try {
 
     db()->commit();
 } catch (Throwable $e) {
+    log_exception($e, 'registration_failed');
     db()->rollBack();
     json_error('Could not create your account. Please try again.', 500);
 }

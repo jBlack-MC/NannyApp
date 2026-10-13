@@ -9,6 +9,7 @@ import com.nannyapp.domain.repository.NannyRepository
 import com.nannyapp.domain.repository.SavedNannyRepository
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +38,9 @@ class NannyDetailViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
+            // Reviews and the saved list do not depend on the profile, so fetch all three together.
+            val reviewsRequest = async { nannyRepository.getNannyReviews(nannyId) }
+            val savedRequest = async { savedNannyRepository.getSavedNannies().first { it !is Resource.Loading } }
             val detail = nannyRepository.getNannyDetail(nannyId)
             if (detail is Resource.Error) {
                 _state.value = _state.value.copy(loading = false, error = detail.message)
@@ -47,8 +51,8 @@ class NannyDetailViewModel @Inject constructor(
                 _state.value = _state.value.copy(loading = false, error = "Unable to load nanny details right now.")
                 return@launch
             }
-            val reviews = nannyRepository.getNannyReviews(nannyId)
-            val savedList = savedNannyRepository.getSavedNannies().first { it !is Resource.Loading }
+            val reviews = reviewsRequest.await()
+            val savedList = savedRequest.await()
             val isSaved = (savedList as? Resource.Success)?.data?.any { it.nannyId == nannyId } ?: false
 
             _state.value = _state.value.copy(

@@ -6,6 +6,7 @@ import com.nannyapp.domain.model.*
 import com.nannyapp.domain.repository.*
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,6 +50,15 @@ class ParentDashboardViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
 
+            // The five requests are independent, so they run together: the screen waits for
+            // the slowest one instead of the sum of all of them.
+            val bookingsRequest = async { bookingRepository.getBookings(UserRole.PARENT).first { it !is Resource.Loading } }
+            val savedRequest = async { savedNannyRepository.getSavedNannies().first { it !is Resource.Loading } }
+            val conversationsRequest = async { messageRepository.getConversations().first { it !is Resource.Loading } }
+            val featuredRequest = async {
+                nannyRepository.searchNannies(NannySearchFilters(verifiedOnly = true)).first { it !is Resource.Loading }
+            }
+
             val profileResult = userRepository.getProfile()
             if (profileResult is Resource.Error) {
                 _state.value = _state.value.copy(loading = false, error = profileResult.message)
@@ -61,20 +71,20 @@ class ParentDashboardViewModel @Inject constructor(
             }
             val completion = userRepository.profileCompletionPercent(user)
 
-            val bookings = bookingRepository.getBookings(UserRole.PARENT).first { it !is Resource.Loading }
+            val bookings = bookingsRequest.await()
             val bookingList = (bookings as? Resource.Success)?.data.orEmpty()
             val upcoming = bookingList
                 .filter { it.status == BookingStatus.CONFIRMED || it.status == BookingStatus.PENDING }
                 .minByOrNull { it.dateTime }
             val stats = bookingList.groupingBy { it.status }.eachCount()
 
-            val saved = savedNannyRepository.getSavedNannies().first { it !is Resource.Loading }
+            val saved = savedRequest.await()
             val savedList = (saved as? Resource.Success)?.data.orEmpty()
 
-            val conversations = messageRepository.getConversations().first { it !is Resource.Loading }
+            val conversations = conversationsRequest.await()
             val conversationList = (conversations as? Resource.Success)?.data.orEmpty()
 
-            val featured = nannyRepository.searchNannies(NannySearchFilters(verifiedOnly = true)).first { it !is Resource.Loading }
+            val featured = featuredRequest.await()
             val featuredList = (featured as? Resource.Success)?.data.orEmpty().take(6)
 
             _state.value = _state.value.copy(

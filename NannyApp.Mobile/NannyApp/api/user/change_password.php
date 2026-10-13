@@ -13,7 +13,8 @@ if (!is_string($current) || !is_string($new) || strlen($current) > 4096 || str_c
 if (auth_rate_limited('password-change', (string) $me['id'])) json_error('Too many attempts. Please try later.', 429);
 try {
     $changed = change_account_password((int) $me['id'], $current, $new);
-} catch (Throwable) {
+} catch (Throwable $e) {
+    log_exception($e, 'password_change_failed');
     json_error('Could not update your password. Please try again.', 503);
 }
 if (!$changed) json_error('Your current password is incorrect or the account is no longer active.', 400);

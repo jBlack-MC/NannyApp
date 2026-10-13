@@ -7,7 +7,7 @@ $me=require_api_auth();
 require_api_role($me,'parent');
 try { $id=create_booking(db(),(int)$me['id'],json_body()); }
 catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
-catch (Throwable $e) { json_error('Could not create booking. Please retry.',503); }
+catch (Throwable $e) { log_exception($e); json_error('Could not create booking. Please retry.',503); }
 $stmt=db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id=?');
 $stmt->execute([$id]);
 json_response(true,serialize_booking($stmt->fetch(),$me));

@@ -60,7 +60,7 @@ No PHP built-in server or MySQL was available in the environment that generated 
    - For a physical device on the same Wi-Fi, build with `-PNANNYAPP_DEBUG_API_URL=http://YOUR_LAN_IP/nannyapp/api/`. Debug builds allow local HTTP; release builds keep their HTTPS restrictions.
    - A hosted HTTPS API address works on both phones and emulators. The API and database must be running for account and booking actions.
 
-The nine welcome pages include a bundled copy of the public web text for offline reading. The CMS is checked for updates for up to five seconds before using that copy. After changing public pages, run `python tests/build-public-content.py` from the repository root before rebuilding the APK. Full forms remain available through each page's website link.
+The nine welcome pages are bundled from the public website, including their layout (headings, cards, lists), and appear immediately, online or offline. The server is then checked in the background and a published CMS edit replaces the bundled copy. After changing public pages, run `python tests/build-public-content.py` from the repository root (it needs PHP) before rebuilding the APK. The app uses the website's Manrope and Sora typefaces, bundled under `app/src/main/res/font` with their licences in `licenses/`. Full forms remain available through each page's website link.
 4. Run on an emulator or device (min SDK 24, target/compile SDK 34).
 
 This sandbox also has no Android SDK/Gradle/Kotlin toolchain, so `./gradlew build` was not run here — please run a Gradle sync and build locally as the first step and report back anything that doesn't compile so it can be fixed.

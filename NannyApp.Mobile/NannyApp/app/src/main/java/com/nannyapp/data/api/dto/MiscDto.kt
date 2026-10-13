@@ -79,4 +79,7 @@ data class SubmitTicketRequestDto(
     val email: String,
 )
 
-data class PageContentDto(val pageKey: String, val title: String?, val body: String?)
+/** `blocks` is the website page's structure; absent when an admin has published plain replacement text. */
+data class PageContentDto(val pageKey: String, val title: String?, val body: String?, val blocks: List<PageBlockDto>? = null)
+
+data class PageBlockDto(val type: String?, val text: String?, val blocks: List<PageBlockDto>? = null)

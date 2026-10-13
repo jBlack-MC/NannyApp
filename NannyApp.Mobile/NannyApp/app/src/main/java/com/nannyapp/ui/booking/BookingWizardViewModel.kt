@@ -9,6 +9,7 @@ import com.nannyapp.domain.repository.ChildRepository
 import com.nannyapp.domain.repository.NannyRepository
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,8 +44,9 @@ class BookingWizardViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val childrenRequest = async { childRepository.getChildren().first { it !is Resource.Loading } }
             val nannyResult = nannyRepository.getNannyDetail(nannyId)
-            val childrenResult = childRepository.getChildren().first { it !is Resource.Loading }
+            val childrenResult = childrenRequest.await()
             _state.value = _state.value.copy(
                 loadingNanny = false,
                 wizard = _state.value.wizard.copy(nanny = (nannyResult as? Resource.Success)?.data),

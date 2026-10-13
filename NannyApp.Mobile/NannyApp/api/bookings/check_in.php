@@ -10,7 +10,7 @@ if (!$id) json_error('Invalid booking ID.',400);
 try {
     transition_booking(db(),(int)$me['id'],$id,'check_in',$b);
 } catch (BookingError $e) { json_error($e->getMessage(),$e->getCode()); }
-catch (Throwable $e) { json_error('Could not update booking. Please retry.',503); }
+catch (Throwable $e) { log_exception($e); json_error('Could not update booking. Please retry.',503); }
 
 $stmt=db()->prepare(BOOKING_SELECT_SQL . ' WHERE b.id=?');
 $stmt->execute([$id]);

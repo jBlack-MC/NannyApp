@@ -148,5 +148,9 @@ interface AdminRepository {
 }
 
 interface StaticContentRepository {
-    suspend fun getPage(pageKey: String): Resource<Pair<String, String>> // title to HTML/plain body
+    /** The copy of the website page shipped inside the app: instant, and available offline. */
+    suspend fun getBundledPage(pageKey: String): StaticPage?
+
+    /** The server's copy. It differs from the bundled one only after an edit has been published. */
+    suspend fun getPublishedPage(pageKey: String): Resource<StaticPage>
 }

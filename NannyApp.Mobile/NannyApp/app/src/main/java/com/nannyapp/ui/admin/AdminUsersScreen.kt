@@ -42,7 +42,7 @@ fun AdminUsersScreen(onBack: () -> Unit, viewModel: AdminUsersViewModel = hiltVi
                 state.users.isEmpty() -> EmptyState(title = "No users found", message = "Try a different search or filter.")
                 else -> LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     items(state.users, key = { it.id }) { user ->
-                        ElevatedCard(Modifier.fillMaxWidth()) {
+                        AppCard(Modifier.fillMaxWidth()) {
                             Column(Modifier.padding(14.dp)) {
                                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                                     Text(user.fullName, fontWeight = FontWeight.SemiBold)
