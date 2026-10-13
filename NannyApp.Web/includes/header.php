@@ -51,9 +51,10 @@ $isActive = static function (string $path, bool $prefix = false) use ($requestPa
     </script>
     <link rel="manifest" href="<?= url('manifest.webmanifest') ?>">
     <link rel="icon" href="<?= url('assets/img/icon.svg') ?>" type="image/svg+xml">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <?php // Self-hosted fonts; preloading the two Latin files avoids a flash of fallback text. ?>
+    <link rel="preload" href="<?= url('assets/fonts/manrope-latin-wght-normal.woff2') ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="<?= url('assets/fonts/sora-latin-wght-normal.woff2') ?>" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="<?= url('assets/css/fonts.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/variables.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/reset.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/layout.css') ?>">

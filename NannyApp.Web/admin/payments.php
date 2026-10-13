@@ -49,7 +49,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if ($disputedCount > 0): ?>
 <div class="card card-note-info section">
-    <h3>⚠️ <?= $disputedCount ?> disputed booking<?= $disputedCount===1?'':'s' ?> need review</h3>
+    <h3><?= icon('triangle-alert') ?> <?= $disputedCount ?> disputed booking<?= $disputedCount===1?'':'s' ?> need review</h3>
     <p class="muted">A parent reported a problem — likely the nanny never arrived. Payment is on hold. Review each case below and either release the funds to the nanny or refund the parent.</p>
 </div>
 <?php endif; ?>

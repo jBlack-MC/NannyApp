@@ -12,6 +12,13 @@ Options -Indexes
     AddType application/manifest+json .webmanifest
 </IfModule>
 
+# Font files are versioned by name and never change in place, so browsers may keep them.
+<IfModule mod_headers.c>
+    <FilesMatch "\.woff2$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+</IfModule>
+
 # Route unknown requests to the project 404 page.
 <IfModule mod_rewrite.c>
     RewriteEngine On

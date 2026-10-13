@@ -186,7 +186,7 @@ if ($step === 5):
 ?>
 <div class="auth pb-auth-success">
     <div class="auth-main pb-auth-main">
-        <div class="font-4xl auth-footnote">🎉</div>
+        <div class="font-4xl auth-footnote"><?= icon('party-popper') ?></div>
         <h1 class="heading-tight">Booking sent!</h1>
         <p class="muted">Your request has been sent to <?= e($nanny['full_name']) ?>. They will confirm shortly.</p>
 
@@ -226,7 +226,7 @@ function wizard_steps(int $current): void {
         $cls = $n < $current ? 'ws-done' : ($n === $current ? 'ws-active' : 'ws-pending');
         echo '<div class="ws ' . $cls . '">';
         if ($n < $current) {
-            echo '<span class="ws-num">✓</span>';
+            echo '<span class="ws-num">' . icon('check') . '</span>';
         } else {
             echo '<span class="ws-num">' . $n . '</span>';
         }
@@ -271,19 +271,19 @@ if ($step === 0):
                 <div class="pro-avatar-wrap">
                     <?= avatar($nanny['full_name'], $nanny['profile_image'] ?? null, 'avatar avatar-xl') ?>
                     <?php if ($nanny['verification_status'] === 'verified'): ?>
-                        <span class="pro-verified-badge" title="Verified nanny">✓</span>
+                        <span class="pro-verified-badge" title="Verified nanny"><?= icon('check') ?></span>
                     <?php endif; ?>
                 </div>
                 <div class="pb-flex-1">
                     <h1 class="heading-tight"><?= e($nanny['full_name']) ?></h1>
                     <?php if ($specs): ?><div class="muted mt-2"><?= e(implode(' · ', array_slice($specs, 0, 2))) ?></div><?php endif; ?>
                     <div class="pb-meta-head">
-                        <?php if ($nanny['location']): ?><span>📍 <?= e($nanny['location']) ?></span><?php endif; ?>
-                        <span>⏳ <?= (int)$nanny['experience_years'] ?> yrs experience</span>
-                        <span>💰 R<?= number_format($rate, 0) ?>/hr</span>
+                        <?php if ($nanny['location']): ?><span><?= icon('map-pin') ?> <?= e($nanny['location']) ?></span><?php endif; ?>
+                        <span><?= icon('hourglass') ?> <?= (int)$nanny['experience_years'] ?> yrs experience</span>
+                        <span><?= icon('wallet') ?> R<?= number_format($rate, 0) ?>/hr</span>
                     </div>
                     <div class="pb-stars">
-                        <?php for ($i=1;$i<=5;$i++): ?><span class="<?= $i<=round($rating)?'star-on':'star-off' ?>">★</span><?php endfor; ?>
+                        <?php for ($i=1;$i<=5;$i++): ?><span class="<?= $i<=round($rating)?'star-on':'star-off' ?>"><?= icon('star', 'ico-fill') ?></span><?php endfor; ?>
                         <span class="muted pb-stars-note"><?= number_format($rating,1) ?> (<?= $reviewN ?> review<?= $reviewN===1?'':'s' ?>)</span>
                     </div>
                 </div>
@@ -292,9 +292,9 @@ if ($step === 0):
                             data-save-nanny="<?= $nannyId ?>"
                             data-base="<?= BASE_URL ?>"
                             data-csrf="<?= e($csrfToken) ?>">
-                        <?= $isSaved ? '❤ Saved' : '♡ Save' ?>
+                        <?= icon('heart') ?> <span class="save-label"><?= $isSaved ? 'Saved' : 'Save' ?></span>
                     </button>
-                    <a class="btn btn-sm" href="<?= url('messages.php?with=' . $nannyId) ?>">💬 Message</a>
+                    <a class="btn btn-sm" href="<?= url('messages.php?with=' . $nannyId) ?>"><?= icon('message-circle') ?> Message</a>
                 </div>
             </div>
 
@@ -343,7 +343,7 @@ if ($step === 0):
             <div>
                 <h4 class="pb-subhead">Qualifications</h4>
                 <ul class="pb-list">
-                    <?php foreach ($quals as $q): ?><li>✓ <?= e($q) ?></li><?php endforeach; ?>
+                    <?php foreach ($quals as $q): ?><li><?= icon('check') ?> <?= e($q) ?></li><?php endforeach; ?>
                 </ul>
             </div>
             <?php endif; ?>
@@ -394,7 +394,7 @@ if ($step === 0):
                         <?= avatar($rv['parent_name'], null, 'avatar-sm') ?>
                         <div>
                             <strong><?= e($rv['parent_name']) ?></strong>
-                            <div class="pb-review-stars"><?= str_repeat('★', (int)$rv['rating']) ?><?= str_repeat('☆', 5 - (int)$rv['rating']) ?></div>
+                            <div class="pb-review-stars"><?= str_repeat(icon('star', 'ico-fill'), (int)$rv['rating']) ?><?= str_repeat(icon('star', 'ico-fill ico-off'), 5 - (int)$rv['rating']) ?></div>
                         </div>
                         <span class="muted pb-review-date"><?= e(date('d M Y', strtotime($rv['created_at']))) ?></span>
                     </div>
@@ -427,10 +427,10 @@ if ($step === 0):
                 <p class="muted pb-parent-only">Only parents can book nannies.</p>
             <?php endif; ?>
             <ul class="pb-side-list">
-                <li>✅ No booking fees</li>
-                <li>✅ Free to message first</li>
-                <li>✅ Pay only when confirmed</li>
-                <li>✅ Cancel up to 24hrs before</li>
+                <li><?= icon('circle-check') ?> No booking fees</li>
+                <li><?= icon('circle-check') ?> Free to message first</li>
+                <li><?= icon('circle-check') ?> Pay only when confirmed</li>
+                <li><?= icon('circle-check') ?> Cancel up to 24hrs before</li>
             </ul>
         </div>
     </div>
@@ -450,7 +450,7 @@ elseif ($step === 1):
         <div class="pb-flex-1">
             <h3 class="heading-tight"><?= e($nanny['full_name']) ?></h3>
             <div class="muted"><?= e($nanny['location'] ?: '') ?> · R<?= number_format($rate,0) ?>/hr</div>
-            <div class="pb-choice-stars"><?= str_repeat('★', (int)round($rating)) ?> <span class="muted"><?= number_format($rating,1) ?> (<?= $reviewN ?>)</span></div>
+            <div class="pb-choice-stars"><?= str_repeat(icon('star', 'ico-fill'), (int)round($rating)) ?> <span class="muted"><?= number_format($rating,1) ?> (<?= $reviewN ?>)</span></div>
         </div>
         <a class="btn btn-sm" href="<?= url('parent/nannies.php') ?>">Change</a>
     </div>
@@ -624,7 +624,7 @@ $totalCost = $wz['amount'];
     <form method="post" class="pb-form-actions">
         <?= csrf_field() ?>
         <button class="btn btn-primary pb-form-submit">
-            ✓ Confirm booking — R<?= number_format($totalCost, 2) ?>
+            <?= icon('check') ?> Confirm booking — R<?= number_format($totalCost, 2) ?>
         </button>
         <a class="btn pb-cancel" href="<?= url('parent/nannies.php') ?>">Cancel</a>
     </form>

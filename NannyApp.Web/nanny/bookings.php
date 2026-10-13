@@ -37,13 +37,13 @@ require __DIR__ . '/../includes/header.php';
 ?>
 <h1>Booking requests</h1>
 <div class="card card-note-info">
-    <h3>🔒 How payment protection works</h3>
+    <h3><?= icon('lock') ?> How payment protection works</h3>
     <p class="muted">When you accept a job, the parent's payment is charged and held securely — it is not yours yet. The parent gets a one-time PIN to hand you in person once you arrive. Enter it to check in, then check out when the session ends. Payment is released to you once the parent confirms (or automatically after 48 hours if they don't respond).</p>
 </div>
 <div class="card section">
     <?php if (!$rows): ?>
         <div class="empty">
-            <span class="empty-ico">📭</span>
+            <span class="empty-ico"><?= icon('inbox') ?></span>
             <h3>No booking requests yet</h3>
             <p>New requests from parents will appear here. Make sure your profile is complete and verified to get discovered.</p>
             <a class="btn btn-primary" href="<?= url('nanny/profile.php') ?>">Edit my profile</a>
@@ -56,7 +56,7 @@ require __DIR__ . '/../includes/header.php';
                 <tr>
                     <td>
                         <a href="<?= url('profile.php?id=' . (int)$r['parent_id']) ?>" class="pfp-link"><?= e($r['parent_name']) ?></a>
-                        <a class="pfp-msg-ico" href="<?= url('messages.php?with=' . (int)$r['parent_id']) ?>" title="Message">💬</a>
+                        <a class="pfp-msg-ico" href="<?= url('messages.php?with=' . (int)$r['parent_id']) ?>" title="Message"><?= icon('message-circle') ?></a>
                     </td>
                     <td><?= e(date('D d M Y, H:i', strtotime($r['date_time']))) ?>
                         <?= render_booking_timeline($r) ?>

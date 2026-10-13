@@ -106,7 +106,7 @@ require __DIR__ . '/includes/header.php';
     <div class="card chat-thread" aria-live="polite">
         <?php if (!$partner): ?>
             <div class="empty">
-                <span class="empty-ico">💬</span>
+                <span class="empty-ico"><?= icon('message-circle') ?></span>
                 <h3>Your messages</h3>
                 <p>Select a conversation on the left, or open a nanny's profile and choose “Message” to start chatting.</p>
             </div>
@@ -115,7 +115,7 @@ require __DIR__ . '/includes/header.php';
                 <span class="muted">· <?= e(ucfirst($partner['role'])) ?></span></div>
             <div class="chat-scroll" id="chatScroll" data-with="<?= (int)$partner['id'] ?>" data-last-id="<?= $lastId ?>">
                 <?php if (!$thread): ?>
-                    <p class="muted" id="chatEmptyHint">No messages yet — say hello 👋</p>
+                    <p class="muted" id="chatEmptyHint">No messages yet — say hello</p>
                 <?php else: ?>
                     <?php foreach ($thread as $m): ?>
                         <div class="bubble <?= (int)$m['sender_id'] === $me ? 'mine' : 'theirs' ?>">

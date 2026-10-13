@@ -66,7 +66,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if ($search && !$faqs): ?>
     <div class="empty">
-        <div class="empty-ico">🔍</div>
+        <div class="empty-ico"><?= icon('search') ?></div>
         <h3>No results for "<?= e($search) ?>"</h3>
         <p>Try different keywords or <a href="<?= url('support.php') ?>">contact support</a>.</p>
     </div>

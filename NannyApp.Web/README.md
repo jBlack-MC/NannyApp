@@ -98,7 +98,8 @@ This is the main PHP website — see the [repo-wide overview](../README.md) for 
 | Local environment | XAMPP (Apache + MySQL) |
 | CSS | Single modular design system in `assets/css/` (`variables.css`, `reset.css`, `layout.css`, `navbar.css`, `components.css`, `forms.css`, `animations.css`, `responsive.css`, `pages.css`, `dashboard.css`, `style.css`) — shared by every page, including the landing page |
 | JavaScript | Vanilla JS (`assets/js/app.js`), plus small inline scripts per page for AJAX (messages, save-nanny) |
-| Fonts | Google Fonts — Manrope, Sora |
+| Fonts | Manrope and Sora, self-hosted in `assets/fonts` from Fontsource (OFL 1.1); no third-party font requests |
+| Icons | Lucide (ISC), stored as SVG files in `assets/icons` and inlined with the `icon('name')` helper in `includes/functions.php`. Do not use emoji as icons |
 | Email | PHP `mail()` in production; on `localhost`/`127.0.0.1` it logs to `storage/email_logs/` instead of sending |
 | File uploads | Validated `move_uploaded_file()`/S3 via the shared storage driver (local disk or S3-compatible object storage) — see `NannyApp.Shared/config/storage.php` |
 | PWA | `manifest.webmanifest` + `service-worker.js` (network-first, never caches `/admin/`) |

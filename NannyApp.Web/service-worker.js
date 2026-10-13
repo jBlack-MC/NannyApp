@@ -1,6 +1,7 @@
 // Only explicitly listed static resources can enter the offline cache.
 const CACHE = 'nannyapp-public-v11';
-const ASSETS = ['./assets/css/style.css', './assets/js/app.js', './manifest.webmanifest', './assets/img/icon.svg'];
+const ASSETS = ['./assets/css/style.css', './assets/css/fonts.css', './assets/fonts/manrope-latin-wght-normal.woff2',
+  './assets/fonts/sora-latin-wght-normal.woff2', './assets/js/app.js', './manifest.webmanifest', './assets/img/icon.svg'];
 const allowed = new Set(ASSETS.map(path => new URL(path, self.registration.scope).href));
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));

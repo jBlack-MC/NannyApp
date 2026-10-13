@@ -66,7 +66,7 @@ require __DIR__ . '/../includes/header.php';
         <strong><?= APP_NAME ?></strong>
     </div>
 
-    <h1 class="auth-title">📧 Resend Verification</h1>
+    <h1 class="auth-title"><?= icon('mail') ?> Resend Verification</h1>
     <p class="muted auth-subtitle">Didn't receive the verification email?</p>
 
     <?php foreach ($errors as $err): ?>

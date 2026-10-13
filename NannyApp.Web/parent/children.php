@@ -90,7 +90,6 @@ if (isset($_GET['edit'])) {
 $pageTitle = 'My Children';
 require __DIR__ . '/../includes/header.php';
 
-$genderEmoji = ['male' => '👦', 'female' => '👧', 'other' => '🧒', '' => '🧒', null => '🧒'];
 ?>
 <div class="section-head">
     <div>
@@ -105,7 +104,7 @@ $genderEmoji = ['male' => '👦', 'female' => '👧', 'other' => '🧒', '' => '
 <div class="child-cards section">
     <?php foreach ($children as $c): ?>
     <div class="card child-card">
-        <div class="child-avatar <?= $c['gender'] === 'female' ? 'girl' : 'boy' ?>"><?= $genderEmoji[$c['gender']] ?? '🧒' ?></div>
+        <div class="child-avatar <?= $c['gender'] === 'female' ? 'girl' : 'boy' ?>"><?= icon('smile') ?></div>
         <div class="child-info child-info-main">
             <h3><?= e($c['name']) ?></h3>
             <div class="muted"><?= $c['age'] ? $c['age'] . ' years old' : 'Age not set' ?><?= $c['gender'] ? ' · ' . ucfirst($c['gender']) : '' ?></div>
@@ -116,7 +115,7 @@ $genderEmoji = ['male' => '👦', 'female' => '👧', 'other' => '🧒', '' => '
                 <?php if ($c['favourite_activities']): ?><span class="tag"><?= e(explode(',', $c['favourite_activities'])[0]) ?></span><?php endif; ?>
             </div>
             <?php if ($c['notes_for_nannies']): ?>
-                <p class="muted child-note">📝 <?= e(substr($c['notes_for_nannies'], 0, 100)) ?><?= strlen($c['notes_for_nannies']) > 100 ? '…' : '' ?></p>
+                <p class="muted child-note"><?= icon('file-text') ?> <?= e(substr($c['notes_for_nannies'], 0, 100)) ?><?= strlen($c['notes_for_nannies']) > 100 ? '…' : '' ?></p>
             <?php endif; ?>
             <div class="child-actions">
                 <a class="btn btn-sm" href="?edit=<?= $c['id'] ?>#add-form">Edit</a>
@@ -133,7 +132,7 @@ $genderEmoji = ['male' => '👦', 'female' => '👧', 'other' => '🧒', '' => '
 </div>
 <?php else: ?>
 <div class="empty">
-    <div class="empty-ico">👶</div>
+    <div class="empty-ico"><?= icon('baby') ?></div>
     <h3>No children added yet</h3>
     <p>Add your children's profiles so nannies have all the information they need.</p>
 </div>

@@ -84,7 +84,7 @@ if ($registered):
         <strong><?= APP_NAME ?></strong>
     </div>
 
-    <h1 class="auth-title">✓ Account Created!</h1>
+    <h1 class="auth-title"><?= icon('check') ?> Account Created!</h1>
     <p class="muted auth-subtitle">Welcome to <?= APP_NAME ?>!</p>
 
     <?php if ($verificationEmailSent): ?>
@@ -142,7 +142,7 @@ else:
             <label class="role-opt">
                 <input type="radio" name="role" value="parent" <?= $old['role'] === 'parent' ? 'checked' : '' ?> required>
                 <span class="role-card">
-                    <span class="role-ico">👶</span>
+                    <span class="role-ico"><?= icon('baby') ?></span>
                     <strong>I'm a Parent</strong>
                     <small>Find childcare</small>
                 </span>
@@ -150,7 +150,7 @@ else:
             <label class="role-opt">
                 <input type="radio" name="role" value="nanny" <?= $old['role'] === 'nanny' ? 'checked' : '' ?>>
                 <span class="role-card">
-                    <span class="role-ico">✨</span>
+                    <span class="role-ico"><?= icon('sparkles') ?></span>
                     <strong>I'm a Nanny</strong>
                     <small>Offer your care</small>
                 </span>

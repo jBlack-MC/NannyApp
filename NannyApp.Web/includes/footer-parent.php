@@ -12,19 +12,19 @@ $user = current_user();
         <!-- Quick Actions Bar -->
         <div class="footer-parent-actions">
             <a class="btn btn-sm" href="<?= url('parent/nannies.php') ?>">
-                🔍 Find a Nanny
+                <?= icon('search') ?> Find a Nanny
             </a>
             <a class="btn btn-sm" href="<?= url('parent/bookings.php') ?>">
-                📅 My Bookings
+                <?= icon('calendar') ?> My Bookings
             </a>
             <a class="btn btn-sm" href="<?= url('parent/messages.php') ?>">
-                💬 Messages
+                <?= icon('message-circle') ?> Messages
             </a>
             <a class="btn btn-sm" href="<?= url('parent/payments.php') ?>">
-                💳 Payments
+                <?= icon('credit-card') ?> Payments
             </a>
             <a class="btn btn-sm" href="<?= url('support.php') ?>">
-                🆘 Emergency Support
+                <?= icon('life-buoy') ?> Emergency Support
             </a>
         </div>
 

@@ -22,7 +22,7 @@
                 <p class="muted footer-tagline"><?= APP_TAGLINE ?></p>
                 <p class="muted footer-subline">Serving families across South Africa.</p>
                 <p class="muted footer-subline" style="margin-top: 12px; font-size: 0.85rem;">
-                    ✓ Verified Nannies • ✓ Safe & Secure • ✓ 24/7 Support
+                    <?= icon('check') ?> Verified Nannies • <?= icon('check') ?> Safe & Secure • <?= icon('check') ?> 24/7 Support
                 </p>
             </div>
 

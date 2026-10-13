@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,7 +36,6 @@ import com.nannyapp.ui.components.AppTopBar
 import com.nannyapp.ui.components.ErrorState
 import com.nannyapp.ui.components.LoadingView
 import com.nannyapp.ui.components.SecondaryButton
-import com.nannyapp.ui.theme.NannyWarning
 import com.nannyapp.util.ErrorMessages
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -131,6 +131,36 @@ fun StaticPageScreen(pageKey: String, onBack: () -> Unit, viewModel: StaticPageV
     }
 }
 
+// The website draws these with Lucide icons; the keys are the Lucide names it sends.
+private val pageIcons = mapOf(
+    "apple" to Icons.Outlined.Restaurant,
+    "book-open" to Icons.Outlined.MenuBook,
+    "calendar-days" to Icons.Outlined.CalendarMonth,
+    "circle-check" to Icons.Outlined.CheckCircle,
+    "clipboard-list" to Icons.Outlined.Assignment,
+    "credit-card" to Icons.Outlined.CreditCard,
+    "eye" to Icons.Outlined.Visibility,
+    "file-text" to Icons.Outlined.Description,
+    "flag" to Icons.Outlined.Flag,
+    "globe" to Icons.Outlined.Public,
+    "handshake" to Icons.Outlined.Handshake,
+    "heart" to Icons.Outlined.FavoriteBorder,
+    "heart-handshake" to Icons.Outlined.VolunteerActivism,
+    "library" to Icons.Outlined.LocalLibrary,
+    "lock" to Icons.Outlined.Lock,
+    "mail" to Icons.Outlined.Email,
+    "map-pin" to Icons.Outlined.Place,
+    "message-circle" to Icons.Outlined.ChatBubbleOutline,
+    "phone" to Icons.Outlined.Phone,
+    "shield-check" to Icons.Outlined.VerifiedUser,
+    "smile" to Icons.Outlined.SentimentSatisfied,
+    "sprout" to Icons.Outlined.Spa,
+    "star" to Icons.Outlined.StarBorder,
+    "user" to Icons.Outlined.Person,
+    "wallet" to Icons.Outlined.AccountBalanceWallet,
+    "zap" to Icons.Outlined.Bolt,
+)
+
 @Composable
 private fun PageBlockView(block: PageBlock, centered: Boolean, inPriceCard: Boolean = false) {
     val align = if (centered) TextAlign.Center else TextAlign.Start
@@ -166,7 +196,22 @@ private fun PageBlockView(block: PageBlock, centered: Boolean, inPriceCard: Bool
             block.text, style = MaterialTheme.typography.titleLarge.copy(fontSize = 18.sp, lineHeight = 24.sp),
             textAlign = if (inPriceCard) TextAlign.Center else align, modifier = fill,
         )
-        "icon" -> Text(block.text, fontSize = 28.sp, textAlign = align, modifier = fill)
+        "icon" -> {
+            val vector = pageIcons[block.text]
+            if (vector == null) {
+                // Not an icon name: the website shows a short label in this tile (an age range, say).
+                Text(block.text, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, textAlign = align, modifier = fill)
+            } else {
+                Box(fill, contentAlignment = if (centered) Alignment.Center else Alignment.CenterStart) {
+                    Box(
+                        Modifier.size(48.dp).background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(13.dp)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(vector, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+                    }
+                }
+            }
+        }
         "quote" -> Text(block.text, style = MaterialTheme.typography.bodyMedium, fontStyle = FontStyle.Italic, color = muted, modifier = fill)
         "price" -> {
             val amount = block.text.substringBefore('/')
@@ -179,7 +224,6 @@ private fun PageBlockView(block: PageBlock, centered: Boolean, inPriceCard: Bool
             }, style = MaterialTheme.typography.displaySmall)
         }
         "tag" -> when {
-            block.text.startsWith("★") -> Text(block.text, color = NannyWarning, style = MaterialTheme.typography.labelLarge)
             inPriceCard -> Text(
                 block.text, style = MaterialTheme.typography.labelMedium, color = Color.White,
                 modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)).padding(horizontal = 12.dp, vertical = 4.dp),

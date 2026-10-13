@@ -260,7 +260,7 @@ require __DIR__ . '/../includes/header.php';
                 <h4><?= e($doc['title']) ?></h4>
                 <div class="muted"><?= ucfirst($doc['type']) ?></div>
                 <?php if ($doc['admin_verified']): ?>
-                    <div class="doc-verified">✓ Admin verified</div>
+                    <div class="doc-verified"><?= icon('check') ?> Admin verified</div>
                 <?php else: ?>
                     <div class="muted doc-pending">Pending verification</div>
                 <?php endif; ?>

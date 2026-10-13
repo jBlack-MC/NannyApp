@@ -76,7 +76,7 @@ require __DIR__ . '/../includes/header.php';
         <?php if (!empty($errors) && strpos(implode(' ', $errors), 'verify your email') !== false): ?>
             <div class="auth-helper-box">
                 <p>
-                    <strong>📧 Didn't receive the email?</strong>
+                    <strong><?= icon('mail') ?> Didn't receive the email?</strong>
                     <br><a class="auth-helper-link" href="<?= url('auth/resend-verification.php') ?>">Resend verification email →</a>
                 </p>
             </div>
@@ -114,12 +114,12 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <aside class="auth-aside">
-        <span class="pill">✨ Care • Connect • Comfort</span>
+        <span class="pill">Care • Connect • Comfort</span>
         <h2>Trusted childcare, a few taps away.</h2>
         <ul class="auth-list">
-            <li><span class="ck">✓</span> Browse vetted, verified nannies near you</li>
-            <li><span class="ck">✓</span> Book by the hour and track every session</li>
-            <li><span class="ck">✓</span> Message, review and rebook your favourites</li>
+            <li><span class="ck"><?= icon('check') ?></span> Browse vetted, verified nannies near you</li>
+            <li><span class="ck"><?= icon('check') ?></span> Book by the hour and track every session</li>
+            <li><span class="ck"><?= icon('check') ?></span> Message, review and rebook your favourites</li>
         </ul>
         <div class="auth-quote">"Finding reliable care has never been this easy."
             <span>— A happy Nanny-App family</span></div>

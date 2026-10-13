@@ -12,37 +12,37 @@ require __DIR__ . '/../includes/header.php';
 
 <section class="section grid grid-3">
     <div class="card stack">
-        <div class="feature-ico">✅</div>
+        <div class="feature-ico"><?= icon('circle-check') ?></div>
         <h3 class="no-margin">Verified nannies</h3>
         <p class="muted no-margin">Only nannies approved by our admin team appear in search.
             Editing a profile sends it back for re-verification.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">👀</div>
+        <div class="feature-ico"><?= icon('eye') ?></div>
         <h3 class="no-margin">Human moderation</h3>
         <p class="muted no-margin">Admins review accounts and can suspend or remove anyone who
             breaks our community standards.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">🔒</div>
+        <div class="feature-ico"><?= icon('lock') ?></div>
         <h3 class="no-margin">Secure by design</h3>
         <p class="muted no-margin">Passwords are hashed, every form is protected against
             cross-site request forgery, and access is role-based.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">💳</div>
+        <div class="feature-ico"><?= icon('credit-card') ?></div>
         <h3 class="no-margin">Transparent costs</h3>
         <p class="muted no-margin">See an estimated cost before you request a booking — no
             hidden fees or surprises.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">📝</div>
+        <div class="feature-ico"><?= icon('file-text') ?></div>
         <h3 class="no-margin">Booking records</h3>
         <p class="muted no-margin">Every request, confirmation and completed session is logged
             to your dashboard for full transparency.</p>
     </div>
     <div class="card stack">
-        <div class="feature-ico">🚩</div>
+        <div class="feature-ico"><?= icon('flag') ?></div>
         <h3 class="no-margin">Report concerns</h3>
         <p class="muted no-margin">Something not right? <a href="<?= url('pages/contact.php') ?>">Contact
             us</a> and our team will look into it quickly.</p>

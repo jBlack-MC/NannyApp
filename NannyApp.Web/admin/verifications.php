@@ -94,7 +94,7 @@ require __DIR__ . '/../includes/header.php';
 <!-- Nanny profile verifications -->
 <?php if (!$pending): ?>
 <div class="empty">
-    <div class="empty-ico">✅</div>
+    <div class="empty-ico"><?= icon('circle-check') ?></div>
     <h3>All profiles verified</h3>
     <p>No nanny profiles are pending review right now.</p>
 </div>
@@ -136,7 +136,7 @@ require __DIR__ . '/../includes/header.php';
             <?php endif; ?>
 
             <?php if ($quals): ?>
-            <div class="muted qual-line">📋 <?= e(implode(' · ', $quals)) ?></div>
+            <div class="muted qual-line"><?= icon('clipboard-list') ?> <?= e(implode(' · ', $quals)) ?></div>
             <?php endif; ?>
         </div>
 
@@ -148,7 +148,7 @@ require __DIR__ . '/../includes/header.php';
                 <input type="hidden" name="action" value="verify">
                 <button class="btn btn-sm btn-ok w-110"
                         data-confirm="Verify <?= e($n['full_name']) ?>'s profile?">
-                    ✓ Verify
+                    <?= icon('check') ?> Verify
                 </button>
             </form>
             <form method="post">
@@ -157,7 +157,7 @@ require __DIR__ . '/../includes/header.php';
                 <input type="hidden" name="action" value="reject">
                 <button class="btn btn-sm btn-danger w-110"
                         data-confirm="Reject <?= e($n['full_name']) ?>'s profile?">
-                    ✗ Reject
+                    <?= icon('x') ?> Reject
                 </button>
             </form>
             <a class="btn btn-sm w-110" href="<?= url('messages.php?with=' . $n['id']) ?>">Message</a>
@@ -187,7 +187,7 @@ require __DIR__ . '/../includes/header.php';
                         <?= csrf_field() ?>
                         <input type="hidden" name="doc_id" value="<?= $doc['id'] ?>">
                         <input type="hidden" name="doc_action" value="verify_doc">
-                        <button class="btn btn-sm btn-ok">✓ Verify</button>
+                        <button class="btn btn-sm btn-ok"><?= icon('check') ?> Verify</button>
                     </form>
                 </div>
             </div>
