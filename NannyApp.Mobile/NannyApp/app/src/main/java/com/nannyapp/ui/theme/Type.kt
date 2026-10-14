@@ -1,35 +1,30 @@
 package com.nannyapp.ui.theme
 
 import androidx.compose.material3.Typography
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import com.nannyapp.R
 
-// The website's two typefaces (--font-body and --font-display in style.css), bundled as
-// variable fonts so the app looks the same offline. Licences: NannyApp/licenses/.
-@OptIn(ExperimentalTextApi::class)
-private fun variableFont(resId: Int, weight: FontWeight) =
-    Font(resId, weight, variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)))
-
+// The website's two typefaces (--font-body and --font-display in style.css), bundled so the app
+// looks the same offline. One file per weight: Android applied the weight of a single variable
+// file inconsistently, so headings sometimes rendered in the regular weight.
+// Licences: NannyApp/licenses/.
 val Manrope = FontFamily(
-    variableFont(R.font.manrope, FontWeight.Normal),
-    variableFont(R.font.manrope, FontWeight.Medium),
-    variableFont(R.font.manrope, FontWeight.SemiBold),
-    variableFont(R.font.manrope, FontWeight.Bold),
-    variableFont(R.font.manrope, FontWeight.ExtraBold),
+    Font(R.font.manrope_regular, FontWeight.Normal),
+    Font(R.font.manrope_medium, FontWeight.Medium),
+    Font(R.font.manrope_semibold, FontWeight.SemiBold),
+    Font(R.font.manrope_bold, FontWeight.Bold),
+    Font(R.font.manrope_extrabold, FontWeight.ExtraBold),
 )
 
 val Sora = FontFamily(
-    variableFont(R.font.sora, FontWeight.Medium),
-    variableFont(R.font.sora, FontWeight.SemiBold),
-    variableFont(R.font.sora, FontWeight.Bold),
-    variableFont(R.font.sora, FontWeight.ExtraBold),
+    Font(R.font.sora_semibold, FontWeight.SemiBold),
+    Font(R.font.sora_bold, FontWeight.Bold),
+    Font(R.font.sora_extrabold, FontWeight.ExtraBold),
 )
 
 // Headings use the display face with the website's tight tracking; everything else is the body face.

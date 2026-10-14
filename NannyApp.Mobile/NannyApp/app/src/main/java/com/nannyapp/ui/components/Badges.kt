@@ -38,7 +38,7 @@ fun VerificationBadge(verified: Boolean, modifier: Modifier = Modifier) {
 @Composable
 fun RatingView(rating: Double, reviewCount: Int? = null, modifier: Modifier = Modifier, compact: Boolean = false) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Icon(Icons.Filled.Star, contentDescription = null, tint = NannyTertiary, modifier = Modifier.size(if (compact) 14.dp else 18.dp))
+        Icon(Icons.Filled.Star, contentDescription = null, tint = NannyStar, modifier = Modifier.size(if (compact) 14.dp else 18.dp))
         Spacer(Modifier.width(2.dp))
         Text(
             text = if (rating > 0) "%.1f".format(rating) else "New",

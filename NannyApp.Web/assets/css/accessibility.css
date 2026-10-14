@@ -36,3 +36,28 @@
 [data-theme="dark"] .footer-legal a { color: #8ec9f8; }
 .form-control { color: var(--ink); }
 [data-theme="dark"] .cta-shell .home-newsletter .form-control { background: var(--surface); color: var(--text); }
+
+/* ---------- Readable status colours ----------
+   --ok / --warn / --bad are too light to read as text on their own tints (about 2:1).
+   These text variants reach 4.5:1 in the light theme; the dark theme keeps the bright hues. */
+:root { --ok-text: #047857; --warn-text: #92400e; --bad-text: #b91c1c; }
+[data-theme="dark"] { --ok-text: var(--ok); --warn-text: var(--warn); --bad-text: #f87171; }
+.badge-ok, .flash-success, .btn-ok { color: var(--ok-text); }
+.badge-warn, .action-card-warn, .action-card-note { color: var(--warn-text); }
+.badge-bad, .flash-error, .btn-danger { color: var(--bad-text); }
+[data-theme="dark"] .badge-muted { background: rgba(148, 163, 184, .16); }
+.field input::placeholder, .field textarea::placeholder,
+.hero-search input::placeholder, .subscribe-form input::placeholder { color: #64788b; opacity: 1; }
+
+/* Brand blue is too dark for figures and icons on dark cards. */
+[data-theme="dark"] :is(.stat b, .stat-ico, .empty-ico, .feature-ico, .role-ico, .pfp-banner-ico,
+    .emoji-lg, .emoji-xl, .font-4xl, .action-card strong) { color: #8ec9f8; }
+
+/* ---------- Heading scale ----------
+   A title inside a card names one panel, so it sits well below the page title. */
+.card h2 { font-size: 1.4rem; line-height: 1.2; }
+.card.contact-cta h2 { font-size: 1.7rem; }
+
+/* ---------- Tap targets ---------- */
+.dark-toggle, .menu-btn { width: 44px; height: 44px; }
+.auth-link-xs { display: inline-block; padding-block: 8px; margin-block: -4px; }

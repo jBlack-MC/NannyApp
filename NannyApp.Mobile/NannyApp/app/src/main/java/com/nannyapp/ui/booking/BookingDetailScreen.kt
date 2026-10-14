@@ -12,6 +12,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.domain.model.BookingStatus
 import com.nannyapp.domain.model.UserRole
 import com.nannyapp.ui.components.*
+import com.nannyapp.util.formatDateTime
+import com.nannyapp.util.formatHours
 
 /**
  * Shared by parent and nanny (request #13/#16). Buttons shown depend on role
@@ -40,15 +42,19 @@ fun BookingDetailScreen(
                         BookingStatusChip(b.status)
                     }
                     Spacer(Modifier.height(16.dp))
+                    AppCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 10.dp)) {
                     DetailRow("Nanny", b.nannyName ?: "-")
                     DetailRow("Parent", b.parentName ?: "-")
-                    DetailRow("Date & time", b.dateTime)
-                    DetailRow("Duration", "${b.durationHours} hours")
+                    DetailRow("Date & time", formatDateTime(b.dateTime))
+                    DetailRow("Duration", "${formatHours(b.durationHours)} hours")
                     DetailRow("Address", b.bookingAddress ?: b.location ?: "-")
                     if (!b.notes.isNullOrBlank()) DetailRow("Notes", b.notes)
                     DetailRow("Amount", "R${"%.2f".format(b.amount)}")
                     DetailRow("Payment status", b.paymentStatus.name.lowercase().replaceFirstChar { it.uppercase() })
                     if (b.payoutStatus.name != "NONE") DetailRow("Payout status", b.payoutStatus.name.lowercase().replaceFirstChar { it.uppercase() })
+                    }
+                    }
 
                     if (state.role == UserRole.PARENT && b.checkInCode != null && b.status == BookingStatus.CONFIRMED) {
                         Spacer(Modifier.height(12.dp))

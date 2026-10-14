@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.nannyapp.ui.components.*
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 
 /** Reproduces account.php: editable identity fields, password change, and
  * profile-completion percentage (request #31). */
@@ -45,19 +47,22 @@ fun ProfileScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val pickAvatar = rememberFilePickerLauncher { bytes, fileName -> viewModel.uploadAvatar(bytes, fileName) }
                     Box {
-                        Box(Modifier.size(72.dp).clip(CircleShape), contentAlignment = Alignment.Center) {
+                        Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer), contentAlignment = Alignment.Center) {
                             if (!state.user!!.profileImageUrl.isNullOrBlank()) {
                                 AsyncImage(model = state.user!!.profileImageUrl, contentDescription = null, modifier = Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
                             } else {
-                                Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.fillMaxSize())
+                                Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
                             }
                         }
-                        IconButton(
-                            onClick = pickAvatar,
-                            modifier = Modifier.align(Alignment.BottomEnd).size(28.dp)
-                                .background(MaterialTheme.colorScheme.primary, CircleShape),
+                        Box(
+                            Modifier.align(Alignment.BottomEnd).size(28.dp)
+                                .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)
+                                .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                .clip(CircleShape)
+                                .clickable(onClickLabel = "Change photo", onClick = pickAvatar),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Icon(Icons.Filled.PhotoCamera, contentDescription = "Change photo", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Filled.PhotoCamera, contentDescription = "Change photo", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(15.dp))
                         }
                     }
                     Spacer(Modifier.width(16.dp))
@@ -67,8 +72,10 @@ fun ProfileScreen(
                     }
                 }
                 Spacer(Modifier.height(12.dp))
-                Text("Profile ${state.completion}% complete", style = MaterialTheme.typography.bodySmall)
-                LinearProgressIndicator(progress = { state.completion / 100f }, modifier = Modifier.fillMaxWidth())
+                Spacer(Modifier.height(4.dp))
+                Text("Profile ${state.completion}% complete", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(6.dp))
+                LinearProgressIndicator(progress = { state.completion / 100f }, modifier = Modifier.fillMaxWidth(), trackColor = MaterialTheme.colorScheme.outlineVariant)
 
                 Spacer(Modifier.height(20.dp))
                 if (state.editing) {
