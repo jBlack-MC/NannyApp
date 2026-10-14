@@ -82,6 +82,11 @@ require __DIR__ . '/../includes/header.php';
             </div>
         <?php endif; ?>
 
+        <?php // One-click demo sign-in exposes working passwords, so it is offered only to a browser on the
+              // server itself (local development) or when NANNYAPP_DEMO_LOGIN=1 is set deliberately.
+        $demoLogin = getenv('NANNYAPP_DEMO_LOGIN') === '1'
+            || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+        if ($demoLogin): ?>
         <div class="demo-bar">
             <span class="demo-bar-label">Demo accounts — Log in as</span>
             <div class="demo-bar-btns">
@@ -90,6 +95,7 @@ require __DIR__ . '/../includes/header.php';
                 <button type="button" class="btn btn-sm demo-btn" data-email="admin@nanny.app"  data-pass="Password123!">Admin</button>
             </div>
         </div>
+        <?php endif; ?>
 
         <form method="post" class="auth-form stack auth-form-offset">
             <?= csrf_field() ?>

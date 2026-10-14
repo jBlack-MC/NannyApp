@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.domain.model.BookingStatus
 import com.nannyapp.ui.components.*
+import androidx.compose.ui.Alignment
 
 @Composable
 fun ParentDashboardScreen(
@@ -96,7 +97,7 @@ fun ParentDashboardScreen(
 
                 if (state.savedNannies.isNotEmpty()) {
                     Spacer(Modifier.height(20.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("Saved nannies", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         TextActionButton(text = "See all", onClick = onSaved)
                     }
@@ -104,7 +105,7 @@ fun ParentDashboardScreen(
 
                 if (state.recentConversations.isNotEmpty()) {
                     Spacer(Modifier.height(20.dp))
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                         Text("Recent messages", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
                         TextActionButton(text = "See all", onClick = onMessages)
                     }

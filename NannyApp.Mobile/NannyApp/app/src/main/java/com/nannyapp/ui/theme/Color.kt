@@ -28,10 +28,13 @@ val NannyError = Color(0xFFD32F2F)
 val NannyInfo = Color(0xFF0288D1)
 
 // Status colors mapped 1:1 to the booking status machine from the PHP backend.
-val StatusPending = Color(0xFFFFA000)
-val StatusConfirmed = Color(0xFF0288D1)
-val StatusInProgress = Color(0xFF7E57C2)
-val StatusCompleted = Color(0xFF4CAF50)
-val StatusRejected = Color(0xFFD32F2F)
-val StatusCancelled = Color(0xFF78909C)
-val StatusDisputed = Color(0xFFC62828)
+// Each is dark enough (4.5:1 or better) to read as text on its own pale tint.
+val StatusPending = Color(0xFF92400E)
+val StatusConfirmed = Color(0xFF0369A1)
+val StatusInProgress = Color(0xFF6D28D9)
+val StatusCompleted = Color(0xFF047857)
+val StatusRejected = Color(0xFFB91C1C)
+val StatusCancelled = Color(0xFF475569)
+val StatusDisputed = Color(0xFF991B1B)
+// The website's rating-star amber.
+val NannyStar = Color(0xFFF5A623)

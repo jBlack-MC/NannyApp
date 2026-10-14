@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.nannyapp.domain.model.Booking
 import com.nannyapp.domain.model.NannyProfile
+import com.nannyapp.util.formatDateTime
+import com.nannyapp.util.formatHours
 
 /**
  * The website's .card: white surface, hairline border, large radius and a soft shadow.
@@ -57,12 +59,21 @@ fun NannyCard(
     AppCard(onClick = onClick, modifier = modifier.fillMaxWidth()) {
         Column {
             Box {
-                AsyncImage(
-                    model = nanny.profileImageUrl,
-                    contentDescription = nanny.fullName,
-                    modifier = Modifier.fillMaxWidth().height(168.dp).clip(RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp)),
-                    contentScale = ContentScale.Crop,
-                )
+                // The tinted panel and icon stay visible when a nanny has no photo or it fails to load.
+                Box(
+                    Modifier.fillMaxWidth().height(168.dp).background(MaterialTheme.colorScheme.secondaryContainer),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f))
+                    if (!nanny.profileImageUrl.isNullOrBlank()) {
+                        AsyncImage(
+                            model = nanny.profileImageUrl,
+                            contentDescription = nanny.fullName,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
                 IconButton(
                     onClick = onToggleSave,
                     modifier = Modifier.align(Alignment.TopEnd).padding(8.dp)
@@ -160,8 +171,8 @@ fun BookingCard(
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(booking.dateTime, style = MaterialTheme.typography.bodySmall)
-                Text("${booking.durationHours}h · R${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+                Text(formatDateTime(booking.dateTime), style = MaterialTheme.typography.bodySmall)
+                Text("${formatHours(booking.durationHours)}h · R${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
             }
         }
     }

@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.ui.components.*
+import com.nannyapp.util.formatHours
 
 /** 8-step booking wizard per request #12: nanny (preselected) -> date -> time/duration
  * -> children -> address -> notes -> summary -> payment. */
@@ -100,7 +101,7 @@ private fun StepTimeDuration(state: BookingWizardUiState, viewModel: BookingWiza
     Text("How many hours?", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(10.dp))
     Slider(value = state.wizard.durationHours.toFloat(), onValueChange = { viewModel.setDuration(it.toDouble()) }, valueRange = 1f..12f, steps = 21)
-    Text("${state.wizard.durationHours} hours", style = MaterialTheme.typography.titleMedium)
+    Text("${formatHours(state.wizard.durationHours)} hours", style = MaterialTheme.typography.titleMedium)
     Spacer(Modifier.height(8.dp))
     Text("Estimated total: R${"%.2f".format(state.wizard.estimatedAmount)}", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
 }
@@ -141,7 +142,7 @@ private fun StepSummary(state: BookingWizardUiState) {
     Spacer(Modifier.height(10.dp))
     SummaryRow("Nanny", w.nanny?.fullName ?: "")
     SummaryRow("Date & time", w.dateTimeIso ?: "")
-    SummaryRow("Duration", "${w.durationHours} hours")
+    SummaryRow("Duration", "${formatHours(w.durationHours)} hours")
     SummaryRow("Hourly rate", "R${"%.2f".format(w.nanny?.hourlyRate ?: 0.0)}")
     SummaryRow("Children", "${w.selectedChildIds.size} selected")
     SummaryRow("Address", w.address)

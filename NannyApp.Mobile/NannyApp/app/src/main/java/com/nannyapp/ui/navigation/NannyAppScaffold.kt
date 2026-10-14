@@ -1,5 +1,7 @@
 package com.nannyapp.ui.navigation
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -29,6 +31,9 @@ fun NannyAppScaffold(rootNav: NavHostController) {
     val tabRoutes = nannyBottomItems().map { it.route }.toSet()
 
     Scaffold(
+        // Each screen has its own Scaffold and top bar, so system-bar insets are applied there.
+        // Applying them here as well left a blank band above the bottom bar and under the status bar.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         bottomBar = {
             if (currentRoute in tabRoutes) {
                 AppBottomNavigation(
@@ -38,7 +43,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
             }
         },
     ) { padding ->
-        NavHost(navController = nav, startDestination = Routes.NANNY_DASHBOARD, modifier = androidx.compose.ui.Modifier.padding(padding)) {
+        NavHost(navController = nav, startDestination = Routes.NANNY_DASHBOARD, modifier = androidx.compose.ui.Modifier.padding(padding).consumeWindowInsets(padding)) {
             composable(Routes.NANNY_DASHBOARD) {
                 NannyDashboardScreen(
                     onBookingClick = { id -> nav.navigate(Routes.bookingDetail(id)) },
