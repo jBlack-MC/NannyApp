@@ -46,8 +46,8 @@ val NannyTypography = Typography(
     titleSmall = body(FontWeight.Bold, 14, 20),
     bodyLarge = body(FontWeight.Normal, 16, 26),
     bodyMedium = body(FontWeight.Normal, 14, 22),
-    bodySmall = body(FontWeight.Normal, 13, 19),
+    bodySmall = body(FontWeight.Normal, 14, 20),
     labelLarge = body(FontWeight.Bold, 14, 20),
-    labelMedium = body(FontWeight.SemiBold, 12, 16),
-    labelSmall = body(FontWeight.SemiBold, 12, 16),
+    labelMedium = body(FontWeight.SemiBold, 13, 18),
+    labelSmall = body(FontWeight.SemiBold, 13, 18),
 )

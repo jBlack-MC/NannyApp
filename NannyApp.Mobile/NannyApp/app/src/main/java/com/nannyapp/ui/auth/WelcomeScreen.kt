@@ -34,11 +34,13 @@ import com.nannyapp.ui.components.SecondaryButton
 import com.nannyapp.ui.components.TextActionButton
 import com.nannyapp.ui.theme.NannyGradientEnd
 import com.nannyapp.ui.theme.NannyGradientStart
+import androidx.compose.ui.platform.LocalDensity
 
 /**
  * Native counterpart of the website's home page (NannyApp.Web/index.php): the same headline,
  * photos and sections, without the website's live statistics or testimonials.
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun WelcomeScreen(
     onFindCare: () -> Unit,
@@ -54,7 +56,8 @@ fun WelcomeScreen(
     ) {
         Hero(onFindCare, onBecomeNanny, onLogin, onSettings)
         Column(
-            Modifier.padding(horizontal = 20.dp, vertical = 28.dp),
+            // Keeps the last links clear of the phone's navigation buttons.
+            Modifier.navigationBarsPadding().padding(horizontal = 20.dp, vertical = 28.dp),
             verticalArrangement = Arrangement.spacedBy(36.dp),
         ) {
             AboutSection(onLearnMore = { onStaticPage("about") })
@@ -87,6 +90,7 @@ fun WelcomeScreen(
 
 private data class Feature(val icon: ImageVector, @StringRes val title: Int, @StringRes val body: Int)
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Hero(onFindCare: () -> Unit, onBecomeNanny: () -> Unit, onLogin: () -> Unit, onSettings: () -> Unit) {
     Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(bottomStart = 28.dp, bottomEnd = 28.dp))) {
@@ -134,15 +138,14 @@ private fun Hero(onFindCare: () -> Unit, onBecomeNanny: () -> Unit, onLogin: () 
                 border = BorderStroke(1.dp, Color.White.copy(alpha = .7f)),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
             ) { Text(stringResource(R.string.welcome_become_nanny), style = MaterialTheme.typography.titleMedium) }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(R.string.welcome_point_checked, R.string.welcome_point_reviews, R.string.welcome_point_records).forEach {
                     Text(
                         stringResource(it),
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = Color.White,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.weight(1f).background(Color.White.copy(alpha = .14f), RoundedCornerShape(50))
-                            .padding(horizontal = 6.dp, vertical = 8.dp),
+                        modifier = Modifier.background(Color.White.copy(alpha = .14f), RoundedCornerShape(50))
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
                     )
                 }
             }
@@ -189,14 +192,35 @@ private fun CardSection(@StringRes eyebrow: Int, @StringRes title: Int, items: L
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Eyebrow(eyebrow, center = true)
         Text(stringResource(title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-        items.chunked(2).forEach { row ->
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
-                row.forEach { feature ->
-                    AppCard(Modifier.weight(1f).fillMaxHeight()) {
-                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            IconTile(feature.icon)
-                            Text(stringResource(feature.title), style = MaterialTheme.typography.titleMedium)
-                            Text(stringResource(feature.body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // Two narrow columns only when each card has room for its text at the current text size.
+            val twoColumns = maxWidth >= 360.dp * LocalDensity.current.fontScale
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (twoColumns) {
+                    items.chunked(2).forEach { row ->
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Max)) {
+                            row.forEach { feature ->
+                                AppCard(Modifier.weight(1f).fillMaxHeight()) {
+                                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        IconTile(feature.icon)
+                                        Text(stringResource(feature.title), style = MaterialTheme.typography.titleMedium)
+                                        Text(stringResource(feature.body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    items.forEach { feature ->
+                        AppCard(Modifier.fillMaxWidth()) {
+                            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.Top) {
+                                IconTile(feature.icon)
+                                Spacer(Modifier.width(14.dp))
+                                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(stringResource(feature.title), style = MaterialTheme.typography.titleMedium)
+                                    Text(stringResource(feature.body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
                         }
                     }
                 }

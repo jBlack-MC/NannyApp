@@ -8,6 +8,10 @@ $pdo=new PDO("mysql:host=127.0.0.1;port=$port;charset=utf8mb4",'root','',[PDO::A
 $schema=$argv[2]??('nanny_operations_test_'.bin2hex(random_bytes(6)));
 if (!preg_match('/^nanny_operations_test_[a-f0-9]{12}$/',$schema)) throw new RuntimeException('Unsafe schema.');
 function op_check(bool $ok,string $label): void { if (!$ok) throw new RuntimeException($label);echo "PASS $label\n"; }
+function rejected_report(callable $call,string $label): void {
+    try { $call();throw new LogicException('Unexpected success: '.$label); }
+    catch (InvalidArgumentException $e) { op_check(true,$label); }
+}
 function rejected(callable $call,int $code,string $label): void {
     try { $call();throw new LogicException('Unexpected success: '.$label); }
     catch (BookingError $e) { op_check($e->getCode()===$code,$label); }
@@ -156,6 +160,76 @@ try {
         $before=(int)$pdo->query('SELECT COUNT(*) FROM nanny_portfolio')->fetchColumn();
         op_check(op_http('/api/nannies/portfolio.php',['file'=>new CURLFile($storage.'/valid.png','image/png','valid.png'),'title'=>'Synthetic','type'=>'photo'],1,true)[0]===400,'HTTP upload rejected at total quota');
         op_check((int)$pdo->query('SELECT COUNT(*) FROM nanny_portfolio')->fetchColumn()===$before,'quota rejection leaves no document reference');
+        // Safety reports: validation, the booking link check, and the admin alert.
+        require_once __DIR__ . '/../../NannyApp.Shared/config/logging.php';
+        require_once __DIR__ . '/../../NannyApp.Shared/config/reports.php';
+        $parent=['id'=>2,'full_name'=>'Synthetic Parent','email'=>'parent@example.invalid'];
+        rejected_report(fn()=>create_user_report($pdo,$parent,2,null,'other','Reporting myself here'),'report on own account refused');
+        rejected_report(fn()=>create_user_report($pdo,$parent,1,null,'not_a_reason','Valid length details'),'unknown report reason refused');
+        rejected_report(fn()=>create_user_report($pdo,$parent,1,null,'other','short'),'too-short report refused');
+        rejected_report(fn()=>create_user_report($pdo,$parent,4,null,'other','Admins cannot be reported'),'report on admin account refused');
+        rejected_report(fn()=>create_user_report($pdo,['id'=>3]+$parent,1,$id,'other','Booking belongs to someone else'),'report linked to a booking the two do not share refused');
+        $before=(int)$pdo->query("SELECT COUNT(*) FROM notification_outbox WHERE title='New safety report'")->fetchColumn();
+        $ticket=create_user_report($pdo,$parent,1,$id,'unsafe_behaviour','Synthetic report about a shared booking');
+        $row=$pdo->query("SELECT category,reported_user_id,booking_id,report_reason FROM support_tickets WHERE id=$ticket")->fetch();
+        op_check($row['category']==='safety' && (int)$row['reported_user_id']===1 && (int)$row['booking_id']===$id && $row['report_reason']==='unsafe_behaviour','report stored as a linked safety ticket');
+        op_check((int)$pdo->query("SELECT COUNT(*) FROM notification_outbox WHERE title='New safety report'")->fetchColumn()===$before+1,'each admin is alerted to a new report');
+
+        // Public holidays: fetched once per year, then served from the cache; failures never throw.
+        require_once __DIR__ . '/../../NannyApp.Shared/config/holidays.php';
+        $calls=0;
+        $fake=function()use(&$calls){ $calls++; return json_encode([['date'=>'2030-09-24','name'=>'Heritage Day'],['date'=>'bad','name'=>'Ignored']]); };
+        $first=public_holidays($pdo,2030,$fake);
+        $second=public_holidays($pdo,2030,$fake);
+        op_check($first===[['date'=>'2030-09-24','name'=>'Heritage Day']] && $second===$first && $calls===1,'holidays are validated and cached after one fetch');
+        op_check(public_holidays($pdo,2031,fn()=>null)===[],'an unreachable holiday API gives an empty list');
+
+        // Nanny-App Plus: Google Play verification against a fake Google, with a real RS256 key.
+        require_once __DIR__ . '/../../NannyApp.Shared/config/subscriptions.php';
+        $pkey=openssl_pkey_new(['private_key_bits'=>2048,'private_key_type'=>OPENSSL_KEYTYPE_RSA]);
+        openssl_pkey_export($pkey,$pem);
+        $keyFile=$storage.'/play-key.json';
+        file_put_contents($keyFile,json_encode(['client_email'=>'play@example.invalid','private_key'=>$pem,'token_uri'=>'https://oauth2.example.invalid/token']));
+        putenv('NANNYAPP_PLAY_SERVICE_ACCOUNT_FILE='.$keyFile);
+        $acks=0;
+        $play=function(string $owner,string $state,string $expiry)use(&$acks){
+            return function(string $method,string $url,array $headers,?string $body)use($owner,$state,$expiry,&$acks){
+                if (str_contains($url,'oauth2')) { parse_str((string)$body,$form); return ['status'=>count(explode('.',$form['assertion']))===3?200:400,'body'=>json_encode(['access_token'=>'fake','expires_in'=>3600])]; }
+                if (str_ends_with($url,':acknowledge')) { $acks++; return ['status'=>200,'body'=>'{}']; }
+                return ['status'=>200,'body'=>json_encode(['subscriptionState'=>$state,'acknowledgementState'=>'ACKNOWLEDGEMENT_STATE_PENDING',
+                    'externalAccountIdentifiers'=>['obfuscatedExternalAccountId'=>$owner],
+                    'lineItems'=>[['productId'=>'nannyapp_plus','expiryTime'=>$expiry,'autoRenewingPlan'=>['autoRenewEnabled'=>true]]]])];
+            };
+        };
+        $future=gmdate('Y-m-d\TH:i:s\Z',time()+30*86400);
+        op_check(!plus_active($pdo,2),'parent starts without Plus');
+        $status=plus_verify_purchase($pdo,2,'nannyapp_plus','synthetic-token-1',$play(plus_account_reference(2),'SUBSCRIPTION_STATE_ACTIVE',$future));
+        op_check($status['active'] && $acks===1,'verified Play purchase unlocks Plus and is acknowledged');
+        rejected_report(fn()=>plus_verify_purchase($pdo,3,'nannyapp_plus','synthetic-token-1',$play(plus_account_reference(3),'SUBSCRIPTION_STATE_ACTIVE',$future)),'a purchase token cannot be reused by another account');
+        rejected_report(fn()=>plus_verify_purchase($pdo,3,'nannyapp_plus','synthetic-token-2',$play(plus_account_reference(2),'SUBSCRIPTION_STATE_ACTIVE',$future)),'a purchase made for another account is refused');
+        rejected_report(fn()=>plus_verify_purchase($pdo,3,'some_other_product','synthetic-token-3',$play(plus_account_reference(3),'SUBSCRIPTION_STATE_ACTIVE',$future)),'an unknown product is refused');
+        plus_verify_purchase($pdo,1,'nannyapp_plus','synthetic-token-4',$play(plus_account_reference(1),'SUBSCRIPTION_STATE_EXPIRED',gmdate('Y-m-d\TH:i:s\Z',time()-86400)));
+        op_check(!plus_active($pdo,1),'an expired subscription does not unlock Plus');
+        $pid=(int)$pdo->query('SELECT id FROM bookings ORDER BY id LIMIT 1')->fetchColumn();
+        $pdo->exec("UPDATE bookings SET is_priority=0 WHERE id=$pid");
+        $parentOf=(int)$pdo->query("SELECT parent_id FROM bookings WHERE id=$pid")->fetchColumn();
+        plus_mark_priority($pdo,$pid,$parentOf);
+        op_check((int)$pdo->query("SELECT is_priority FROM bookings WHERE id=$pid")->fetchColumn()===($parentOf===2?1:0),'only Plus parents get priority bookings');
+        putenv('NANNYAPP_PLAY_SERVICE_ACCOUNT_FILE');
+
+        // Translation: chunked to the 500-character limit, cached per language, failures raise.
+        require_once __DIR__ . '/../../NannyApp.Shared/config/translate.php';
+        $calls=0;
+        $mt=function(string $url)use(&$calls){ $calls++; parse_str((string)parse_url($url,PHP_URL_QUERY),$q); op_check(mb_strlen($q['q'])<=500,'translation request within the service limit'); return json_encode(['responseStatus'=>200,'responseData'=>['translatedText'=>'zu:'.mb_strlen($q['q'])]]); };
+        $long=str_repeat('Synthetic sentence for translation. ',40);
+        $once=translate_text($pdo,$long,'zu',$mt);
+        $twice=translate_text($pdo,$long,'zu',$mt);
+        op_check($calls>=3 && $once===$twice && $calls===count(translate_chunks(trim($long))),'long text is chunked once and then served from the cache');
+        rejected_report(fn()=>translate_text($pdo,'Hello','xx',$mt),'unsupported translation language refused');
+        try { translate_text($pdo,'Quota test','af',fn()=>json_encode(['responseStatus'=>429,'quotaFinished'=>true])); throw new LogicException('Expected quota failure'); }
+        catch (RuntimeException $e) { op_check(true,'exhausted translation quota is reported, not cached'); }
+        op_check((int)$pdo->query("SELECT COUNT(*) FROM translation_cache WHERE target='af'")->fetchColumn()===0,'failed translations are not cached');
+
         // Health checks: rolled back so the queue state above is untouched.
         require_once __DIR__ . '/../../NannyApp.Shared/config/logging.php';
         require_once __DIR__ . '/../../NannyApp.Shared/config/health.php';

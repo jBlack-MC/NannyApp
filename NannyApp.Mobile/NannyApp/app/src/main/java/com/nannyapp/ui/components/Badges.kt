@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nannyapp.domain.model.BookingStatus
@@ -61,9 +63,14 @@ fun bookingStatusColor(status: BookingStatus): Color = when (status) {
     BookingStatus.DISPUTED -> StatusDisputed
 }
 
+/** The status hues are dark for light backgrounds; lift them on dark ones so the text stays readable. */
+@Composable
+private fun readableOnTheme(color: Color): Color =
+    if (MaterialTheme.colorScheme.background.luminance() < 0.5f) lerp(color, Color.White, 0.6f) else color
+
 @Composable
 fun BookingStatusChip(status: BookingStatus, modifier: Modifier = Modifier) {
-    val color = bookingStatusColor(status)
+    val color = readableOnTheme(bookingStatusColor(status))
     Text(
         text = status.label,
         color = color,
@@ -76,12 +83,12 @@ fun BookingStatusChip(status: BookingStatus, modifier: Modifier = Modifier) {
 
 @Composable
 fun SupportStatusChip(status: SupportStatus, modifier: Modifier = Modifier) {
-    val color = when (status) {
+    val color = readableOnTheme(when (status) {
         SupportStatus.OPEN -> StatusPending
         SupportStatus.IN_PROGRESS -> StatusInProgress
         SupportStatus.RESOLVED -> StatusCompleted
         SupportStatus.CLOSED -> StatusCancelled
-    }
+    })
     val label = when (status) {
         SupportStatus.OPEN -> "Open"
         SupportStatus.IN_PROGRESS -> "In progress"

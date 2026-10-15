@@ -35,6 +35,7 @@ fun ProfileScreen(
     onSupport: () -> Unit,
     onStaticPage: (String) -> Unit,
     onSettings: () -> Unit,
+    onPlus: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -112,6 +113,9 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(12.dp))
                 SecondaryButton(text = stringResource(R.string.settings_title), onClick = onSettings, modifier = Modifier.fillMaxWidth())
+
+                Spacer(Modifier.height(12.dp))
+                PrimaryButton(text = stringResource(R.string.plus_name), onClick = onPlus, modifier = Modifier.fillMaxWidth())
                 Text("About & policies", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 20.dp))
                 listOf("About" to "about", "Safety" to "safety", "Pricing" to "pricing", "FAQ" to "faq",
                     "Community" to "community", "Resources" to "resources", "Contact" to "contact",

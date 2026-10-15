@@ -36,7 +36,7 @@ fun LoginScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp).verticalScrollFix(),
+        modifier = Modifier.fillMaxSize().systemBarsPadding().imePadding().padding(24.dp).verticalScrollFix(),
         verticalArrangement = Arrangement.Center,
     ) {
         Text("Welcome back", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)

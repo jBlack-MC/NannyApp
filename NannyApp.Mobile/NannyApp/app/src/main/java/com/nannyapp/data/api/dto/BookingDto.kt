@@ -15,6 +15,7 @@ data class BookingDto(
     val childrenDetails: String?,
     val bookingAddress: String?,
     val status: String,
+    val isPriority: Boolean = false,
     val hourlyRate: Double,
     val amount: Double,
     val checkInCode: String?,

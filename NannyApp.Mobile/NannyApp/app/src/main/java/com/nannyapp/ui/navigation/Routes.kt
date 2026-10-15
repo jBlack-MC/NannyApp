@@ -52,6 +52,7 @@ object Routes {
     const val SUPPORT = "support"
     const val SUPPORT_NEW_TICKET = "support_new_ticket"
     const val SETTINGS = "settings"
+    const val PLUS = "plus"
     const val REPORT = "report/{userId}?name={name}&bookingId={bookingId}"
     fun report(userId: Int, name: String, bookingId: Int? = null) =
         "report/$userId?name=${android.net.Uri.encode(name)}&bookingId=${bookingId ?: -1}"

@@ -54,6 +54,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     onPortfolio = { nav.navigate(Routes.NANNY_PORTFOLIO) },
                     onReviews = { nav.navigate(Routes.NANNY_REVIEWS) },
                     onNotifications = { nav.navigate(Routes.NOTIFICATIONS) },
+                    onPlus = { rootNav.navigate(Routes.PLUS) },
                 )
             }
             composable(Routes.NANNY_BOOKINGS) {
@@ -111,6 +112,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     onSupport = { nav.navigate(Routes.SUPPORT) },
                     onStaticPage = { key -> rootNav.navigate(Routes.staticPage(key)) },
                     onSettings = { rootNav.navigate(Routes.SETTINGS) },
+                    onPlus = { rootNav.navigate(Routes.PLUS) },
                 )
             }
             composable(Routes.SUPPORT) {

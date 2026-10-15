@@ -25,6 +25,7 @@ import com.nannyapp.ui.support.NewTicketScreen
 import com.nannyapp.ui.support.SupportScreen
 import com.nannyapp.ui.settings.SettingsScreen
 import com.nannyapp.ui.safety.ReportScreen
+import com.nannyapp.ui.plus.PlusScreen
 
 /**
  * Central Navigation system (request #37): Splash -> auth check -> role-scoped
@@ -103,6 +104,10 @@ fun NannyNavGraph(sessionEvents: SessionEventsViewModel = hiltViewModel()) {
                 onVerified = { navController.navigate(Routes.SPLASH) { popUpTo(Routes.WELCOME) { inclusive = true } } },
                 onSkip = { navController.navigate(Routes.SPLASH) { popUpTo(Routes.WELCOME) { inclusive = true } } },
             )
+        }
+
+        composable(Routes.PLUS) {
+            PlusScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Routes.SETTINGS) {

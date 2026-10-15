@@ -65,6 +65,7 @@ fun ParentAppScaffold(rootNav: NavHostController) {
                     onBookNow = { id -> nav.navigate(Routes.bookingWizard(id)) },
                     onMessage = { id, name -> nav.navigate(Routes.chat(id, name)) },
                     onReport = { id, name -> rootNav.navigate(Routes.report(id, name)) },
+                    onPlus = { rootNav.navigate(Routes.PLUS) },
                 )
             }
             composable(Routes.SAVED_NANNIES) {
@@ -132,6 +133,7 @@ fun ParentAppScaffold(rootNav: NavHostController) {
                     onSupport = { nav.navigate(Routes.SUPPORT) },
                     onStaticPage = { key -> rootNav.navigate(Routes.staticPage(key)) },
                     onSettings = { rootNav.navigate(Routes.SETTINGS) },
+                    onPlus = { rootNav.navigate(Routes.PLUS) },
                 )
             }
             composable(Routes.SUPPORT) {

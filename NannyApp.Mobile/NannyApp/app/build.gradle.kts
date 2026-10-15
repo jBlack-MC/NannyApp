@@ -11,7 +11,7 @@ plugins {
 // A release must explicitly identify its API; debug remains emulator-friendly.
 val releaseApiUrl = providers.gradleProperty("NANNYAPP_RELEASE_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_RELEASE_API_URL"))
-    .orElse("")
+    .orElse("https://api.nannyapp.com/api/")
 val debugApiUrl = providers.gradleProperty("NANNYAPP_DEBUG_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_DEBUG_API_URL"))
     .orElse("http://10.0.2.2/nannyapp/api/")
@@ -50,6 +50,9 @@ android {
         versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Play Console product id of the Nanny-App Plus subscription; override with -PNANNYAPP_PLAY_SUBSCRIPTION_ID.
+        buildConfigField("String", "PLAY_SUBSCRIPTION_ID", "\"${providers.gradleProperty("NANNYAPP_PLAY_SUBSCRIPTION_ID").orElse("nannyapp_plus").get()}\"")
 
         // Release value is checked before any release build. Configure with -P or environment.
         buildConfigField("String", "API_BASE_URL", "\"${releaseApiUrl.get().replace("\\", "\\\\").replace("\"", "\\\"")}\"")
@@ -131,6 +134,10 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Google Play Billing (Nanny-App Plus). Play requires version 8 or later for updates after 31 Aug 2026.
+    implementation("com.android.billingclient:billing:8.3.0")
+    implementation("com.android.billingclient:billing-ktx:7.1.1")
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")

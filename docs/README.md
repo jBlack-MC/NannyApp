@@ -6,6 +6,7 @@ Use these current documents rather than historical infrastructure suggestions.
 | --- | --- |
 | [deliverables/index.html](deliverables/index.html) | Complete PRD, technical requirements, app flow, design brief, backend schema and implementation plan in HTML and PDF |
 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) | One-command local website, API and demo database for development and the Android emulator |
+| [PLUS_SETUP.md](PLUS_SETUP.md) | Switching on the Nanny-App Plus subscription in Google Play, and translation limits |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Where the logs are, how to trace an error reference, the health check and common failures |
 | [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) | Current AWS deployment, shared database, workers and APK publishing |
 | [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md) | Historical free-host evaluation |

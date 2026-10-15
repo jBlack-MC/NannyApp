@@ -20,6 +20,10 @@ data class NannyProfileDto(
     val reviewCount: Int,
     val profileViews: Int,
     val memberSince: String?,
+    // Nanny-App Plus: qualifications and specialisations are null while extendedLocked is true.
+    val extendedLocked: Boolean = false,
+    val verifiedDocuments: List<VerifiedDocumentDto>? = null,
+    val featured: Boolean = false,
 )
 
 data class UpdateNannyProfileRequestDto(

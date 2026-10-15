@@ -144,4 +144,38 @@
     <string name="booking_choose_time">Kies ’n begintyd</string>
     <string name="booking_holiday_title">%1$s is ’n openbare vakansiedag</string>
     <string name="booking_holiday_body">Maak seker jou kinderoppasser is beskikbaar en kom die tarief vir die dag ooreen voordat jy bespreek.</string>
+
+    <!-- Nanny-App Plus and translation -->
+    <string name="translate_action">Vertaal</string>
+    <string name="translate_working">Vertaal tans…</string>
+    <string name="translate_show_original">Wys oorspronklike</string>
+    <string name="translate_machine_note">masjienvertaal</string>
+    <string name="settings_translate_into">Vertaal boodskappe en profiele na</string>
+    <string name="settings_translate_note">Voeg ’n Vertaal-skakel by kinderoppasserprofiele, resensies en kletsboodskappe. Vertaling is outomaties en kan foute bevat; maak seker van enigiets belangriks.</string>
+    <string name="settings_recommended_sa">Aanbeveel in Suid-Afrika</string>
+    <string name="settings_other_languages">Ander tale</string>
+    <string name="settings_show_all_languages">Wys nog %1$d tale</string>
+    <string name="plus_tagline">Sien meer voordat jy bespreek, en word gouer raakgesien.</string>
+    <string name="plus_parent_profiles">Volledige kinderoppasserprofiele: kwalifikasies en spesialisasies</string>
+    <string name="plus_parent_documents">Sien watter van ’n kinderoppasser se dokumente ons span geverifieer het</string>
+    <string name="plus_parent_saved">Stoor soveel kinderoppassers as wat jy wil (gratis rekeninge: 3)</string>
+    <string name="plus_parent_priority">Jou besprekingsversoeke verskyn eerste vir kinderoppassers</string>
+    <string name="plus_nanny_viewers">Sien watter gesinne jou profiel bekyk het</string>
+    <string name="plus_nanny_featured">Word boaan soekresultate uitgelig</string>
+    <string name="plus_safety_free">Veiligheid bly gratis vir almal: geverifieerde kentekens, graderings, resensies en aanmeldings is nooit agter ’n intekening nie.</string>
+    <string name="plus_active">Jou Nanny-App Plus is aktief</string>
+    <string name="plus_renews">Huidige tydperk eindig %1$s</string>
+    <string name="plus_manage">Bestuur in Google Play</string>
+    <string name="plus_not_ready">Nanny-App Plus is nog nie aangeskakel nie. Kyk asseblief binnekort weer.</string>
+    <string name="plus_play_only">Intekeninge is beskikbaar wanneer Nanny-App vanaf Google Play geïnstalleer is en jy by Play aangemeld is.</string>
+    <string name="plus_subscribe">Teken in met Google Play</string>
+    <string name="plus_restore">Herstel aankoop</string>
+    <string name="plus_billing_note">Gefaktureer deur Google Play. Kanselleer enige tyd in Google Play; jy behou Plus tot die einde van die tydperk waarvoor jy betaal het.</string>
+    <string name="plus_locked_title">Kwalifikasies en geverifieerde dokumente</string>
+    <string name="plus_locked_body">Beskikbaar met Nanny-App Plus. Tik om te sien wat Plus insluit.</string>
+    <string name="plus_verified_documents">Geverifieerde dokumente</string>
+    <string name="plus_featured">Uitgelig</string>
+    <string name="plus_priority">Voorrang</string>
+    <string name="plus_viewers_title">%1$d gesinsbesoeke aan jou profiel in 30 dae</string>
+    <string name="plus_viewers_locked">Sien watter gesinne gekyk het, met Nanny-App Plus</string>
 </resources>

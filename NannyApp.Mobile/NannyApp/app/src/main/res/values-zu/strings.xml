@@ -144,4 +144,38 @@
     <string name="booking_choose_time">Khetha isikhathi sokuqala</string>
     <string name="booking_holiday_title">U-%1$s yiholide likazwelonke</string>
     <string name="booking_holiday_body">Qinisekisa ukuthi umnakekeli wakho uyatholakala futhi nivumelane ngenani lalolo suku ngaphambi kokubhuka.</string>
+
+    <!-- Nanny-App Plus and translation -->
+    <string name="translate_action">Humusha</string>
+    <string name="translate_working">Iyahumusha…</string>
+    <string name="translate_show_original">Bonisa okwangempela</string>
+    <string name="translate_machine_note">kuhunyushwe ngomshini</string>
+    <string name="settings_translate_into">Humusha imilayezo namaphrofayela kube</string>
+    <string name="settings_translate_note">Kwengeza isixhumanisi esithi Humusha kumaphrofayela, izibuyekezo nemilayezo. Ukuhumusha kwenziwa ngomshini futhi kungaba nephutha; hlola noma yini ebalulekile.</string>
+    <string name="settings_recommended_sa">Kunconywa eNingizimu Afrika</string>
+    <string name="settings_other_languages">Ezinye izilimi</string>
+    <string name="settings_show_all_languages">Bonisa ezinye izilimi ezingu-%1$d</string>
+    <string name="plus_tagline">Bona okuningi ngaphambi kokubhuka, futhi uqashelwe ngokushesha.</string>
+    <string name="plus_parent_profiles">Amaphrofayela aphelele: iziqu nobuchwepheshe</string>
+    <string name="plus_parent_documents">Bona ukuthi yimaphi amadokhumenti omnakekeli aqinisekiswe yithimba lethu</string>
+    <string name="plus_parent_saved">Londoloza abanakekeli abaningi ngendlela othanda ngayo (ama-akhawunti amahhala: 3)</string>
+    <string name="plus_parent_priority">Izicelo zakho zokubhuka zivela kuqala kubanakekeli</string>
+    <string name="plus_nanny_viewers">Bona ukuthi yimiphi imindeni ebuke iphrofayela yakho</string>
+    <string name="plus_nanny_featured">Vela phezulu emiphumeleni yokusesha</string>
+    <string name="plus_safety_free">Ukuphepha kuhlala kumahhala kuwo wonke umuntu: amabheji aqinisekisiwe, izilinganiso, izibuyekezo nokubika akukaze kube ngemuva kokubhalisa.</string>
+    <string name="plus_active">I-Nanny-App Plus yakho iyasebenza</string>
+    <string name="plus_renews">Isikhathi samanje siphela ngo-%1$s</string>
+    <string name="plus_manage">Phatha ku-Google Play</string>
+    <string name="plus_not_ready">I-Nanny-App Plus ayikavulwa okwamanje. Sicela uphinde ubheke maduze.</string>
+    <string name="plus_play_only">Ukubhalisa kuyatholakala uma i-Nanny-App ifakwe ku-Google Play futhi ungene ku-Play.</string>
+    <string name="plus_subscribe">Bhalisa nge-Google Play</string>
+    <string name="plus_restore">Buyisa ukuthenga</string>
+    <string name="plus_billing_note">Ikhokhiswa yi-Google Play. Khansela noma nini ku-Google Play; uqhubeka ne-Plus kuze kuphele isikhathi osikhokhele.</string>
+    <string name="plus_locked_title">Iziqu namadokhumenti aqinisekisiwe</string>
+    <string name="plus_locked_body">Kutholakala nge-Nanny-App Plus. Thepha ukuze ubone ukuthi i-Plus ihlanganisani.</string>
+    <string name="plus_verified_documents">Amadokhumenti aqinisekisiwe</string>
+    <string name="plus_featured">Okuvelele</string>
+    <string name="plus_priority">Kuqala</string>
+    <string name="plus_viewers_title">Ukuvakashelwa kwephrofayela yakho imindeni kungu-%1$d ezinsukwini ezingu-30</string>
+    <string name="plus_viewers_locked">Bona ukuthi yimiphi imindeni ebukile, nge-Nanny-App Plus</string>
 </resources>

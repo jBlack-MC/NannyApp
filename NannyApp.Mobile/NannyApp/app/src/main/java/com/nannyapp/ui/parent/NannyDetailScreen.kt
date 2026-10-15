@@ -23,6 +23,10 @@ import androidx.compose.ui.res.stringResource
 import com.nannyapp.R
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.outlined.VerifiedUser
+import androidx.compose.material.icons.outlined.Lock
+import com.nannyapp.ui.components.AppCard
+import com.nannyapp.ui.components.TranslatableText
 
 @Composable
 fun NannyDetailScreen(
@@ -30,6 +34,7 @@ fun NannyDetailScreen(
     onBookNow: (Int) -> Unit,
     onMessage: (Int, String) -> Unit,
     onReport: (Int, String) -> Unit,
+    onPlus: () -> Unit,
     viewModel: NannyDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -47,7 +52,7 @@ fun NannyDetailScreen(
         bottomBar = {
             if (state.nanny != null) {
                 Surface(shadowElevation = 8.dp) {
-                    Row(Modifier.padding(16.dp).fillMaxWidth()) {
+                    Row(Modifier.navigationBarsPadding().padding(16.dp).fillMaxWidth()) {
                         SecondaryButton(text = "Message", onClick = { onMessage(viewModel.nannyId, state.nanny?.fullName ?: "") }, modifier = Modifier.weight(1f))
                         Spacer(Modifier.width(12.dp))
                         PrimaryButton(text = "Book now", onClick = { onBookNow(viewModel.nannyId) }, modifier = Modifier.weight(1f))
@@ -87,7 +92,7 @@ fun NannyDetailScreen(
 
                         if (!nanny.bio.isNullOrBlank()) {
                             SectionHeader("About")
-                            Text(nanny.bio, style = MaterialTheme.typography.bodyMedium)
+                            TranslatableText(nanny.bio)
                         }
                         if (nanny.skills.isNotEmpty()) {
                             SectionHeader("Skills")
@@ -104,6 +109,28 @@ fun NannyDetailScreen(
                         if (!nanny.qualifications.isNullOrBlank()) {
                             SectionHeader("Qualifications")
                             Text(nanny.qualifications, style = MaterialTheme.typography.bodyMedium)
+                        }
+                        if (nanny.extendedLocked) {
+                            Spacer(Modifier.height(16.dp))
+                            AppCard(Modifier.fillMaxWidth(), onClick = onPlus) {
+                                Row(Modifier.padding(16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                    Spacer(Modifier.width(12.dp))
+                                    Column(Modifier.weight(1f)) {
+                                        Text(stringResource(R.string.plus_locked_title), style = MaterialTheme.typography.titleSmall)
+                                        Text(stringResource(R.string.plus_locked_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    }
+                                }
+                            }
+                        } else if (!nanny.verifiedDocuments.isNullOrEmpty()) {
+                            SectionHeader(stringResource(R.string.plus_verified_documents))
+                            nanny.verifiedDocuments!!.forEach { doc ->
+                                Row(Modifier.padding(vertical = 4.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                    Icon(Icons.Outlined.VerifiedUser, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary, modifier = Modifier.size(18.dp))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(doc.title.ifBlank { doc.type }, style = MaterialTheme.typography.bodyMedium)
+                                }
+                            }
                         }
                         if (!nanny.availabilityText.isNullOrBlank()) {
                             SectionHeader("Availability")
@@ -122,7 +149,7 @@ fun NannyDetailScreen(
                                         RatingView(review.rating.toDouble(), compact = true)
                                     }
                                     if (!review.comment.isNullOrBlank()) {
-                                        Text(review.comment, style = MaterialTheme.typography.bodySmall)
+                                        TranslatableText(review.comment, style = MaterialTheme.typography.bodySmall)
                                     }
                                 }
                                 HorizontalDivider()

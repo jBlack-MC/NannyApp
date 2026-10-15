@@ -20,6 +20,7 @@ data class NannyDashboardUiState(
     val completedCount: Int = 0,
     val earnings: EarningsSummary? = null,
     val unreadNotifications: Int = 0,
+    val viewers: com.nannyapp.data.api.dto.ProfileViewersDto? = null,
 )
 
 @HiltViewModel
@@ -27,6 +28,7 @@ class NannyDashboardViewModel @Inject constructor(
     private val nannyRepository: NannyRepository,
     private val bookingRepository: BookingRepository,
     private val notificationRepository: NotificationRepository,
+    private val plusApi: com.nannyapp.data.api.PlusApi,
 ) : ViewModel() {
     private val _state = MutableStateFlow(NannyDashboardUiState())
     val state: StateFlow<NannyDashboardUiState> = _state.asStateFlow()
@@ -46,6 +48,7 @@ class NannyDashboardViewModel @Inject constructor(
             val earningsRequest = async { nannyRepository.getEarnings() }
             // Own profile is fetched by id 0 sentinel resolved server-side to "me" for nanny role.
             val profileRequest = async { nannyRepository.getNannyDetail(0) }
+            val viewersRequest = async { (com.nannyapp.util.safeApiCall { plusApi.viewers() } as? Resource.Success)?.data }
 
             val bookingsResult = bookingsRequest.await()
             val bookings = (bookingsResult as? Resource.Success)?.data.orEmpty()
@@ -59,6 +62,7 @@ class NannyDashboardViewModel @Inject constructor(
                 pendingRequests = bookings.filter { it.status == BookingStatus.PENDING },
                 completedCount = bookings.count { it.status == BookingStatus.COMPLETED },
                 earnings = (earningsResult as? Resource.Success)?.data,
+                viewers = viewersRequest.await(),
                 error = (bookingsResult as? Resource.Error)?.message,
             )
         }

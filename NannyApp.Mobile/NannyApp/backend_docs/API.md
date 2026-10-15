@@ -33,7 +33,7 @@ Debug/emulator default: `http://10.0.2.2/nannyapp/api/` (see `app/build.gradle.k
 ## Nannies — `/api/nannies/`
 | Endpoint | Method | Notes |
 |---|---|---|
-| `search.php` | GET | Query params: `q, location, min_rate, max_rate, min_experience, min_rating, verified_only, slot, sort`. |
+| `search.php` | GET | Query params: `q, location, language, min_rate, max_rate, min_experience, min_rating, verified_only, slot, sort`. |
 | `detail.php` | GET | `?id=`. Increments `profile_views` unless viewing your own profile. |
 | `reviews.php` | GET | `?id=`. |
 | `profile.php` | PUT | Nanny edits their own profile. |
@@ -111,3 +111,21 @@ All require `role = admin`.
 3. **File uploads** go through the existing `save_uploaded_image()` helper, which only accepts image formats (JPG/PNG/WEBP/GIF). For ID documents you may want to also accept PDF.
 4. **Paystack refunds** (`admin/refund.php`) only update the local `payments` row; call Paystack's `/refund` endpoint for a real charge-back before going live.
 5. This layer was written and reasoned through carefully but has **not been executed against a live MySQL instance** in the environment that produced it (no PHP/MySQL runtime available there) — run it against a real XAMPP/MySQL setup and fix any typos before production use.
+
+## Safety and content — `/api/reports/`, `/api/content/`
+| Endpoint | Method | Notes |
+|---|---|---|
+| `reports/create.php` | GET | The report reasons, as `[{code, label}]`. |
+| `reports/create.php` | POST | `{ reportedUserId, bookingId?, reason, details }`. Reports a parent or nanny to the safety team as a `safety` support ticket linked to that account (and booking, which must be shared by both people); every admin gets a notification. 5 reports per hour per account. |
+| `content/holidays.php` | GET | `?year=`. South African public holidays `[{date, name}]` from the Nager.Date API, cached per year; an empty list if it cannot be reached. No sign-in. |
+
+## Nanny-App Plus and translation
+| Endpoint | Method | Notes |
+|---|---|---|
+| `subscriptions/status.php` | GET | `{active, status, expiresAt, productId, configured, accountReference}`. Pass `accountReference` as the Play purchase's obfuscated account id. |
+| `subscriptions/verify.php` | POST | `{productId, purchaseToken}`. Checks the token with the Google Play Developer API, stores it and acknowledges it. 503 until `NANNYAPP_PLAY_SERVICE_ACCOUNT_FILE` is configured; 400 for a token from another account or product. |
+| `nannies/viewers.php` | GET | Nanny only. `{viewsLast30Days, locked, recent[]}`; `recent` is filled only for Plus nannies. |
+| `content/languages.php` | GET | Translation languages, South African ones first with `recommended: true`. No sign-in. |
+| `content/translate.php` | POST | `{text, target}` → `{translated, provider}` through MyMemory, cached. Max 2000 characters, 60 requests an hour per account. |
+
+Plus effects elsewhere: `nannies/detail.php` returns `qualifications`, `specialisations` and `verifiedDocuments` only to Plus parents (others get `extendedLocked: true`); `nannies/search.php` lists Plus nannies first with `featured: true`; `nannies/save.php` answers 402 after 3 saved nannies without Plus; bookings by Plus parents carry `isPriority: true` and sort first in the nanny's pending list. Safety information (verification badge, ratings, reviews, reporting) is never gated.
