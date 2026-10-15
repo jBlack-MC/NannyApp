@@ -16,6 +16,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.domain.model.AvailabilitySlot
 import com.nannyapp.domain.model.NannySortOption
 import com.nannyapp.ui.components.*
+import com.nannyapp.ui.components.TextActionButton
+import com.nannyapp.domain.model.NannySearchFilters
+import com.nannyapp.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.horizontalScroll
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +77,7 @@ fun FindNanniesScreen(
 private fun FilterSheetContent(viewModel: FindNanniesViewModel) {
     val state by viewModel.state.collectAsState()
     val f = state.filters
-    Column(Modifier.padding(20.dp).fillMaxWidth()) {
+    Column(Modifier.verticalScroll(rememberScrollState()).padding(20.dp).fillMaxWidth()) {
         Text("Filters", style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(16.dp))
         OutlinedTextField(value = f.location ?: "", onValueChange = { v -> viewModel.updateFilters { it.copy(location = v.ifBlank { null }) } }, label = { Text("Location") }, singleLine = true, modifier = Modifier.fillMaxWidth())
@@ -88,10 +95,39 @@ private fun FilterSheetContent(viewModel: FindNanniesViewModel) {
         }
         Spacer(Modifier.height(12.dp))
         OutlinedTextField(
-            value = f.minExperience?.toString() ?: "", onValueChange = { v -> viewModel.updateFilters { it.copy(minExperience = v.toIntOrNull()) } },
-            label = { Text("Min years experience") }, singleLine = true, modifier = Modifier.fillMaxWidth(),
+            value = f.language ?: "", onValueChange = { v -> viewModel.updateFilters { it.copy(language = v.ifBlank { null }) } },
+            label = { Text(stringResource(R.string.filter_language)) }, placeholder = { Text(stringResource(R.string.filter_language_hint)) },
+            singleLine = true, modifier = Modifier.fillMaxWidth(),
         )
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(16.dp))
+        FilterChipRow(
+            title = stringResource(R.string.filter_experience),
+            options = listOf(null, 1, 3, 5, 10),
+            selected = f.minExperience,
+            label = { if (it == null) stringResource(R.string.filter_any) else stringResource(R.string.filter_years_plus, it) },
+            onSelect = { v -> viewModel.updateFilters { it.copy(minExperience = v) } },
+        )
+        FilterChipRow(
+            title = stringResource(R.string.filter_rating),
+            options = listOf(null, 3.0, 4.0, 4.5),
+            selected = f.minRating,
+            label = { if (it == null) stringResource(R.string.filter_any) else stringResource(R.string.filter_stars_plus, it.toString().removeSuffix(".0")) },
+            onSelect = { v -> viewModel.updateFilters { it.copy(minRating = v) } },
+        )
+        FilterChipRow(
+            title = stringResource(R.string.filter_availability),
+            options = listOf(null) + AvailabilitySlot.entries,
+            selected = f.availableSlot,
+            label = {
+                when (it) {
+                    null -> stringResource(R.string.filter_any)
+                    AvailabilitySlot.MORNING -> stringResource(R.string.filter_morning)
+                    AvailabilitySlot.AFTERNOON -> stringResource(R.string.filter_afternoon)
+                    AvailabilitySlot.EVENING -> stringResource(R.string.filter_evening)
+                }
+            },
+            onSelect = { v -> viewModel.updateFilters { it.copy(availableSlot = v) } },
+        )
         Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
             Checkbox(checked = f.verifiedOnly, onCheckedChange = { v -> viewModel.updateFilters { it.copy(verifiedOnly = v) } })
             Text("Verified nannies only")
@@ -99,7 +135,7 @@ private fun FilterSheetContent(viewModel: FindNanniesViewModel) {
         Spacer(Modifier.height(8.dp))
         Text("Sort by", style = MaterialTheme.typography.titleSmall)
         Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             NannySortOption.entries.forEach { option ->
                 FilterChip(
                     selected = f.sortBy == option,
@@ -110,8 +146,26 @@ private fun FilterSheetContent(viewModel: FindNanniesViewModel) {
         }
         Spacer(Modifier.height(20.dp))
         PrimaryButton(text = "Apply filters", onClick = viewModel::applyFilters, modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(8.dp))
+        TextActionButton(
+            text = stringResource(R.string.filter_clear),
+            onClick = { viewModel.updateFilters { NannySearchFilters(query = it.query) } },
+            modifier = Modifier.fillMaxWidth(),
+        )
         Spacer(Modifier.height(12.dp))
     }
+}
+
+@Composable
+private fun <T> FilterChipRow(title: String, options: List<T?>, selected: T?, label: @Composable (T?) -> String, onSelect: (T?) -> Unit) {
+    Text(title, style = MaterialTheme.typography.titleSmall)
+    Spacer(Modifier.height(6.dp))
+    Row(Modifier.horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        options.forEach { option ->
+            FilterChip(selected = selected == option, onClick = { onSelect(option) }, label = { Text(label(option)) })
+        }
+    }
+    Spacer(Modifier.height(12.dp))
 }
 
 private fun sortLabel(o: NannySortOption) = when (o) {

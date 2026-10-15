@@ -98,6 +98,22 @@ function issue_api_token(int $userId, ?string $deviceInfo = null): string
     return $raw;
 }
 
+/**
+ * The raw Authorization header. Apache with mod_php (the production image and XAMPP) does not
+ * put it in $_SERVER, which made every signed-in API request fail as "session expired";
+ * getallheaders() still has it there. PHP's built-in server and FastCGI set $_SERVER.
+ */
+function request_authorization(): string
+{
+    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? ($_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
+    if ($header === '' && function_exists('getallheaders')) {
+        foreach (getallheaders() as $name => $value) {
+            if (strcasecmp($name, 'Authorization') === 0) return (string) $value;
+        }
+    }
+    return (string) $header;
+}
+
 /** Reads the Authorization: Bearer <token> header and resolves it to a users row, or null. */
 function authenticated_user(): ?array
 {
@@ -108,8 +124,7 @@ function authenticated_user(): ?array
     }
     $resolved = true;
 
-    $header = $_SERVER['HTTP_AUTHORIZATION'] ?? ($_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '');
-    if (!preg_match('/Bearer\s+(\S+)/i', $header, $m)) {
+    if (!preg_match('/Bearer\s+(\S+)/i', request_authorization(), $m)) {
         return null;
     }
     $hash = hash('sha256', $m[1]);

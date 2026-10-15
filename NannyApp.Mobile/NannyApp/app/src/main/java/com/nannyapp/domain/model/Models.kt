@@ -221,6 +221,7 @@ data class AdminDashboardStats(
 data class NannySearchFilters(
     val query: String = "",
     val location: String? = null,
+    val language: String? = null,
     val minRate: Double? = null,
     val maxRate: Double? = null,
     val minExperience: Int? = null,

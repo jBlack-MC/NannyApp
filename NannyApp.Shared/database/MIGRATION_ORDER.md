@@ -10,7 +10,7 @@ php NannyApp.Shared/bin/migrate.php
 
 The database name and user must be explicit. This command is CLI-only. Historical web migration URLs now return 404. `.env.production.example` is a reference, not an automatically loaded dotenv file.
 
-The order is schema, v2, v3, v4, v5, phase1 constraints, phase2 authentication, v6 security, v7 email outbox, v8 operational queues. `schema.sql` is now an idempotent empty schema, with no DROP DATABASE, database selection or demo accounts. Older revisions of this file were destructive: do not use downloaded old copies. Demo seed scripts are not part of setup and must not be shipped to production.
+The order is schema, v2, v3, v4, v5, phase1 constraints, phase2 authentication, v6 security, v7 email outbox, v8 operational queues, v9 safety-report links and the public holiday cache. `schema.sql` is now an idempotent empty schema, with no DROP DATABASE, database selection or demo accounts. Older revisions of this file were destructive: do not use downloaded old copies. Demo seed scripts are not part of setup and must not be shipped to production.
 
 A database advisory lock prevents concurrent migration runners. `schema_migrations` stores filenames and normalized checksums; a changed applied migration is rejected. Future changes require a new migration file. Existing installations without a migration table are adopted through idempotent statements. Unique-index conflicts fail without deleting duplicates; review and resolve conflicting records separately, then retry. No ALTER IGNORE or silent data repair is performed. Historical demo verification/admin backfills and marketing copy inserts have been removed.
 

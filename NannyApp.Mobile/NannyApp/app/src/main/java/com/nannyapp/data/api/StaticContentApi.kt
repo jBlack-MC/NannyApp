@@ -8,4 +8,7 @@ import retrofit2.http.Query
 interface StaticContentApi {
     @GET("content/page.php")
     suspend fun getPage(@Query("key") pageKey: String): Response<ApiEnvelope<PageContentDto>>
+
+    @GET("content/holidays.php")
+    suspend fun getHolidays(@Query("year") year: Int): Response<ApiEnvelope<List<com.nannyapp.data.api.dto.HolidayDto>>>
 }

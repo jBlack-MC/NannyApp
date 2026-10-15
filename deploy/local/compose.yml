@@ -1,0 +1,85 @@
+# Local development stack: the production image, a disposable MariaDB and demo data.
+# Never deploy this file; it turns on the demo sign-in buttons and uses a passwordless database.
+#
+#   docker compose -f deploy/local/compose.yml up -d --build
+#   docker compose -f deploy/local/compose.yml run --rm seed      # once: schema + demo accounts
+#
+# Website: http://localhost/   API for the Android emulator: http://10.0.2.2/nannyapp/api/
+# (the app's debug default). Set NANNYAPP_DEV_PORT if port 80 is taken; see docs/LOCAL_DEVELOPMENT.md.
+name: nannyapp-local
+x-app: &app
+  image: nannyapp-local:dev
+  build:
+    context: ../..
+    dockerfile: deploy/aws/Dockerfile
+  environment:
+    NANNYAPP_DB_HOST: database
+    NANNYAPP_DB_PORT: "3306"
+    NANNYAPP_DB_NAME: nanny_app
+    NANNYAPP_DB_USER: root
+    NANNYAPP_DB_PASS: ""
+    NANNYAPP_BASE_URL: http://localhost
+    NANNYAPP_STORAGE_DRIVER: local
+    NANNYAPP_STORAGE_DIR: /srv/nannyapp/private/uploads
+    NANNYAPP_DEMO_LOGIN: "1"
+  volumes:
+    - uploads:/srv/nannyapp/private/uploads
+    - ./apache.conf:/etc/apache2/sites-available/000-default.conf:ro
+  depends_on:
+    database:
+      condition: service_healthy
+  logging:
+    driver: json-file
+    options:
+      max-size: "10m"
+      max-file: "3"
+services:
+  app:
+    <<: *app
+    ports:
+      - "${NANNYAPP_DEV_PORT:-80}:80"
+  # In-app notifications and file deletions are delivered by this loop, as in production.
+  # Account emails need a Resend key and are not sent locally.
+  worker:
+    <<: *app
+    user: www-data
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          php NannyApp.Shared/bin/deliver-notifications.php
+          php NannyApp.Shared/bin/delete-storage.php
+          sleep 30
+        done
+  seed:
+    <<: *app
+    profiles: [tools]
+    environment:
+      NANNYAPP_DB_HOST: database
+      NANNYAPP_DB_PORT: "3306"
+      NANNYAPP_DB_NAME: nanny_app
+      NANNYAPP_DB_USER: root
+      NANNYAPP_DB_PASS: ""
+      NANNYAPP_BASE_URL: http://localhost
+      NANNYAPP_ALLOW_DEMO_SEED: "true"
+    volumes:
+      - ./seed-demo.php:/srv/nannyapp/deploy/local/seed-demo.php:ro
+    command: ["sh", "-c", "php NannyApp.Shared/bin/migrate.php && php deploy/local/seed-demo.php"]
+  database:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: nanny_app
+      MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: "1"
+    ports:
+      - "127.0.0.1:13306:3306"
+    volumes:
+      - database:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+volumes:
+  database:
+  uploads:

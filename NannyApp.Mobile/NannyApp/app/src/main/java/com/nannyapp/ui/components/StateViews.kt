@@ -1,5 +1,7 @@
 package com.nannyapp.ui.components
 
+import com.nannyapp.util.ErrorMessages
+import com.nannyapp.BuildConfig
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -78,7 +80,7 @@ fun ErrorState(
     modifier: Modifier = Modifier,
     onRetry: (() -> Unit)? = null,
 ) {
-    val isOffline = message.contains("offline", ignoreCase = true)
+    val isOffline = message == ErrorMessages.NO_INTERNET || message.contains("offline", ignoreCase = true)
     Column(
         modifier = modifier.fillMaxSize().padding(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,9 +93,19 @@ fun ErrorState(
             tint = MaterialTheme.colorScheme.error,
         )
         Spacer(Modifier.height(12.dp))
-        Text("Something went wrong", style = MaterialTheme.typography.titleMedium)
+        Text(if (isOffline) "Can't connect" else "Something went wrong", style = MaterialTheme.typography.titleMedium)
         Spacer(Modifier.height(4.dp))
         Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
+        if (isOffline && BuildConfig.DEBUG) {
+            // Developers: the usual cause is that no local server is running. See docs/LOCAL_DEVELOPMENT.md.
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "Debug build server: ${BuildConfig.API_BASE_URL}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+        }
         if (onRetry != null) {
             Spacer(Modifier.height(16.dp))
             SecondaryButton(text = "Try again", onClick = onRetry, modifier = Modifier.fillMaxWidth(0.6f))

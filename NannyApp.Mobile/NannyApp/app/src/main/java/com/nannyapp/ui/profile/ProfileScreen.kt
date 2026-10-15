@@ -22,6 +22,9 @@ import coil.compose.AsyncImage
 import com.nannyapp.ui.components.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.ui.res.stringResource
+import com.nannyapp.R
 
 /** Reproduces account.php: editable identity fields, password change, and
  * profile-completion percentage (request #31). */
@@ -31,6 +34,7 @@ fun ProfileScreen(
     onLoggedOut: () -> Unit,
     onSupport: () -> Unit,
     onStaticPage: (String) -> Unit,
+    onSettings: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -39,7 +43,11 @@ fun ProfileScreen(
 
     LaunchedEffect(state.loggedOut) { if (state.loggedOut) onLoggedOut() }
 
-    Scaffold(topBar = { AppTopBar(title = "Profile") }) { padding ->
+    Scaffold(topBar = {
+        AppTopBar(title = "Profile", actions = {
+            IconButton(onClick = onSettings) { Icon(Icons.Outlined.Settings, contentDescription = stringResource(R.string.settings_title)) }
+        })
+    }) { padding ->
         when {
             state.loading -> LoadingView(modifier = Modifier.padding(padding))
             state.error != null && state.user == null -> ErrorState(message = state.error!!, modifier = Modifier.padding(padding), onRetry = viewModel::load)
@@ -101,6 +109,9 @@ fun ProfileScreen(
 
                 Spacer(Modifier.height(12.dp))
                 SecondaryButton(text = "Help & support", onClick = onSupport, modifier = Modifier.fillMaxWidth())
+
+                Spacer(Modifier.height(12.dp))
+                SecondaryButton(text = stringResource(R.string.settings_title), onClick = onSettings, modifier = Modifier.fillMaxWidth())
                 Text("About & policies", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(top = 20.dp))
                 listOf("About" to "about", "Safety" to "safety", "Pricing" to "pricing", "FAQ" to "faq",
                     "Community" to "community", "Resources" to "resources", "Contact" to "contact",

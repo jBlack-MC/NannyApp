@@ -143,7 +143,7 @@ Nanny-App
 | Front-end | Vanilla JavaScript, custom CSS, responsive layout |
 | Auth | PHP session auth, email verification, reset tokens |
 | Packaging | PWA + Cordova-wrapped Android APK |
-| Local dev | XAMPP or equivalent Apache + MySQL environment |
+| Local dev | Docker: `deploy/local/compose.yml` (see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md)), or XAMPP |
 
 ---
 

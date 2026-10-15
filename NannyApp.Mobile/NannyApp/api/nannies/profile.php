@@ -21,7 +21,7 @@ db()->prepare(
 ]);
 
 $stmt = db()->prepare(
-    "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*,
+    "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*, u.profile_image,
             (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count
      FROM users u JOIN nanny_profiles np ON np.user_id = u.id WHERE u.id = :id"
 );
@@ -29,7 +29,7 @@ $stmt->execute(['id' => $me['id']]);
 $row = $stmt->fetch();
 
 json_response(true, [
-    'userId' => (int) $row['user_id'], 'fullName' => $row['full_name'], 'photoUrl' => media_url($row['photo_url']),
+    'userId' => (int) $row['user_id'], 'fullName' => $row['full_name'], 'photoUrl' => media_url($row['photo_url'] ?: ($row['profile_image'] ?? null)),
     'bannerImage' => media_url($row['banner_image']), 'bio' => $row['bio'], 'gender' => $row['gender'],
     'experienceYears' => (int) $row['experience_years'], 'hourlyRate' => (float) $row['hourly_rate'],
     'location' => $row['location'], 'skills' => $row['skills'], 'languages' => $row['languages'],

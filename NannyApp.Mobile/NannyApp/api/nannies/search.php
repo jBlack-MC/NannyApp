@@ -1,5 +1,5 @@
 <?php
-/** GET /api/nannies/search.php?q=&location=&min_rate=&max_rate=&min_experience=&min_rating=&verified_only=&slot=&sort=
+/** GET /api/nannies/search.php?q=&location=&language=&min_rate=&max_rate=&min_experience=&min_rating=&verified_only=&slot=&sort=
  * Public-ish endpoint (requires login like the rest of the app) listing nanny_profiles joined to users. */
 require_once __DIR__ . '/../_bootstrap.php';
 require_api_auth();
@@ -8,8 +8,13 @@ $where = ["u.role = 'nanny'"];
 $params = [];
 
 if (!empty($_GET['q'])) {
-    $where[] = '(u.full_name LIKE :q OR np.location LIKE :q OR np.skills LIKE :q)';
-    $params['q'] = '%' . $_GET['q'] . '%';
+    // Native prepared statements (no emulation) reject a repeated placeholder, so each use gets its own.
+    $where[] = '(u.full_name LIKE :q1 OR np.location LIKE :q2 OR np.skills LIKE :q3)';
+    $params['q1'] = $params['q2'] = $params['q3'] = '%' . $_GET['q'] . '%';
+}
+if (!empty($_GET['language'])) {
+    $where[] = 'np.languages LIKE :language';
+    $params['language'] = '%' . $_GET['language'] . '%';
 }
 if (!empty($_GET['location'])) {
     $where[] = 'np.location LIKE :location';
@@ -46,7 +51,7 @@ $orderBy = match ($_GET['sort'] ?? 'rating') {
     default => 'np.average_rating DESC',
 };
 
-$sql = "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.* ,
+$sql = "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*, u.profile_image,
                (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count
         FROM users u JOIN nanny_profiles np ON np.user_id = u.id
         WHERE " . implode(' AND ', $where) . "
@@ -60,7 +65,7 @@ json_response(true, array_map('serialize_nanny_row', $rows));
 
 function serialize_nanny_row(array $r): array {
     return [
-        'userId' => (int) $r['user_id'], 'fullName' => $r['full_name'], 'photoUrl' => media_url($r['photo_url']),
+        'userId' => (int) $r['user_id'], 'fullName' => $r['full_name'], 'photoUrl' => media_url($r['photo_url'] ?: ($r['profile_image'] ?? null)),
         'bannerImage' => media_url($r['banner_image']), 'bio' => $r['bio'], 'gender' => $r['gender'],
         'experienceYears' => (int) $r['experience_years'], 'hourlyRate' => (float) $r['hourly_rate'],
         'location' => $r['location'], 'skills' => $r['skills'], 'languages' => $r['languages'],

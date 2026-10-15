@@ -295,6 +295,7 @@ if ($step === 0):
                         <?= icon('heart') ?> <span class="save-label"><?= $isSaved ? 'Saved' : 'Save' ?></span>
                     </button>
                     <a class="btn btn-sm" href="<?= url('messages.php?with=' . $nannyId) ?>"><?= icon('message-circle') ?> Message</a>
+                    <a class="btn btn-sm" href="<?= url('report.php?user=' . $nannyId) ?>"><?= icon('flag') ?> Report</a>
                 </div>
             </div>
 
