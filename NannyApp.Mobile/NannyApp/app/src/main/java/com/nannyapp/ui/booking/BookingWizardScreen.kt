@@ -12,6 +12,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.ui.components.*
 import com.nannyapp.util.formatHours
+import java.util.Locale
+import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
+import java.time.LocalTime
+import java.time.LocalDate
+import java.time.Instant
+import com.nannyapp.R
+import androidx.compose.ui.res.stringResource
 
 /** 8-step booking wizard per request #12: nanny (preselected) -> date -> time/duration
  * -> children -> address -> notes -> summary -> payment. */
@@ -81,19 +89,66 @@ private fun StepNanny(state: BookingWizardUiState) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StepDate(state: BookingWizardUiState, viewModel: BookingWizardViewModel) {
-    Text("Choose a date and time", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-    Spacer(Modifier.height(10.dp))
-    OutlinedTextField(
-        value = state.wizard.dateTimeIso ?: "",
-        onValueChange = viewModel::setDateTime,
-        label = { Text("Date & time (YYYY-MM-DD HH:MM)") },
-        placeholder = { Text("2026-09-20 14:00") },
+    var showDate by remember { mutableStateOf(false) }
+    var showTime by remember { mutableStateOf(false) }
+    Text(stringResource(R.string.booking_date_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+    Spacer(Modifier.height(12.dp))
+    SecondaryButton(
+        text = state.pickedDate?.format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy", Locale.ENGLISH)) ?: stringResource(R.string.booking_choose_date),
+        onClick = { showDate = true },
         modifier = Modifier.fillMaxWidth(),
     )
-    Spacer(Modifier.height(4.dp))
-    Text("Tip: use your device calendar to confirm the exact date, then type it here.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Spacer(Modifier.height(10.dp))
+    SecondaryButton(
+        text = state.pickedTime?.let { "%02d:%02d".format(it.hour, it.minute) } ?: stringResource(R.string.booking_choose_time),
+        onClick = { showTime = true },
+        modifier = Modifier.fillMaxWidth(),
+    )
+    if (state.holiday != null) {
+        Spacer(Modifier.height(12.dp))
+        AppCard(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(16.dp)) {
+                Text(stringResource(R.string.booking_holiday_title, state.holiday), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.height(4.dp))
+                Text(stringResource(R.string.booking_holiday_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+        }
+    }
+
+    if (showDate) {
+        // Bookings must be in the future; the picker works in UTC midnights.
+        val todayUtc = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val pickerState = rememberDatePickerState(
+            initialSelectedDateMillis = state.pickedDate?.atStartOfDay(ZoneOffset.UTC)?.toInstant()?.toEpochMilli(),
+            selectableDates = object : SelectableDates {
+                override fun isSelectableDate(utcTimeMillis: Long) = utcTimeMillis >= todayUtc
+            },
+        )
+        DatePickerDialog(
+            onDismissRequest = { showDate = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    pickerState.selectedDateMillis?.let { viewModel.pickDate(Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()) }
+                    showDate = false
+                }) { Text(stringResource(R.string.action_ok)) }
+            },
+            dismissButton = { TextButton(onClick = { showDate = false }) { Text(stringResource(R.string.action_cancel)) } },
+        ) { DatePicker(state = pickerState) }
+    }
+    if (showTime) {
+        val timeState = rememberTimePickerState(initialHour = state.pickedTime?.hour ?: 9, initialMinute = state.pickedTime?.minute ?: 0, is24Hour = true)
+        AlertDialog(
+            onDismissRequest = { showTime = false },
+            confirmButton = {
+                TextButton(onClick = { viewModel.pickTime(LocalTime.of(timeState.hour, timeState.minute)); showTime = false }) { Text(stringResource(R.string.action_ok)) }
+            },
+            dismissButton = { TextButton(onClick = { showTime = false }) { Text(stringResource(R.string.action_cancel)) } },
+            text = { TimePicker(state = timeState) },
+        )
+    }
 }
 
 @Composable
@@ -141,7 +196,7 @@ private fun StepSummary(state: BookingWizardUiState) {
     Text("Review your booking", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
     Spacer(Modifier.height(10.dp))
     SummaryRow("Nanny", w.nanny?.fullName ?: "")
-    SummaryRow("Date & time", w.dateTimeIso ?: "")
+    SummaryRow("Date & time", w.dateTimeIso?.let { com.nannyapp.util.formatDateTime(it) } ?: "")
     SummaryRow("Duration", "${formatHours(w.durationHours)} hours")
     SummaryRow("Hourly rate", "R${"%.2f".format(w.nanny?.hourlyRate ?: 0.0)}")
     SummaryRow("Children", "${w.selectedChildIds.size} selected")

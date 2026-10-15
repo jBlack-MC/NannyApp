@@ -30,7 +30,13 @@ object NetworkModule {
             }
             addHeader("Accept", "application/json")
         }.build()
-        chain.proceed(request)
+        val response = chain.proceed(request)
+        // The API answers 401 only when the bearer token is unknown, expired or revoked. Without
+        // this, every screen showed "session expired" with a Try again button that could never work.
+        if (response.code == 401 && !token.isNullOrBlank()) {
+            runBlocking { sessionManager.expireSession(token) }
+        }
+        response
     }
 
     @Provides
@@ -72,4 +78,5 @@ object NetworkModule {
     @Provides @Singleton fun provideChildApi(retrofit: Retrofit): ChildApi = retrofit.create(ChildApi::class.java)
     @Provides @Singleton fun provideAdminApi(retrofit: Retrofit): AdminApi = retrofit.create(AdminApi::class.java)
     @Provides @Singleton fun provideStaticContentApi(retrofit: Retrofit): StaticContentApi = retrofit.create(StaticContentApi::class.java)
+    @Provides @Singleton fun provideReportApi(retrofit: Retrofit): ReportApi = retrofit.create(ReportApi::class.java)
 }

@@ -55,7 +55,7 @@ No PHP built-in server or MySQL was available in the environment that generated 
 1. Open the `app/` project root (the folder containing `settings.gradle.kts`) in Android Studio (Hedgehog/2023.1+ recommended).
 2. Let Gradle sync — it will download Compose BOM 2024.06.00, Hilt 2.51.1, Room 2.6.1, Retrofit 2.11.0, etc. (see `app/build.gradle.kts` for the full list).
 3. Point the app at your backend: `app/build.gradle.kts` sets `API_BASE_URL` per build type —
-   - `debug` defaults to `http://10.0.2.2/nannyapp/api/` (the Android emulator's alias for your host machine's `localhost`, works with XAMPP out of the box).
+   - `debug` defaults to `http://10.0.2.2/nannyapp/api/` (the Android emulator's alias for your host machine's `localhost`). The quickest server for it is the Docker stack in [docs/LOCAL_DEVELOPMENT.md](../../docs/LOCAL_DEVELOPMENT.md), which loads demo data; XAMPP serving this project at `htdocs/nannyapp/` also works.
    - `release` requires `-PNANNYAPP_RELEASE_API_URL=https://your-host/api/`.
    - For a physical device on the same Wi-Fi, build with `-PNANNYAPP_DEBUG_API_URL=http://YOUR_LAN_IP/nannyapp/api/`. Debug builds allow local HTTP; release builds keep their HTTPS restrictions.
    - A hosted HTTPS API address works on both phones and emulators. The API and database must be running for account and booking actions.

@@ -64,6 +64,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     onBack = { nav.popBackStack() },
                     onCheckIn = { id -> nav.navigate(Routes.checkIn(id)) },
                     onLeaveReview = { },
+                    onReport = { id, name, bookingId -> rootNav.navigate(Routes.report(id, name, bookingId)) },
                 )
             }
             composable(Routes.CHECK_IN, arguments = listOf(navArgument("bookingId") { type = NavType.IntType })) {
@@ -93,8 +94,13 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     navArgument("userId") { type = NavType.IntType },
                     navArgument("peerName") { type = NavType.StringType; defaultValue = "" },
                 ),
-            ) {
-                ChatScreen(onBack = { nav.popBackStack() })
+            ) { entry ->
+                val peerId = entry.arguments?.getInt("userId") ?: 0
+                val peerName = entry.arguments?.getString("peerName").orEmpty()
+                ChatScreen(
+                    onBack = { nav.popBackStack() },
+                    onReport = { rootNav.navigate(Routes.report(peerId, peerName)) },
+                )
             }
             composable(Routes.NOTIFICATIONS) {
                 NotificationsScreen(onBack = { nav.popBackStack() })
@@ -104,6 +110,7 @@ fun NannyAppScaffold(rootNav: NavHostController) {
                     onLoggedOut = { rootNav.navigate(Routes.WELCOME) { popUpTo(0) } },
                     onSupport = { nav.navigate(Routes.SUPPORT) },
                     onStaticPage = { key -> rootNav.navigate(Routes.staticPage(key)) },
+                    onSettings = { rootNav.navigate(Routes.SETTINGS) },
                 )
             }
             composable(Routes.SUPPORT) {

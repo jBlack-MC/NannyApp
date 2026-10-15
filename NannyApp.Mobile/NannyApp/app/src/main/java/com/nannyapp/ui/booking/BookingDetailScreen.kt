@@ -14,6 +14,9 @@ import com.nannyapp.domain.model.UserRole
 import com.nannyapp.ui.components.*
 import com.nannyapp.util.formatDateTime
 import com.nannyapp.util.formatHours
+import androidx.compose.ui.res.stringResource
+import com.nannyapp.R
+import com.nannyapp.ui.components.TextActionButton
 
 /**
  * Shared by parent and nanny (request #13/#16). Buttons shown depend on role
@@ -24,6 +27,7 @@ fun BookingDetailScreen(
     onBack: () -> Unit,
     onCheckIn: (Int) -> Unit,
     onLeaveReview: (Int) -> Unit,
+    onReport: (userId: Int, name: String, bookingId: Int) -> Unit,
     viewModel: BookingDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -83,6 +87,11 @@ fun BookingDetailScreen(
                         booking = b, role = state.role, inProgress = state.actionInProgress, viewModel = viewModel,
                         onCheckIn = { onCheckIn(b.id) }, onLeaveReview = { onLeaveReview(b.id) },
                         onDisputeRequest = { showDisputeDialog = true },
+                        onReport = {
+                            // Each side reports the other person on the booking.
+                            if (state.role == UserRole.NANNY) onReport(b.parentId, b.parentName.orEmpty(), b.id)
+                            else onReport(b.nannyId, b.nannyName.orEmpty(), b.id)
+                        },
                     )
                 }
             }
@@ -113,6 +122,7 @@ private fun ActionButtons(
     onCheckIn: () -> Unit,
     onLeaveReview: () -> Unit,
     onDisputeRequest: () -> Unit,
+    onReport: () -> Unit,
 ) {
     Column {
         when (role) {
@@ -147,6 +157,8 @@ private fun ActionButtons(
             }
             UserRole.ADMIN -> {}
         }
+        Spacer(Modifier.height(16.dp))
+        TextActionButton(text = stringResource(R.string.report_a_concern), onClick = onReport, modifier = Modifier.fillMaxWidth())
     }
 }
 

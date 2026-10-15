@@ -9,8 +9,8 @@ $where = ['1=1'];
 $params = [];
 if (!empty($_GET['status'])) { $where[] = 'b.status = :status'; $params['status'] = $_GET['status']; }
 if (!empty($_GET['q'])) {
-    $where[] = '(b.booking_ref LIKE :q OR pu.full_name LIKE :q OR nu.full_name LIKE :q)';
-    $params['q'] = '%' . $_GET['q'] . '%';
+    $where[] = '(b.booking_ref LIKE :q1 OR pu.full_name LIKE :q2 OR nu.full_name LIKE :q3)';
+    $params['q1'] = $params['q2'] = $params['q3'] = '%' . $_GET['q'] . '%';
 }
 
 $stmt = db()->prepare(BOOKING_SELECT_SQL . ' WHERE ' . implode(' AND ', $where) . ' ORDER BY b.created_at DESC LIMIT 300');

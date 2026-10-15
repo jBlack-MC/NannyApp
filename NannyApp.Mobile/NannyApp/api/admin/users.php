@@ -7,7 +7,7 @@ require_api_role($me, 'admin');
 $where = ['1=1'];
 $params = [];
 if (!empty($_GET['role'])) { $where[] = 'role = :role'; $params['role'] = $_GET['role']; }
-if (!empty($_GET['q'])) { $where[] = '(full_name LIKE :q OR email LIKE :q)'; $params['q'] = '%' . $_GET['q'] . '%'; }
+if (!empty($_GET['q'])) { $where[] = '(full_name LIKE :q1 OR email LIKE :q2)'; $params['q1'] = $params['q2'] = '%' . $_GET['q'] . '%'; }
 
 $stmt = db()->prepare('SELECT * FROM users WHERE ' . implode(' AND ', $where) . ' ORDER BY created_at DESC LIMIT 200');
 $stmt->execute($params);

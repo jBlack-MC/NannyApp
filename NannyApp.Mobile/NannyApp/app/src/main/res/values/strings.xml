@@ -1,4 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    English, the default. values-af (Afrikaans) and values-zu (isiZulu) translate the same keys;
+    any key missing there falls back to this file. Screens not yet moved to resources stay English.
+-->
 <resources>
     <string name="app_name">Nanny-App</string>
     <string name="tagline">Trusted childcare, on your schedule.</string>
+
+    <!-- Common -->
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_done">Done</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_find">Find</string>
+    <string name="nav_bookings">Bookings</string>
+    <string name="nav_messages">Messages</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_earnings">Earnings</string>
+    <string name="page_about">About</string>
+    <string name="page_safety">Safety</string>
+    <string name="page_pricing">Pricing</string>
+    <string name="page_faq">Help</string>
+    <string name="page_community">Community</string>
+    <string name="page_resources">Resources</string>
+    <string name="page_contact">Contact</string>
+    <string name="page_terms">Terms</string>
+    <string name="page_privacy">Privacy</string>
+
+    <!-- Welcome -->
+    <string name="welcome_eyebrow">Trusted childcare, on your schedule</string>
+    <string name="welcome_headline">Find professional childcare with confidence.</string>
+    <string name="welcome_lead">Nanny-App helps families discover verified nannies, compare profiles and book care securely, all in one place.</string>
+    <string name="welcome_find_care">Find care</string>
+    <string name="welcome_become_nanny">Become a nanny</string>
+    <string name="welcome_point_checked">Background checked</string>
+    <string name="welcome_point_reviews">Verified reviews</string>
+    <string name="welcome_point_records">Clear booking records</string>
+    <string name="welcome_have_account">Already have an account?</string>
+    <string name="welcome_log_in">Log in</string>
+    <string name="welcome_about_image">Caregiver reading with a child</string>
+    <string name="welcome_about_eyebrow">About</string>
+    <string name="welcome_about_title">Childcare that feels personal, not transactional.</string>
+    <string name="welcome_about_body1">We connect families with caring nannies through a transparent marketplace built for trust, safety and consistency.</string>
+    <string name="welcome_about_body2">From profile verification to secure booking, every step is designed to keep parents informed and children supported.</string>
+    <string name="welcome_learn_more">Learn more about us</string>
+    <string name="welcome_services_eyebrow">Services</string>
+    <string name="welcome_services_title">Flexible support for every household rhythm</string>
+    <string name="welcome_service_full_title">Full-time care</string>
+    <string name="welcome_service_full_body">Reliable weekday childcare with stable routines.</string>
+    <string name="welcome_service_part_title">Part-time care</string>
+    <string name="welcome_service_part_body">Help for after school, school runs and afternoons.</string>
+    <string name="welcome_service_sitting_title">Babysitting</string>
+    <string name="welcome_service_sitting_body">Date nights, events and short-notice care.</string>
+    <string name="welcome_service_night_title">Overnight care</string>
+    <string name="welcome_service_night_body">Calm evening routines and attentive mornings.</string>
+    <string name="welcome_why_eyebrow">Why choose us</string>
+    <string name="welcome_why_title">Safety, quality and transparency at every step</string>
+    <string name="welcome_why_checks_title">Background checks</string>
+    <string name="welcome_why_checks_body">Nannies complete profile and trust checks before they are listed.</string>
+    <string name="welcome_why_reviews_title">Verified reviews</string>
+    <string name="welcome_why_reviews_body">Feedback comes only from real, completed bookings.</string>
+    <string name="welcome_why_matching_title">Personal matching</string>
+    <string name="welcome_why_matching_body">Filter by area, language, rate and experience.</string>
+    <string name="welcome_why_records_title">Clear records</string>
+    <string name="welcome_why_records_body">Every booking and payment status in one place.</string>
+    <string name="welcome_how_eyebrow">How it works</string>
+    <string name="welcome_how_title">Care in three steps</string>
+    <string name="welcome_step1">Find care that fits your family</string>
+    <string name="welcome_step2">Review verified profiles and availability</string>
+    <string name="welcome_step3">Book, message and manage care in one place</string>
+    <string name="welcome_safety_title">Safety comes first</string>
+    <string name="welcome_safety_body">Every nanny is reviewed by our team before appearing in search. You can report a concern from any profile, booking or chat, and safety reports go to the top of our queue.</string>
+    <string name="welcome_safety_link">How we keep families safe</string>
+    <string name="welcome_nanny_eyebrow">For nannies</string>
+    <string name="welcome_nanny_title">Find work you love, on your terms</string>
+    <string name="welcome_nanny_point1">Set your own hourly rate and availability</string>
+    <string name="welcome_nanny_point2">Receive booking requests from families near you</string>
+    <string name="welcome_nanny_point3">Keep a clear record of every booking and payment</string>
+    <string name="welcome_nanny_cta">Become a nanny</string>
+    <string name="welcome_cta_title">Ready to find your perfect nanny?</string>
+    <string name="welcome_cta_body">Create a free account to browse verified nannies and send your first booking request.</string>
+    <string name="welcome_create_account">Create a free account</string>
+    <string name="welcome_explore">Explore Nanny-App</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">Match my phone</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_note">Translations are new and still being reviewed. Some screens are still in English.</string>
+    <string name="settings_language_system">Match my phone</string>
+    <string name="settings_notifications">Notifications</string>
+    <string name="settings_background_sync">Check for updates in the background</string>
+    <string name="settings_background_sync_detail">Keeps your booking and message alerts up to date while the app is closed.</string>
+    <string name="settings_safety">Safety</string>
+    <string name="settings_safety_note">If a child is in danger, call for help first. To report a nanny or parent, open their profile, booking or chat and tap Report.</string>
+    <string name="settings_safety_page">How we keep families safe</string>
+    <string name="settings_about">About</string>
+    <string name="settings_terms">Terms of service</string>
+    <string name="settings_privacy">Privacy policy</string>
+    <string name="settings_help">Help centre</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="emergency_police">SAPS emergency</string>
+    <string name="emergency_mobile">Emergency from any mobile</string>
+    <string name="emergency_childline">Childline South Africa</string>
+
+    <!-- Report -->
+    <string name="report_a_concern">Report a concern</string>
+    <string name="report_title">Report a concern</string>
+    <string name="report_this_person">this person</string>
+    <string name="report_danger_title">If a child is in danger now</string>
+    <string name="report_danger_body">Call for help first, then send this report.</string>
+    <string name="report_heading">Report %1$s</string>
+    <string name="report_confidential">Reports are confidential. The person you report is not told who sent it.</string>
+    <string name="report_reason_label">What is the report about?</string>
+    <string name="report_reason_child_safety">A child may be at risk</string>
+    <string name="report_reason_unsafe">Unsafe or inappropriate behaviour</string>
+    <string name="report_reason_harassment">Harassment, threats or abuse</string>
+    <string name="report_reason_fake">Fake profile or false information</string>
+    <string name="report_reason_payment">Payment fraud or off-platform payment request</string>
+    <string name="report_reason_no_show">No-show or serious reliability problem</string>
+    <string name="report_reason_other">Something else</string>
+    <string name="report_details_label">What happened?</string>
+    <string name="report_details_hint">Include dates, times and anything you saw or were told.</string>
+    <string name="report_send">Send report</string>
+    <string name="report_error_reason">Please choose what the report is about.</string>
+    <string name="report_error_details">Please describe what happened (at least 10 characters).</string>
+    <string name="report_sent_title">Report received</string>
+    <string name="report_sent_body">Thank you. Safety reports go to the top of our team\'s queue. We may contact you for more detail.</string>
+
+    <!-- Search filters -->
+    <string name="filter_language">Language</string>
+    <string name="filter_language_hint">e.g. isiZulu, Afrikaans</string>
+    <string name="filter_experience">Experience</string>
+    <string name="filter_any">Any</string>
+    <string name="filter_years_plus">%1$d+ years</string>
+    <string name="filter_rating">Rating</string>
+    <string name="filter_stars_plus">%1$s+ stars</string>
+    <string name="filter_availability">Available</string>
+    <string name="filter_morning">Mornings</string>
+    <string name="filter_afternoon">Afternoons</string>
+    <string name="filter_evening">Evenings</string>
+    <string name="filter_clear">Clear filters</string>
+
+    <!-- Booking -->
+    <string name="booking_date_title">When do you need care?</string>
+    <string name="booking_choose_date">Choose a date</string>
+    <string name="booking_choose_time">Choose a start time</string>
+    <string name="booking_holiday_title">%1$s is a public holiday</string>
+    <string name="booking_holiday_body">Check that your nanny is available and agree the rate for the day before you book.</string>
 </resources>

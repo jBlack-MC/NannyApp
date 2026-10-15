@@ -17,7 +17,7 @@ suspend fun <T> safeApiCall(block: suspend () -> Response<ApiEnvelope<T>>): Reso
         val response = block()
         val body = response.body()
         when {
-            response.code() == 401 -> Resource.Error(ErrorMessages.UNAUTHORIZED, code = 401)
+            response.code() == 401 -> Resource.Error(response.failureMessage(ErrorMessages.UNAUTHORIZED), code = 401)
             !response.isSuccessful -> Resource.Error(response.failureMessage(), code = response.code())
             body == null -> Resource.Error(ErrorMessages.SERVER_UNAVAILABLE)
             !body.success -> Resource.Error(body.message ?: ErrorMessages.GENERIC)
@@ -42,9 +42,9 @@ private val errorGson = Gson()
  * message lives in errorBody(). Server-side failures also carry a short
  * reference that support can match to one line in the server log.
  */
-private fun Response<*>.failureMessage(): String {
+private fun Response<*>.failureMessage(fallback: String = ErrorMessages.SERVER_UNAVAILABLE): String {
     val envelope = runCatching { errorGson.fromJson(errorBody()?.string(), ErrorEnvelope::class.java) }.getOrNull()
-    val message = envelope?.message?.takeIf { it.isNotBlank() } ?: ErrorMessages.SERVER_UNAVAILABLE
+    val message = envelope?.message?.takeIf { it.isNotBlank() } ?: fallback
     val ref = envelope?.ref ?: headers()["X-Request-Ref"]
     return if (code() >= 500 && !ref.isNullOrBlank()) "$message (Reference: $ref)" else message
 }

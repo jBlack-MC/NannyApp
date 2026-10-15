@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    isiZulu. First draft, not yet checked by a first-language speaker: have every string reviewed
+    before release, above all the safety and report text. Keys missing here fall back to English.
+-->
+<resources>
+    <string name="tagline">Ukunakekelwa kwezingane okuthembekile, ngesikhathi esikufanele.</string>
+
+    <string name="action_ok">Kulungile</string>
+    <string name="action_cancel">Khansela</string>
+    <string name="action_done">Kuqediwe</string>
+    <string name="nav_home">Ekhaya</string>
+    <string name="nav_find">Sesha</string>
+    <string name="nav_bookings">Ukubhuka</string>
+    <string name="nav_messages">Imilayezo</string>
+    <string name="nav_profile">Iphrofayela</string>
+    <string name="nav_earnings">Imali engenile</string>
+    <string name="page_about">Ngathi</string>
+    <string name="page_safety">Ukuphepha</string>
+    <string name="page_pricing">Amanani</string>
+    <string name="page_faq">Usizo</string>
+    <string name="page_community">Umphakathi</string>
+    <string name="page_resources">Izinsiza</string>
+    <string name="page_contact">Xhumana</string>
+    <string name="page_terms">Imigomo</string>
+    <string name="page_privacy">Ubumfihlo</string>
+
+    <string name="welcome_eyebrow">Ukunakekelwa kwezingane okuthembekile</string>
+    <string name="welcome_headline">Thola umnakekeli wezingane ochwepheshe ngokuzethemba.</string>
+    <string name="welcome_lead">I-Nanny-App isiza imindeni ukuthola abanakekeli abaqinisekisiwe, iqhathanise amaphrofayela futhi ibhuke ngokuphephile, konke endaweni eyodwa.</string>
+    <string name="welcome_find_care">Thola umnakekeli</string>
+    <string name="welcome_become_nanny">Yiba umnakekeli</string>
+    <string name="welcome_point_checked">Umlando uhloliwe</string>
+    <string name="welcome_point_reviews">Izibuyekezo eziqinisekisiwe</string>
+    <string name="welcome_point_records">Amarekhodi acacile</string>
+    <string name="welcome_have_account">Usunayo i-akhawunti?</string>
+    <string name="welcome_log_in">Ngena</string>
+    <string name="welcome_about_image">Umnakekeli efundela ingane</string>
+    <string name="welcome_about_eyebrow">Ngathi</string>
+    <string name="welcome_about_title">Ukunakekelwa kwezingane okuzwakala kungokomuntu siqu.</string>
+    <string name="welcome_about_body1">Sixhumanisa imindeni nabanakekeli abanothando ngendawo esobala eyakhelwe ukwethemba, ukuphepha nokungaguquguquki.</string>
+    <string name="welcome_about_body2">Kusukela ekuqinisekisweni kwephrofayela kuya ekubhukeni okuphephile, isinyathelo ngasinye senzelwe ukugcina abazali benolwazi nezingane zisekelwe.</string>
+    <string name="welcome_learn_more">Funda kabanzi ngathi</string>
+    <string name="welcome_services_eyebrow">Izinsizakalo</string>
+    <string name="welcome_services_title">Usizo oluguquguqukayo lwazo zonke izimo zekhaya</string>
+    <string name="welcome_service_full_title">Ukunakekelwa kwesikhathi esigcwele</string>
+    <string name="welcome_service_full_body">Ukunakekelwa okuthembekile phakathi nesonto nemikhuba ezinzile.</string>
+    <string name="welcome_service_part_title">Ukunakekelwa kwesikhashana</string>
+    <string name="welcome_service_part_body">Usizo ngemva kwesikole nantambama.</string>
+    <string name="welcome_service_sitting_title">Ukugada izingane</string>
+    <string name="welcome_service_sitting_body">Ebusuku uma uphumile, emicimbini nangokuphuthuma.</string>
+    <string name="welcome_service_night_title">Ukunakekelwa ebusuku</string>
+    <string name="welcome_service_night_body">Imikhuba ezolile kusihlwa nokunakekela ekuseni.</string>
+    <string name="welcome_why_eyebrow">Kungani thina</string>
+    <string name="welcome_why_title">Ukuphepha, izinga nokusobala kuzo zonke izinyathelo</string>
+    <string name="welcome_why_checks_title">Ukuhlolwa komlando</string>
+    <string name="welcome_why_checks_body">Abanakekeli bahlolwa ngaphambi kokuthi bavele ohlwini.</string>
+    <string name="welcome_why_reviews_title">Izibuyekezo eziqinisekisiwe</string>
+    <string name="welcome_why_reviews_body">Imibono ivela kuphela ekubhukeni kwangempela okuqediwe.</string>
+    <string name="welcome_why_matching_title">Ukufanisa okukufanele</string>
+    <string name="welcome_why_matching_body">Hlunga ngendawo, ulimi, inani nolwazi lomsebenzi.</string>
+    <string name="welcome_why_records_title">Amarekhodi acacile</string>
+    <string name="welcome_why_records_body">Konke ukubhuka nesimo sokukhokha endaweni eyodwa.</string>
+    <string name="welcome_how_eyebrow">Kusebenza kanjani</string>
+    <string name="welcome_how_title">Ukunakekelwa ngezinyathelo ezintathu</string>
+    <string name="welcome_step1">Thola umnakekeli ofanele umndeni wakho</string>
+    <string name="welcome_step2">Buka amaphrofayela aqinisekisiwe nokutholakala</string>
+    <string name="welcome_step3">Bhuka, thumela imilayezo futhi uphathe konke endaweni eyodwa</string>
+    <string name="welcome_safety_title">Ukuphepha kuza kuqala</string>
+    <string name="welcome_safety_body">Ithimba lethu libheka wonke umnakekeli ngaphambi kokuthi avele ekuseshweni. Ungabika ukukhathazeka kunoma iyiphi iphrofayela, ukubhuka noma ingxoxo, futhi imibiko yokuphepha iphathwa kuqala.</string>
+    <string name="welcome_safety_link">Indlela esigcina ngayo imindeni iphephile</string>
+    <string name="welcome_nanny_eyebrow">Kubanakekeli</string>
+    <string name="welcome_nanny_title">Thola umsebenzi owuthandayo, ngemigomo yakho</string>
+    <string name="welcome_nanny_point1">Zibekele inani lakho ngehora nesikhathi otholakala ngaso</string>
+    <string name="welcome_nanny_point2">Thola izicelo zokubhuka emindenini eseduze nawe</string>
+    <string name="welcome_nanny_point3">Gcina irekhodi elicacile lakho konke ukubhuka nokukhokha</string>
+    <string name="welcome_nanny_cta">Yiba umnakekeli</string>
+    <string name="welcome_cta_title">Usukulungele ukuthola umnakekeli ofanele?</string>
+    <string name="welcome_cta_body">Vula i-akhawunti mahhala ukuze ubuke abanakekeli abaqinisekisiwe futhi uthumele isicelo sakho sokuqala sokubhuka.</string>
+    <string name="welcome_create_account">Vula i-akhawunti mahhala</string>
+    <string name="welcome_explore">Hlola i-Nanny-App</string>
+
+    <string name="settings_title">Izilungiselelo</string>
+    <string name="settings_appearance">Ukubukeka</string>
+    <string name="settings_theme_system">Njengocingo lwami</string>
+    <string name="settings_theme_light">Kukhanyayo</string>
+    <string name="settings_theme_dark">Kumnyama</string>
+    <string name="settings_language">Ulimi</string>
+    <string name="settings_language_note">Ukuhumusha kusha futhi kusabuyekezwa. Ezinye izikrini zisesesiNgisini.</string>
+    <string name="settings_language_system">Njengocingo lwami</string>
+    <string name="settings_notifications">Izaziso</string>
+    <string name="settings_background_sync">Hlola izibuyekezo ngemuva</string>
+    <string name="settings_background_sync_detail">Igcina izaziso zokubhuka nemilayezo zisesikhathini ngisho uhlelo luvaliwe.</string>
+    <string name="settings_safety">Ukuphepha</string>
+    <string name="settings_safety_note">Uma ingane isengozini, shayela usizo kuqala. Ukuze ubike umnakekeli noma umzali, vula iphrofayela yakhe, ukubhuka noma ingxoxo bese ucindezela u-Bika.</string>
+    <string name="settings_safety_page">Indlela esigcina ngayo imindeni iphephile</string>
+    <string name="settings_about">Mayelana</string>
+    <string name="settings_terms">Imigomo yesevisi</string>
+    <string name="settings_privacy">Inqubomgomo yobumfihlo</string>
+    <string name="settings_help">Isikhungo sosizo</string>
+    <string name="settings_version">Inguqulo %1$s</string>
+    <string name="emergency_police">Inombolo yezimo eziphuthumayo ye-SAPS</string>
+    <string name="emergency_mobile">Izimo eziphuthumayo kunoma yiliphi iselula</string>
+    <string name="emergency_childline">I-Childline South Africa</string>
+
+    <string name="report_a_concern">Bika ukukhathazeka</string>
+    <string name="report_title">Bika ukukhathazeka</string>
+    <string name="report_this_person">lo muntu</string>
+    <string name="report_danger_title">Uma ingane isengozini manje</string>
+    <string name="report_danger_body">Shayela usizo kuqala, bese uthumela lo mbiko.</string>
+    <string name="report_heading">Bika u-%1$s</string>
+    <string name="report_confidential">Imibiko iyimfihlo. Umuntu omubikayo akatshelwa ukuthi ubani obikile.</string>
+    <string name="report_reason_label">Umbiko umayelana nani?</string>
+    <string name="report_reason_child_safety">Ingane ingaba sengozini</string>
+    <string name="report_reason_unsafe">Ukuziphatha okungaphephile noma okungafanele</string>
+    <string name="report_reason_harassment">Ukuhlukunyezwa, izinsongo noma ukuhlukumeza</string>
+    <string name="report_reason_fake">Iphrofayela engelona iqiniso noma ulwazi olungelona iqiniso</string>
+    <string name="report_reason_payment">Ukukhwabanisa ngemali noma isicelo sokukhokha ngaphandle kohlelo</string>
+    <string name="report_reason_no_show">Akafikanga noma inkinga enkulu yokuthembeka</string>
+    <string name="report_reason_other">Okunye</string>
+    <string name="report_details_label">Kwenzekeni?</string>
+    <string name="report_details_hint">Faka izinsuku, izikhathi nanoma yini oyibonile noma oyitsheliwe.</string>
+    <string name="report_send">Thumela umbiko</string>
+    <string name="report_error_reason">Sicela ukhethe ukuthi umbiko umayelana nani.</string>
+    <string name="report_error_details">Sicela uchaze ukuthi kwenzekeni (okungenani izinhlamvu eziyi-10).</string>
+    <string name="report_sent_title">Umbiko utholakele</string>
+    <string name="report_sent_body">Siyabonga. Imibiko yokuphepha iphathwa kuqala yithimba lethu. Singakuthinta ukuze sithole imininingwane eyengeziwe.</string>
+
+    <string name="filter_language">Ulimi</string>
+    <string name="filter_language_hint">isib. isiZulu, Afrikaans</string>
+    <string name="filter_experience">Ulwazi lomsebenzi</string>
+    <string name="filter_any">Noma yini</string>
+    <string name="filter_years_plus">Iminyaka engu-%1$d+</string>
+    <string name="filter_rating">Isilinganiso</string>
+    <string name="filter_stars_plus">Izinkanyezi ezingu-%1$s+</string>
+    <string name="filter_availability">Uyatholakala</string>
+    <string name="filter_morning">Ekuseni</string>
+    <string name="filter_afternoon">Ntambama</string>
+    <string name="filter_evening">Kusihlwa</string>
+    <string name="filter_clear">Susa izihlungi</string>
+
+    <string name="booking_date_title">Uludinga nini usizo?</string>
+    <string name="booking_choose_date">Khetha usuku</string>
+    <string name="booking_choose_time">Khetha isikhathi sokuqala</string>
+    <string name="booking_holiday_title">U-%1$s yiholide likazwelonke</string>
+    <string name="booking_holiday_body">Qinisekisa ukuthi umnakekeli wakho uyatholakala futhi nivumelane ngenani lalolo suku ngaphambi kokubhuka.</string>
+</resources>

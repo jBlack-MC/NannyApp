@@ -74,6 +74,8 @@ Application events you will see in `event`:
 | Booking notifications do not appear | Notification worker stalled | Health shows `notifications` failed; read the `worker` log and restart with `dc restart worker`. |
 | Uploads rejected | Upload quota or disk reserve reached | Health shows `storage`; see the quota section of [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md). |
 | The app says "You're offline" on good Wi-Fi | The app cannot reach the API URL it was built with | Open `https://YOUR-DOMAIN/api/health.php` in the phone's browser. If that works, the APK was built with the wrong `NANNYAPP_RELEASE_API_URL`. |
+| The app says "Can't connect" | The app cannot reach its server. Debug builds print the address they tried under the message | Locally, start the server in [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md). Otherwise open that address plus `health.php` in the phone's browser. |
+| The app keeps returning to the login screen | The server rejected the saved sign-in (expired, revoked, or the password changed), so the app cleared it | Sign in again. If it happens straight after signing in, the server is not receiving the `Authorization` header; check that `request_authorization()` in `api/_bootstrap.php` is deployed. |
 | The app crashes or closes | A bug in the app itself; the server log will show nothing | See section 6. |
 
 ## 5. Getting told before users notice

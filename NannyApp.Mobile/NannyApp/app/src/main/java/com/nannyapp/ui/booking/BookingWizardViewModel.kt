@@ -13,6 +13,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.nannyapp.data.repository.SafetyRepository
 
 /**
  * Drives the 8-step wizard described in request #12, mirroring the session-backed
@@ -28,6 +29,10 @@ data class BookingWizardUiState(
     val submitting: Boolean = false,
     val error: String? = null,
     val createdBooking: Booking? = null,
+    val pickedDate: java.time.LocalDate? = null,
+    val pickedTime: java.time.LocalTime? = null,
+    /** Name of the South African public holiday on the picked date, if it is one. */
+    val holiday: String? = null,
 )
 
 @HiltViewModel
@@ -35,6 +40,7 @@ class BookingWizardViewModel @Inject constructor(
     private val nannyRepository: NannyRepository,
     private val childRepository: ChildRepository,
     private val bookingRepository: BookingRepository,
+    private val safetyRepository: SafetyRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -60,6 +66,28 @@ class BookingWizardViewModel @Inject constructor(
     fun previousStep() { if (_state.value.step > 1) _state.value = _state.value.copy(step = _state.value.step - 1, error = null) }
 
     fun setDateTime(iso: String) { _state.value = _state.value.copy(wizard = _state.value.wizard.copy(dateTimeIso = iso)) }
+
+    fun pickDate(date: java.time.LocalDate) {
+        _state.value = _state.value.copy(pickedDate = date, holiday = null)
+        updateDateTime()
+        viewModelScope.launch {
+            val name = safetyRepository.holidaysFor(date.year)[date.toString()]
+            if (_state.value.pickedDate == date) _state.value = _state.value.copy(holiday = name)
+        }
+    }
+
+    fun pickTime(time: java.time.LocalTime) {
+        _state.value = _state.value.copy(pickedTime = time)
+        updateDateTime()
+    }
+
+    // The API takes "YYYY-MM-DD HH:MM"; it is only complete once both parts are chosen.
+    private fun updateDateTime() {
+        val s = _state.value
+        val date = s.pickedDate ?: return
+        val time = s.pickedTime ?: return
+        setDateTime("%s %02d:%02d".format(date, time.hour, time.minute))
+    }
     fun setDuration(hours: Double) { _state.value = _state.value.copy(wizard = _state.value.wizard.copy(durationHours = hours)) }
     fun toggleChild(id: Int) {
         val current = _state.value.wizard.selectedChildIds

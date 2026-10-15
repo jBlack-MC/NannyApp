@@ -18,18 +18,32 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.nannyapp.ui.components.*
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.ui.res.stringResource
+import com.nannyapp.R
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @Composable
 fun NannyDetailScreen(
     onBack: () -> Unit,
     onBookNow: (Int) -> Unit,
     onMessage: (Int, String) -> Unit,
+    onReport: (Int, String) -> Unit,
     viewModel: NannyDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
 
     Scaffold(
-        topBar = { AppTopBar(title = state.nanny?.fullName ?: "Nanny profile", onBack = onBack) },
+        topBar = {
+            AppTopBar(title = state.nanny?.fullName ?: "Nanny profile", onBack = onBack, actions = {
+                state.nanny?.let { nanny ->
+                    IconButton(onClick = { onReport(nanny.userId, nanny.fullName) }) {
+                        Icon(Icons.Outlined.Flag, contentDescription = stringResource(R.string.report_a_concern))
+                    }
+                }
+            })
+        },
         bottomBar = {
             if (state.nanny != null) {
                 Surface(shadowElevation = 8.dp) {

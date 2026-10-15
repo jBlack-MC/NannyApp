@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Afrikaans. First draft: have a fluent Afrikaans speaker review every string before release,
+    especially the safety and report text. Keys missing here fall back to English (values/).
+-->
+<resources>
+    <string name="tagline">Betroubare kindersorg, wanneer dit jou pas.</string>
+
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Kanselleer</string>
+    <string name="action_done">Klaar</string>
+    <string name="nav_home">Tuis</string>
+    <string name="nav_find">Soek</string>
+    <string name="nav_bookings">Besprekings</string>
+    <string name="nav_messages">Boodskappe</string>
+    <string name="nav_profile">Profiel</string>
+    <string name="nav_earnings">Verdienste</string>
+    <string name="page_about">Oor ons</string>
+    <string name="page_safety">Veiligheid</string>
+    <string name="page_pricing">Pryse</string>
+    <string name="page_faq">Hulp</string>
+    <string name="page_community">Gemeenskap</string>
+    <string name="page_resources">Hulpbronne</string>
+    <string name="page_contact">Kontak</string>
+    <string name="page_terms">Bepalings</string>
+    <string name="page_privacy">Privaatheid</string>
+
+    <string name="welcome_eyebrow">Betroubare kindersorg, wanneer dit jou pas</string>
+    <string name="welcome_headline">Vind professionele kindersorg met selfvertroue.</string>
+    <string name="welcome_lead">Nanny-App help gesinne om geverifieerde kinderoppassers te vind, profiele te vergelyk en sorg veilig te bespreek, alles op een plek.</string>
+    <string name="welcome_find_care">Vind sorg</string>
+    <string name="welcome_become_nanny">Word ’n kinderoppasser</string>
+    <string name="welcome_point_checked">Agtergrond nagegaan</string>
+    <string name="welcome_point_reviews">Geverifieerde resensies</string>
+    <string name="welcome_point_records">Duidelike besprekingsrekords</string>
+    <string name="welcome_have_account">Het jy reeds ’n rekening?</string>
+    <string name="welcome_log_in">Teken in</string>
+    <string name="welcome_about_image">Versorger wat vir ’n kind lees</string>
+    <string name="welcome_about_eyebrow">Oor ons</string>
+    <string name="welcome_about_title">Kindersorg wat persoonlik voel, nie soos ’n transaksie nie.</string>
+    <string name="welcome_about_body1">Ons verbind gesinne met sorgsame kinderoppassers deur ’n deursigtige mark wat gebou is vir vertroue, veiligheid en bestendigheid.</string>
+    <string name="welcome_about_body2">Van profielverifikasie tot veilige besprekings: elke stap hou ouers ingelig en ondersteun kinders.</string>
+    <string name="welcome_learn_more">Lees meer oor ons</string>
+    <string name="welcome_services_eyebrow">Dienste</string>
+    <string name="welcome_services_title">Buigsame hulp vir elke huishouding se ritme</string>
+    <string name="welcome_service_full_title">Voltydse sorg</string>
+    <string name="welcome_service_full_body">Betroubare weeksdagsorg met vaste roetines.</string>
+    <string name="welcome_service_part_title">Deeltydse sorg</string>
+    <string name="welcome_service_part_body">Hulp ná skool, met skoolritte en in die middae.</string>
+    <string name="welcome_service_sitting_title">Kinderoppas</string>
+    <string name="welcome_service_sitting_body">Aande uit, geleenthede en sorg op kort kennisgewing.</string>
+    <string name="welcome_service_night_title">Oornagsorg</string>
+    <string name="welcome_service_night_body">Rustige aandroetines en oplettende oggende.</string>
+    <string name="welcome_why_eyebrow">Hoekom ons</string>
+    <string name="welcome_why_title">Veiligheid, gehalte en deursigtigheid by elke stap</string>
+    <string name="welcome_why_checks_title">Agtergrondtoetse</string>
+    <string name="welcome_why_checks_body">Kinderoppassers voltooi profiel- en vertrouetoetse voordat hulle gelys word.</string>
+    <string name="welcome_why_reviews_title">Geverifieerde resensies</string>
+    <string name="welcome_why_reviews_body">Terugvoer kom slegs van regte, voltooide besprekings.</string>
+    <string name="welcome_why_matching_title">Persoonlike passing</string>
+    <string name="welcome_why_matching_body">Filtreer volgens area, taal, tarief en ervaring.</string>
+    <string name="welcome_why_records_title">Duidelike rekords</string>
+    <string name="welcome_why_records_body">Elke bespreking en betalingstatus op een plek.</string>
+    <string name="welcome_how_eyebrow">Hoe dit werk</string>
+    <string name="welcome_how_title">Sorg in drie stappe</string>
+    <string name="welcome_step1">Vind sorg wat by jou gesin pas</string>
+    <string name="welcome_step2">Bekyk geverifieerde profiele en beskikbaarheid</string>
+    <string name="welcome_step3">Bespreek, stuur boodskappe en bestuur sorg op een plek</string>
+    <string name="welcome_safety_title">Veiligheid kom eerste</string>
+    <string name="welcome_safety_body">Ons span gaan elke kinderoppasser na voordat hulle in soektogte verskyn. Jy kan ’n bekommernis aanmeld vanaf enige profiel, bespreking of klets, en veiligheidsverslae kry voorrang.</string>
+    <string name="welcome_safety_link">Hoe ons gesinne veilig hou</string>
+    <string name="welcome_nanny_eyebrow">Vir kinderoppassers</string>
+    <string name="welcome_nanny_title">Vind werk wat jy geniet, op jou voorwaardes</string>
+    <string name="welcome_nanny_point1">Stel jou eie uurtarief en beskikbaarheid</string>
+    <string name="welcome_nanny_point2">Ontvang besprekingsversoeke van gesinne naby jou</string>
+    <string name="welcome_nanny_point3">Hou ’n duidelike rekord van elke bespreking en betaling</string>
+    <string name="welcome_nanny_cta">Word ’n kinderoppasser</string>
+    <string name="welcome_cta_title">Gereed om jou ideale kinderoppasser te vind?</string>
+    <string name="welcome_cta_body">Skep ’n gratis rekening om geverifieerde kinderoppassers te deursoek en jou eerste besprekingsversoek te stuur.</string>
+    <string name="welcome_create_account">Skep ’n gratis rekening</string>
+    <string name="welcome_explore">Verken Nanny-App</string>
+
+    <string name="settings_title">Instellings</string>
+    <string name="settings_appearance">Voorkoms</string>
+    <string name="settings_theme_system">Pas by my foon</string>
+    <string name="settings_theme_light">Lig</string>
+    <string name="settings_theme_dark">Donker</string>
+    <string name="settings_language">Taal</string>
+    <string name="settings_language_note">Vertalings is nuut en word nog nagegaan. Sommige skerms is nog in Engels.</string>
+    <string name="settings_language_system">Pas by my foon</string>
+    <string name="settings_notifications">Kennisgewings</string>
+    <string name="settings_background_sync">Kyk in die agtergrond vir opdaterings</string>
+    <string name="settings_background_sync_detail">Hou jou besprekings- en boodskapwaarskuwings op datum terwyl die app toe is.</string>
+    <string name="settings_safety">Veiligheid</string>
+    <string name="settings_safety_note">As ’n kind in gevaar is, bel eers vir hulp. Om ’n kinderoppasser of ouer aan te meld, maak hul profiel, bespreking of klets oop en tik op Meld aan.</string>
+    <string name="settings_safety_page">Hoe ons gesinne veilig hou</string>
+    <string name="settings_about">Oor</string>
+    <string name="settings_terms">Diensbepalings</string>
+    <string name="settings_privacy">Privaatheidsbeleid</string>
+    <string name="settings_help">Hulpsentrum</string>
+    <string name="settings_version">Weergawe %1$s</string>
+    <string name="emergency_police">SAPD-noodlyn</string>
+    <string name="emergency_mobile">Noodnommer vanaf enige selfoon</string>
+    <string name="emergency_childline">Childline Suid-Afrika</string>
+
+    <string name="report_a_concern">Meld ’n bekommernis aan</string>
+    <string name="report_title">Meld ’n bekommernis aan</string>
+    <string name="report_this_person">hierdie persoon</string>
+    <string name="report_danger_title">As ’n kind nou in gevaar is</string>
+    <string name="report_danger_body">Bel eers vir hulp en stuur dan hierdie verslag.</string>
+    <string name="report_heading">Meld %1$s aan</string>
+    <string name="report_confidential">Verslae is vertroulik. Die persoon wat jy aanmeld, word nie vertel wie dit gestuur het nie.</string>
+    <string name="report_reason_label">Waaroor gaan die verslag?</string>
+    <string name="report_reason_child_safety">’n Kind kan in gevaar wees</string>
+    <string name="report_reason_unsafe">Onveilige of onvanpaste gedrag</string>
+    <string name="report_reason_harassment">Teistering, dreigemente of mishandeling</string>
+    <string name="report_reason_fake">Vals profiel of vals inligting</string>
+    <string name="report_reason_payment">Betalingsbedrog of ’n versoek om buite die app te betaal</string>
+    <string name="report_reason_no_show">Het nie opgedaag nie of ernstige betroubaarheidsprobleem</string>
+    <string name="report_reason_other">Iets anders</string>
+    <string name="report_details_label">Wat het gebeur?</string>
+    <string name="report_details_hint">Sluit datums, tye en enigiets in wat jy gesien het of vertel is.</string>
+    <string name="report_send">Stuur verslag</string>
+    <string name="report_error_reason">Kies asseblief waaroor die verslag gaan.</string>
+    <string name="report_error_details">Beskryf asseblief wat gebeur het (minstens 10 karakters).</string>
+    <string name="report_sent_title">Verslag ontvang</string>
+    <string name="report_sent_body">Dankie. Veiligheidsverslae kry voorrang by ons span. Ons kan jou kontak vir meer besonderhede.</string>
+
+    <string name="filter_language">Taal</string>
+    <string name="filter_language_hint">bv. isiZulu, Afrikaans</string>
+    <string name="filter_experience">Ervaring</string>
+    <string name="filter_any">Enige</string>
+    <string name="filter_years_plus">%1$d+ jaar</string>
+    <string name="filter_rating">Gradering</string>
+    <string name="filter_stars_plus">%1$s+ sterre</string>
+    <string name="filter_availability">Beskikbaar</string>
+    <string name="filter_morning">Oggende</string>
+    <string name="filter_afternoon">Middae</string>
+    <string name="filter_evening">Aande</string>
+    <string name="filter_clear">Maak filters skoon</string>
+
+    <string name="booking_date_title">Wanneer het jy sorg nodig?</string>
+    <string name="booking_choose_date">Kies ’n datum</string>
+    <string name="booking_choose_time">Kies ’n begintyd</string>
+    <string name="booking_holiday_title">%1$s is ’n openbare vakansiedag</string>
+    <string name="booking_holiday_body">Maak seker jou kinderoppasser is beskikbaar en kom die tarief vir die dag ooreen voordat jy bespreek.</string>
+</resources>

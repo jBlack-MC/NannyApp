@@ -33,6 +33,7 @@ class NannyRepositoryImpl @Inject constructor(
             api.searchNannies(
                 query = filters.query.ifBlank { null },
                 location = filters.location,
+                language = filters.language,
                 minRate = filters.minRate,
                 maxRate = filters.maxRate,
                 minExperience = filters.minExperience,

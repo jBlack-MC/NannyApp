@@ -9,6 +9,9 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.nannyapp.domain.model.UserRole
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -39,6 +42,19 @@ class SessionManager @Inject constructor(@ApplicationContext private val context
         prefs[Keys.USER_ROLE]?.let { UserRole.fromApi(it) }
     }
     val isLoggedInFlow: Flow<Boolean> = context.dataStore.data.map { it[Keys.AUTH_TOKEN] != null }
+
+    private val expired = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+
+    /** Fires once each time the server rejects the saved sign-in and it is cleared. */
+    val sessionExpired: SharedFlow<Unit> = expired.asSharedFlow()
+
+    /**
+     * Called when the server answers 401 to a request made with [token]. Only clears the session
+     * if that token is still the current one, so a late reply cannot sign out a newer login.
+     */
+    suspend fun expireSession(token: String) {
+        if (clearSessionIfCurrent(token) != null) expired.tryEmit(Unit)
+    }
 
     suspend fun saveSession(token: String, userId: Int, role: UserRole, name: String, email: String, rememberMe: Boolean) {
         cacheBoundary.transition {

@@ -308,12 +308,26 @@ function media_url(?string $path): ?string
     if ($path === null || $path === '') {
         return null;
     }
-    // Legacy demo/static images that only exist inside the separate web app's
-    // assets/ folder aren't reachable from here — nothing sensible to link to.
+    // Images saved under the website's assets/ folder are public files of the website, which is
+    // served from the same host. Private document folders stay unreachable, as on the website.
     if (str_starts_with($path, 'assets/')) {
-        return null;
+        if (str_contains($path, '/docs/') || str_contains($path, '/portfolio/')) return null;
+        return web_root_url() . $path;
     }
     return storage_url($path, fn(string $p) => api_root_url() . 'media.php?f=' . rawurlencode($p));
+}
+
+/**
+ * Absolute URL of the website on this host, ending in "/". Uses the request's host (what the
+ * phone could reach) with the path of NANNYAPP_BASE_URL: "/" in the Docker image, "/nannyapp"
+ * by default on XAMPP, matching NannyApp.Web/config/config.php.
+ */
+function web_root_url(): string
+{
+    $api = api_root_url();
+    $origin = substr($api, 0, (int) strpos($api, '/', strlen('https://')));
+    $path = parse_url(getenv('NANNYAPP_BASE_URL') ?: '/nannyapp', PHP_URL_PATH) ?: '';
+    return $origin . rtrim($path, '/') . '/';
 }
 
 /** Absolute base URL of this API deployment, e.g. "https://host/nannyapp/api/". */

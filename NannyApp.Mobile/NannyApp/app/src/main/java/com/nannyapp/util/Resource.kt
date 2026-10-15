@@ -21,7 +21,7 @@ sealed class Resource<out T> {
 
 /** Friendly, non-technical error copy shown to the user, per request #39. */
 object ErrorMessages {
-    const val NO_INTERNET = "You're offline. Check your connection and try again."
+    const val NO_INTERNET = "Can't reach Nanny-App right now. Check your internet connection and try again."
     const val SERVER_UNAVAILABLE = "Something went wrong on our end. Please try again shortly."
     const val UNAUTHORIZED = "Your session has expired. Please log in again."
     const val TIMEOUT = "That took too long. Please try again."

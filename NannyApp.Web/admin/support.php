@@ -74,7 +74,9 @@ $counts = db()->query(
 $openId = (int) ($_GET['id'] ?? 0);
 $openTicket = null;
 if ($openId) {
-    $s = db()->prepare('SELECT st.*, u.full_name AS user_name FROM support_tickets st LEFT JOIN users u ON u.id=st.user_id WHERE st.id=?');
+    $s = db()->prepare('SELECT st.*, u.full_name AS user_name, r.full_name AS reported_name, r.role AS reported_role,
+        (SELECT COUNT(*) FROM support_tickets o WHERE o.reported_user_id = st.reported_user_id) AS reports_about_user
+        FROM support_tickets st LEFT JOIN users u ON u.id=st.user_id LEFT JOIN users r ON r.id=st.reported_user_id WHERE st.id=?');
     $s->execute([$openId]);
     $openTicket = $s->fetch();
 }
@@ -158,6 +160,16 @@ require __DIR__ . '/../includes/header.php';
                 <?php endif; ?>
             </div>
         </div>
+
+        <?php if (!empty($openTicket['reported_user_id'])): ?>
+        <div class="flash flash-error flash-no-margin">
+            <strong>Reported account:</strong>
+            <a href="<?= url('admin/user_profile.php?id=' . (int) $openTicket['reported_user_id']) ?>"><?= e($openTicket['reported_name'] ?? 'Deleted account') ?></a>
+            (<?= e($openTicket['reported_role'] ?? 'unknown') ?>)<?php if (!empty($openTicket['booking_id'])): ?>
+            · booking #<?= (int) $openTicket['booking_id'] ?><?php endif; ?>
+            · <?= (int) $openTicket['reports_about_user'] ?> report<?= (int) $openTicket['reports_about_user'] === 1 ? '' : 's' ?> about this account in total
+        </div>
+        <?php endif; ?>
 
         <div class="card card-muted">
             <div class="mb-6"><strong><?= e($openTicket['name']) ?> &lt;<?= e($openTicket['email']) ?>&gt;</strong></div>

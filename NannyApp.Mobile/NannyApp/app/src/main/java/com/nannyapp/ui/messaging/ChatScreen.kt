@@ -17,9 +17,14 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.ui.components.AppTopBar
 import com.nannyapp.ui.components.ErrorState
 import com.nannyapp.ui.components.LoadingView
+import androidx.compose.material.icons.outlined.Flag
+import androidx.compose.ui.res.stringResource
+import com.nannyapp.R
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 
 @Composable
-fun ChatScreen(onBack: () -> Unit, viewModel: ChatViewModel = hiltViewModel()) {
+fun ChatScreen(onBack: () -> Unit, onReport: () -> Unit, viewModel: ChatViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsState()
     val listState = rememberLazyListState()
 
@@ -28,7 +33,13 @@ fun ChatScreen(onBack: () -> Unit, viewModel: ChatViewModel = hiltViewModel()) {
     }
 
     Scaffold(
-        topBar = { AppTopBar(title = state.peerName, onBack = onBack) },
+        topBar = {
+            AppTopBar(title = state.peerName, onBack = onBack, actions = {
+                IconButton(onClick = onReport) {
+                    Icon(Icons.Outlined.Flag, contentDescription = stringResource(R.string.report_a_concern))
+                }
+            })
+        },
         bottomBar = {
             Surface(shadowElevation = 4.dp) {
                 Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

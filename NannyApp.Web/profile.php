@@ -179,10 +179,12 @@ require __DIR__ . '/includes/header.php';
             <?php elseif (user_role() === 'nanny'): ?>
                 <p class="muted" style="font-size:.88rem;margin:0">Start a conversation before or after a booking.</p>
                 <a class="btn btn-primary btn-block" href="<?= url('messages.php?with=' . $profileId) ?>"><?= icon('message-circle') ?> Message this parent</a>
+                <a class="btn btn-block" href="<?= url('report.php?user=' . $profileId) ?>"><?= icon('flag') ?> Report a concern</a>
             <?php elseif (current_user()['id'] === $profileId): ?>
                 <a class="btn btn-primary btn-block" href="<?= url('account.php') ?>">Edit my profile</a>
             <?php else: ?>
                 <a class="btn btn-block" href="<?= url('messages.php?with=' . $profileId) ?>"><?= icon('message-circle') ?> Send a message</a>
+                <a class="btn btn-block" href="<?= url('report.php?user=' . $profileId) ?>"><?= icon('flag') ?> Report a concern</a>
             <?php endif; ?>
 
             <ul class="pb-side-list">

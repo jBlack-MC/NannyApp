@@ -30,7 +30,7 @@ $recentBookingsStmt = db()->query(BOOKING_SELECT_SQL . ' ORDER BY b.created_at D
 $recentBookings = array_map(fn($b) => serialize_booking($b, $me), $recentBookingsStmt->fetchAll());
 
 $topNanniesStmt = db()->query(
-    "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*,
+    "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*, u.profile_image,
             (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count,
             COALESCE(SUM(CASE WHEN p.status='paid' THEN p.amount ELSE 0 END), 0) AS total_earnings
      FROM users u
@@ -42,7 +42,7 @@ $topNanniesStmt = db()->query(
 );
 $topNannies = array_map(fn($r) => [
     'nanny' => [
-        'userId' => (int) $r['user_id'], 'fullName' => $r['full_name'], 'photoUrl' => media_url($r['photo_url']),
+        'userId' => (int) $r['user_id'], 'fullName' => $r['full_name'], 'photoUrl' => media_url($r['photo_url'] ?: ($r['profile_image'] ?? null)),
         'bannerImage' => media_url($r['banner_image']), 'bio' => $r['bio'], 'gender' => $r['gender'],
         'experienceYears' => (int) $r['experience_years'], 'hourlyRate' => (float) $r['hourly_rate'],
         'location' => $r['location'], 'skills' => $r['skills'], 'languages' => $r['languages'],

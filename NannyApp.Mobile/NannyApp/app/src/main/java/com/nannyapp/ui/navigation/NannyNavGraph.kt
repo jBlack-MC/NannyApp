@@ -1,6 +1,8 @@
 package com.nannyapp.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,6 +23,8 @@ import com.nannyapp.ui.profile.ProfileScreen
 import com.nannyapp.ui.splash.SplashScreen
 import com.nannyapp.ui.support.NewTicketScreen
 import com.nannyapp.ui.support.SupportScreen
+import com.nannyapp.ui.settings.SettingsScreen
+import com.nannyapp.ui.safety.ReportScreen
 
 /**
  * Central Navigation system (request #37): Splash -> auth check -> role-scoped
@@ -29,8 +33,15 @@ import com.nannyapp.ui.support.SupportScreen
  * profile/support) stay reachable from every role without duplicating routes.
  */
 @Composable
-fun NannyNavGraph() {
+fun NannyNavGraph(sessionEvents: SessionEventsViewModel = hiltViewModel()) {
     val navController = rememberNavController()
+
+    // A rejected sign-in has already been cleared; send the person to the login screen.
+    LaunchedEffect(Unit) {
+        sessionEvents.sessionExpired.collect {
+            navController.navigate(Routes.LOGIN) { popUpTo(0) }
+        }
+    }
 
     NavHost(navController = navController, startDestination = Routes.SPLASH) {
         composable(Routes.SPLASH) {
@@ -48,6 +59,7 @@ fun NannyNavGraph() {
                 onLogin = { navController.navigate(Routes.LOGIN) },
                 onRegister = { navController.navigate(Routes.REGISTER) },
                 onStaticPage = { key -> navController.navigate(Routes.staticPage(key)) },
+                onSettings = { navController.navigate(Routes.SETTINGS) },
             )
         }
 
@@ -91,6 +103,24 @@ fun NannyNavGraph() {
                 onVerified = { navController.navigate(Routes.SPLASH) { popUpTo(Routes.WELCOME) { inclusive = true } } },
                 onSkip = { navController.navigate(Routes.SPLASH) { popUpTo(Routes.WELCOME) { inclusive = true } } },
             )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(
+                onBack = { navController.popBackStack() },
+                onStaticPage = { key -> navController.navigate(Routes.staticPage(key)) },
+            )
+        }
+
+        composable(
+            Routes.REPORT,
+            arguments = listOf(
+                navArgument("userId") { type = NavType.IntType },
+                navArgument("name") { type = NavType.StringType; defaultValue = "" },
+                navArgument("bookingId") { type = NavType.IntType; defaultValue = -1 },
+            ),
+        ) {
+            ReportScreen(onBack = { navController.popBackStack() })
         }
 
         composable(Routes.STATIC_PAGE, arguments = listOf(navArgument("pageKey") { type = NavType.StringType })) { entry ->

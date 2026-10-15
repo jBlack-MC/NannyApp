@@ -83,3 +83,11 @@ data class SubmitTicketRequestDto(
 data class PageContentDto(val pageKey: String, val title: String?, val body: String?, val blocks: List<PageBlockDto>? = null)
 
 data class PageBlockDto(val type: String?, val text: String?, val blocks: List<PageBlockDto>? = null)
+
+/** POST reports/create.php. bookingId links the report to a booking both people share. */
+data class ReportRequestDto(val reportedUserId: Int, val bookingId: Int?, val reason: String, val details: String)
+
+data class CreatedIdDto(val id: Int)
+
+/** One South African public holiday, from content/holidays.php. */
+data class HolidayDto(val date: String, val name: String)
