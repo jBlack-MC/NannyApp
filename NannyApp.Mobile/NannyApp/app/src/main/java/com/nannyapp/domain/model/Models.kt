@@ -49,9 +49,16 @@ data class NannyProfile(
     val reviewCount: Int,
     val profileViews: Int,
     val memberSince: String?,
+    /** True when the viewer needs Nanny-App Plus to see qualifications and verified documents. */
+    val extendedLocked: Boolean = false,
+    val verifiedDocuments: List<VerifiedDocument>? = null,
+    /** A Nanny-App Plus nanny, shown first in search. */
+    val featured: Boolean = false,
 ) {
     val isVerified: Boolean get() = verificationStatus == VerificationStatus.VERIFIED
 }
+
+data class VerifiedDocument(val type: String, val title: String, val addedAt: String?)
 
 data class Child(
     val id: Int,
@@ -81,6 +88,8 @@ data class Booking(
     val childrenDetails: String?,
     val bookingAddress: String?,
     val status: BookingStatus,
+    /** Requested by a Nanny-App Plus parent; shown first to the nanny. */
+    val isPriority: Boolean = false,
     val hourlyRate: Double = 0.0,
     val amount: Double,
     val checkInCode: String? = null, // only ever populated for the owning parent

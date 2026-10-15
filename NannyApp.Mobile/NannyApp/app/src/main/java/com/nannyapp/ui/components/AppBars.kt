@@ -87,7 +87,7 @@ fun AppBottomNavigation(
                             Icon(item.icon, contentDescription = item.label)
                         }
                     },
-                    label = { Text(item.label, style = MaterialTheme.typography.labelSmall) },
+                    label = { Text(item.label, style = MaterialTheme.typography.labelSmall, maxLines = 1, softWrap = false, overflow = TextOverflow.Ellipsis) },
                 )
             }
         }

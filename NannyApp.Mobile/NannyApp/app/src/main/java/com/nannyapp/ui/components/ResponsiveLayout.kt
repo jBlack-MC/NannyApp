@@ -25,8 +25,8 @@ fun MetricGrid(
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val columns = when {
-            maxWidth < 360.dp -> 1
-            metrics.size % 3 == 0 -> 3
+            metrics.size % 3 == 0 && maxWidth >= 260.dp -> 3
+            maxWidth < 300.dp -> 1
             else -> 2
         }
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {

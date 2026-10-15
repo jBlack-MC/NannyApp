@@ -4,7 +4,7 @@
     any key missing there falls back to this file. Screens not yet moved to resources stay English.
 -->
 <resources>
-    <string name="app_name">Nanny-App</string>
+    <string name="app_name" translatable="false">Nanny-App</string>
     <string name="tagline">Trusted childcare, on your schedule.</string>
 
     <!-- Common -->
@@ -151,4 +151,39 @@
     <string name="booking_choose_time">Choose a start time</string>
     <string name="booking_holiday_title">%1$s is a public holiday</string>
     <string name="booking_holiday_body">Check that your nanny is available and agree the rate for the day before you book.</string>
+
+    <!-- Nanny-App Plus and translation -->
+    <string name="plus_name" translatable="false">Nanny-App Plus</string>
+    <string name="translate_action">Translate</string>
+    <string name="translate_working">Translating…</string>
+    <string name="translate_show_original">Show original</string>
+    <string name="translate_machine_note">machine translated</string>
+    <string name="settings_translate_into">Translate messages and profiles into</string>
+    <string name="settings_translate_note">Adds a Translate link to nanny profiles, reviews and chat messages. Translation is automatic and can be wrong; check anything important.</string>
+    <string name="settings_recommended_sa">Recommended in South Africa</string>
+    <string name="settings_other_languages">Other languages</string>
+    <string name="settings_show_all_languages">Show %1$d more languages</string>
+    <string name="plus_tagline">See more before you book, and get noticed sooner.</string>
+    <string name="plus_parent_profiles">Full nanny profiles: qualifications and specialisations</string>
+    <string name="plus_parent_documents">See which of a nanny’s documents our team has verified</string>
+    <string name="plus_parent_saved">Save as many nannies as you like (free accounts: 3)</string>
+    <string name="plus_parent_priority">Your booking requests appear first for nannies</string>
+    <string name="plus_nanny_viewers">See which families viewed your profile</string>
+    <string name="plus_nanny_featured">Be featured at the top of search results</string>
+    <string name="plus_safety_free">Safety stays free for everyone: verified badges, ratings, reviews and reporting are never behind a subscription.</string>
+    <string name="plus_active">Your Nanny-App Plus is active</string>
+    <string name="plus_renews">Current period ends %1$s</string>
+    <string name="plus_manage">Manage in Google Play</string>
+    <string name="plus_not_ready">Nanny-App Plus is not switched on yet. Please check back soon.</string>
+    <string name="plus_play_only">Subscriptions are available when Nanny-App is installed from Google Play and you are signed in to Play.</string>
+    <string name="plus_subscribe">Subscribe with Google Play</string>
+    <string name="plus_restore">Restore purchase</string>
+    <string name="plus_billing_note">Billed by Google Play. Cancel any time in Google Play; you keep Plus until the end of the period you paid for.</string>
+    <string name="plus_locked_title">Qualifications and verified documents</string>
+    <string name="plus_locked_body">Available with Nanny-App Plus. Tap to see what Plus includes.</string>
+    <string name="plus_verified_documents">Verified documents</string>
+    <string name="plus_featured">Featured</string>
+    <string name="plus_priority">Priority</string>
+    <string name="plus_viewers_title">%1$d family visits to your profile in 30 days</string>
+    <string name="plus_viewers_locked">See which families looked, with Nanny-App Plus</string>
 </resources>

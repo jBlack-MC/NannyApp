@@ -44,6 +44,8 @@ fun NannyProfileDto.asDomain() = NannyProfile(
     specialisations = csv(specialisations), availabilityText = availability,
     verificationStatus = VerificationStatus.fromApi(verificationStatus),
     averageRating = averageRating, reviewCount = reviewCount, profileViews = profileViews, memberSince = memberSince,
+    extendedLocked = extendedLocked, featured = featured,
+    verifiedDocuments = verifiedDocuments?.map { VerifiedDocument(it.type.orEmpty(), it.title.orEmpty(), it.addedAt) },
 )
 
 fun NannyProfileEntity.asDomain() = NannyProfile(
@@ -92,7 +94,7 @@ fun BookingDto.asDomain() = Booking(
     id = id, bookingRef = bookingRef, parentId = parentId, parentName = parentName, nannyId = nannyId,
     nannyName = nannyName, nannyPhotoUrl = nannyPhotoUrl, dateTime = dateTime, durationHours = duration,
     location = location, notes = notes, childrenDetails = childrenDetails, bookingAddress = bookingAddress,
-    status = BookingStatus.fromApi(status), hourlyRate = hourlyRate, amount = amount, checkInCode = checkInCode,
+    status = BookingStatus.fromApi(status), isPriority = isPriority, hourlyRate = hourlyRate, amount = amount, checkInCode = checkInCode,
     checkInAttempts = checkInAttempts, checkedInAt = checkedInAt, checkedOutAt = checkedOutAt,
     parentConfirmedAt = parentConfirmedAt, disputeReason = disputeReason, disputedAt = disputedAt,
     paymentStatus = PaymentStatus.fromApi(paymentStatus), payoutStatus = PayoutStatus.fromApi(payoutStatus),

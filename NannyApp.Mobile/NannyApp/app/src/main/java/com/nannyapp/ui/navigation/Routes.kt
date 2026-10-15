@@ -46,12 +46,13 @@ object Routes {
     // Shared
     const val MESSAGES = "messages"
     const val CHAT = "chat/{userId}?peerName={peerName}"
-    fun chat(userId: Int, peerName: String = "") = "chat/$userId?peerName=${java.net.URLEncoder.encode(peerName, "UTF-8")}"
+    fun chat(userId: Int, peerName: String = "") = "chat/$userId?peerName=${android.net.Uri.encode(peerName)}"
     const val NOTIFICATIONS = "notifications"
     const val PROFILE = "profile"
     const val SUPPORT = "support"
     const val SUPPORT_NEW_TICKET = "support_new_ticket"
     const val SETTINGS = "settings"
+    const val PLUS = "plus"
     const val REPORT = "report/{userId}?name={name}&bookingId={bookingId}"
     fun report(userId: Int, name: String, bookingId: Int? = null) =
         "report/$userId?name=${android.net.Uri.encode(name)}&bookingId=${bookingId ?: -1}"

@@ -2,6 +2,7 @@
 /** GET /api/nannies/search.php?q=&location=&language=&min_rate=&max_rate=&min_experience=&min_rating=&verified_only=&slot=&sort=
  * Public-ish endpoint (requires login like the rest of the app) listing nanny_profiles joined to users. */
 require_once __DIR__ . '/../_bootstrap.php';
+require_once __DIR__ . '/../../../../NannyApp.Shared/config/subscriptions.php';
 require_api_auth();
 
 $where = ["u.role = 'nanny'"];
@@ -52,10 +53,12 @@ $orderBy = match ($_GET['sort'] ?? 'rating') {
 };
 
 $sql = "SELECT u.id AS user_id, u.full_name, u.created_at AS member_since, np.*, u.profile_image,
-               (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count
+               (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count,
+               EXISTS (SELECT 1 FROM subscriptions s WHERE s.user_id = u.id AND s.expires_at > NOW()
+                       AND s.status IN ('active','grace','canceled')) AS featured
         FROM users u JOIN nanny_profiles np ON np.user_id = u.id
         WHERE " . implode(' AND ', $where) . "
-        ORDER BY $orderBy LIMIT 100";
+        ORDER BY featured DESC, $orderBy LIMIT 100";
 
 $stmt = db()->prepare($sql);
 $stmt->execute($params);
@@ -68,7 +71,7 @@ function serialize_nanny_row(array $r): array {
         'userId' => (int) $r['user_id'], 'fullName' => $r['full_name'], 'photoUrl' => media_url($r['photo_url'] ?: ($r['profile_image'] ?? null)),
         'bannerImage' => media_url($r['banner_image']), 'bio' => $r['bio'], 'gender' => $r['gender'],
         'experienceYears' => (int) $r['experience_years'], 'hourlyRate' => (float) $r['hourly_rate'],
-        'location' => $r['location'], 'skills' => $r['skills'], 'languages' => $r['languages'],
+        'location' => $r['location'], 'skills' => $r['skills'], 'languages' => $r['languages'], 'featured' => (bool) $r['featured'],
         'qualifications' => $r['qualifications'], 'specialisations' => $r['specialisations'],
         'availability' => $r['availability'], 'verificationStatus' => $r['verification_status'],
         'averageRating' => (float) $r['average_rating'], 'reviewCount' => (int) $r['review_count'],

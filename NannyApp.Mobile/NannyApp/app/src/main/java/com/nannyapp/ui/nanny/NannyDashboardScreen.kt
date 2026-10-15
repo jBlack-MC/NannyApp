@@ -12,6 +12,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.ui.components.*
+import com.nannyapp.ui.components.AppCard
+import com.nannyapp.R
+import androidx.compose.ui.res.stringResource
 
 @Composable
 fun NannyDashboardScreen(
@@ -23,6 +26,7 @@ fun NannyDashboardScreen(
     onPortfolio: () -> Unit,
     onReviews: () -> Unit,
     onNotifications: () -> Unit,
+    onPlus: () -> Unit,
     viewModel: NannyDashboardViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
@@ -79,6 +83,23 @@ fun NannyDashboardScreen(
                     SecondaryButton(text = "Portfolio", onClick = onPortfolio, modifier = Modifier.weight(1f))
                     Spacer(Modifier.width(8.dp))
                     SecondaryButton(text = "My reviews", onClick = onReviews, modifier = Modifier.weight(1f))
+                }
+
+                state.viewers?.let { viewers ->
+                    Spacer(Modifier.height(20.dp))
+                    AppCard(Modifier.fillMaxWidth(), onClick = if (viewers.locked) onPlus else null) {
+                        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Text(stringResource(R.string.plus_viewers_title, viewers.viewsLast30Days), style = MaterialTheme.typography.titleMedium)
+                            if (viewers.locked) {
+                                Text(stringResource(R.string.plus_viewers_locked), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                            } else {
+                                viewers.recent.orEmpty().take(5).forEach { v ->
+                                    Text("${v.name} · ${com.nannyapp.util.formatDateTime(v.viewedAt)}", style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 if (state.pendingRequests.isNotEmpty()) {

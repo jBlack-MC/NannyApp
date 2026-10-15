@@ -32,6 +32,15 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
     /** Empty means "follow the phone". */
     val languageTag: String get() = prefs.getString(KEY_LANGUAGE, "") ?: ""
 
+    /** Language for "Translate" on bios, reviews and messages; defaults to the app language. */
+    val contentLanguage: String
+        get() = prefs.getString(KEY_CONTENT_LANGUAGE, null)
+            ?: languageTag.ifBlank { Locale.getDefault().language.takeIf { it in SUPPORTED_LANGUAGES } ?: "en" }
+
+    fun setContentLanguage(code: String) {
+        prefs.edit().putString(KEY_CONTENT_LANGUAGE, code).apply()
+    }
+
     fun setThemeMode(mode: ThemeMode) {
         prefs.edit().putString(KEY_THEME, mode.name).apply()
         theme.value = mode
@@ -51,6 +60,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
         private const val KEY_THEME = "theme_mode"
         private const val KEY_LANGUAGE = "language"
         private const val KEY_BACKGROUND_SYNC = "background_sync"
+        private const val KEY_CONTENT_LANGUAGE = "content_language"
 
         /** Language tags the app has translations for, in the order the picker shows them. */
         val SUPPORTED_LANGUAGES = listOf("", "en", "af", "zu")

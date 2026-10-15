@@ -26,6 +26,8 @@ import com.nannyapp.domain.model.Booking
 import com.nannyapp.domain.model.NannyProfile
 import com.nannyapp.util.formatDateTime
 import com.nannyapp.util.formatHours
+import com.nannyapp.R
+import androidx.compose.ui.res.stringResource
 
 /**
  * The website's .card: white surface, hairline border, large radius and a soft shadow.
@@ -91,6 +93,10 @@ fun NannyCard(
                     Text(nanny.fullName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
                     Spacer(Modifier.width(6.dp))
                     VerificationBadge(nanny.isVerified)
+                    if (nanny.featured) {
+                        Spacer(Modifier.width(6.dp))
+                        PlusBadge(stringResource(R.string.plus_featured))
+                    }
                 }
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -125,6 +131,17 @@ fun NannyCard(
             }
         }
     }
+}
+
+@Composable
+fun PlusBadge(label: String, modifier: Modifier = Modifier) {
+    Text(
+        label,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onPrimary,
+        maxLines = 1,
+        modifier = modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)).padding(horizontal = 8.dp, vertical = 3.dp),
+    )
 }
 
 @Composable
@@ -165,14 +182,21 @@ fun BookingCard(
                     Text(booking.nannyName ?: counterpartLabel, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(booking.bookingRef ?: "", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
-                BookingStatusChip(booking.status)
+                Column(horizontalAlignment = Alignment.End) {
+                    BookingStatusChip(booking.status)
+                    if (booking.isPriority && booking.status == com.nannyapp.domain.model.BookingStatus.PENDING) {
+                        Spacer(Modifier.height(4.dp))
+                        PlusBadge(stringResource(R.string.plus_priority))
+                    }
+                }
             }
             Spacer(Modifier.height(10.dp))
             HorizontalDivider()
             Spacer(Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(formatDateTime(booking.dateTime), style = MaterialTheme.typography.bodySmall)
-                Text("${formatHours(booking.durationHours)}h · R${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(formatDateTime(booking.dateTime), style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(8.dp))
+                Text("${formatHours(booking.durationHours)}h · R${"%.0f".format(booking.amount)}", style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium, softWrap = false)
             }
         }
     }
@@ -186,13 +210,13 @@ fun StatCard(
     icon: androidx.compose.ui.graphics.vector.ImageVector? = null,
 ) {
     AppCard(modifier = modifier) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(horizontal = 14.dp, vertical = 14.dp)) {
             if (icon != null) {
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.height(6.dp))
             }
             Text(value, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

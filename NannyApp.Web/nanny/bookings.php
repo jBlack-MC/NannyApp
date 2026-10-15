@@ -27,7 +27,7 @@ $stmt = db()->prepare(
      FROM bookings b
      JOIN users u ON u.id = b.parent_id
      LEFT JOIN payments pay ON pay.booking_id = b.id
-     WHERE b.nanny_id = ? ORDER BY FIELD(b.status,'pending','confirmed','in_progress','completed','disputed','rejected','cancelled'), b.date_time DESC"
+     WHERE b.nanny_id = ? ORDER BY (b.status = 'pending' AND b.is_priority = 1) DESC, FIELD(b.status,'pending','confirmed','in_progress','completed','disputed','rejected','cancelled'), b.date_time DESC"
 );
 $stmt->execute([$me]);
 $rows = $stmt->fetchAll();
@@ -64,7 +64,7 @@ require __DIR__ . '/../includes/header.php';
                     <td><?= e(rtrim(rtrim((string)$r['duration'], '0'), '.')) ?></td>
                     <td><?= e($r['location']) ?></td>
                     <td>R<?= number_format((float)$r['amount'], 2) ?></td>
-                    <td><?= status_badge($r['status']) ?></td>
+                    <td><?= status_badge($r['status']) ?><?php if (!empty($r['is_priority']) && $r['status'] === 'pending'): ?> <span class="badge badge-warn">Priority</span><?php endif; ?></td>
                     <td>
                         <?php if ($r['status'] === 'pending'): ?>
                             <form method="post" class="inline-form">

@@ -15,6 +15,10 @@ val releaseApiUrl = providers.gradleProperty("NANNYAPP_RELEASE_API_URL")
 val debugApiUrl = providers.gradleProperty("NANNYAPP_DEBUG_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_DEBUG_API_URL"))
     .orElse("http://10.0.2.2/nannyapp/api/")
+val releaseKeystoreFile = System.getenv("NANNYAPP_RELEASE_KEYSTORE_FILE")
+val releaseKeystorePassword = System.getenv("NANNYAPP_RELEASE_KEYSTORE_PASSWORD")
+val releaseKeyAlias = System.getenv("NANNYAPP_RELEASE_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("NANNYAPP_RELEASE_KEY_PASSWORD")
 val debugUri = runCatching { URI(debugApiUrl.get()) }.getOrNull()
 require(debugUri != null && debugUri.scheme in listOf("http", "https")
     && !debugUri.host.isNullOrBlank() && debugUri.rawUserInfo == null
@@ -51,6 +55,9 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
+        // Play Console product id of the Nanny-App Plus subscription; override with -PNANNYAPP_PLAY_SUBSCRIPTION_ID.
+        buildConfigField("String", "PLAY_SUBSCRIPTION_ID", "\"${providers.gradleProperty("NANNYAPP_PLAY_SUBSCRIPTION_ID").orElse("nannyapp_plus").get()}\"")
+
         // Release value is checked before any release build. Configure with -P or environment.
         buildConfigField("String", "API_BASE_URL", "\"${releaseApiUrl.get().replace("\\", "\\\\").replace("\"", "\\\"")}\"")
     }
@@ -73,6 +80,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    signingConfigs {
+        create("release") {
+            if (!releaseKeystoreFile.isNullOrBlank()) {
+                storeFile = file(releaseKeystoreFile)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
     sourceSets {
         getByName("main") {
@@ -131,6 +148,10 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
+
+    // Google Play Billing (Nanny-App Plus). Play requires version 8 or later for updates after 31 Aug 2026.
+    implementation("com.android.billingclient:billing:8.3.0")
+    implementation("com.android.billingclient:billing-ktx:7.1.1")
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.1")

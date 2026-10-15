@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../../NannyApp.Shared/config/bookings.php';
+require_once __DIR__ . '/../../NannyApp.Shared/config/subscriptions.php';
 
 $nannyId = (int) ($_GET['nanny'] ?? 0);
 
@@ -156,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $step === 4) {
             'nannyId'=>$nannyId,'dateTime'=>$wz['date_time'],'duration'=>$wz['duration']??null,
             'address'=>$wz['address'],'notes'=>$wz['notes']??'','childrenIds'=>$wz['childrenIds']??[]
         ]);
+        plus_mark_priority(db(),$bookingId,(int)current_user()['id']);
         $wz['booking_id']=$bookingId;
         $wz['ref']='BK'.str_pad((string)$bookingId,6,'0',STR_PAD_LEFT);
         redirect('parent/book.php?nanny='.$nannyId.'&step=5');
@@ -170,8 +172,10 @@ $bookings = (int) $nanny['booking_count'];
 $rate     = (float) $nanny['hourly_rate'];
 $skills   = array_filter(array_map('trim', explode(',', (string) $nanny['skills'])));
 $langs    = array_filter(array_map('trim', explode(',', (string) $nanny['languages'])));
-$quals    = array_filter(array_map('trim', explode(',', (string) ($nanny['qualifications'] ?? ''))));
-$specs    = array_filter(array_map('trim', explode(',', (string) ($nanny['specialisations'] ?? ''))));
+// Qualifications and specialisations are Nanny-App Plus details, as in the app (api/nannies/detail.php).
+$plus     = plus_active(db(), (int) current_user()['id']);
+$quals    = $plus ? array_filter(array_map('trim', explode(',', (string) ($nanny['qualifications'] ?? '')))) : [];
+$specs    = $plus ? array_filter(array_map('trim', explode(',', (string) ($nanny['specialisations'] ?? '')))) : [];
 $dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
 $trust = 30 + min(40, (int)($rating / 5 * 40)) + min(30, (int)(min($bookings, 50) / 50 * 30));
@@ -338,6 +342,12 @@ if ($step === 0):
                 <div class="tags">
                     <?php foreach ($skills as $s): ?><span class="tag"><?= e($s) ?></span><?php endforeach; ?>
                 </div>
+            </div>
+            <?php endif; ?>
+            <?php if (!$plus): ?>
+            <div>
+                <h4 class="pb-subhead">Qualifications</h4>
+                <p class="muted">Qualifications, specialisations and verified documents are part of Nanny-App Plus, available in the Android app.</p>
             </div>
             <?php endif; ?>
             <?php if ($quals): ?>

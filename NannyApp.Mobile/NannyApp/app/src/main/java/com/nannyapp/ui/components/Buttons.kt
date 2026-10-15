@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.nannyapp.ui.theme.NannyGradientEnd
 import com.nannyapp.ui.theme.NannyGradientStart
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 
 // Same radius as the website's .btn.
 private val ButtonShape = RoundedCornerShape(14.dp)
@@ -48,7 +50,7 @@ fun PrimaryButton(
         if (loading) {
             CircularProgressIndicator(modifier = Modifier.height(20.dp), strokeWidth = 2.dp, color = Color.White)
         } else {
-            Text(text, style = MaterialTheme.typography.titleMedium)
+            Text(text, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }
@@ -72,7 +74,7 @@ fun SecondaryButton(
             contentColor = MaterialTheme.colorScheme.onSurface,
         ),
     ) {
-        Text(text, style = MaterialTheme.typography.titleMedium)
+        Text(text, style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center, maxLines = 2, overflow = TextOverflow.Ellipsis)
     }
 }
 

@@ -21,6 +21,7 @@ function serialize_booking(array $b, array $viewer): array {
         'childrenDetails' => $b['children_details'],
         'bookingAddress' => $b['booking_address'],
         'status' => $b['status'],
+        'isPriority' => !empty($b['is_priority']),
         'hourlyRate' => (float) ($b['hourly_rate'] ?? 0),
         'amount' => (float) ($b['amount'] ?? 0),
         'checkInCode' => $showCode ? $b['check_in_code'] : null,

@@ -91,3 +91,29 @@ data class CreatedIdDto(val id: Int)
 
 /** One South African public holiday, from content/holidays.php. */
 data class HolidayDto(val date: String, val name: String)
+
+/** subscriptions/status.php and subscriptions/verify.php. accountReference is attached to Play purchases. */
+data class PlusStatusDto(
+    val active: Boolean,
+    val status: String?,
+    val expiresAt: String?,
+    val productId: String?,
+    val configured: Boolean,
+    val accountReference: String?,
+)
+
+data class PlusVerifyRequestDto(val productId: String, val purchaseToken: String)
+
+/** content/languages.php: recommended is true for South Africa's official languages. */
+data class LanguageDto(val code: String, val name: String, val nativeName: String, val recommended: Boolean)
+
+data class TranslateRequestDto(val text: String, val target: String)
+
+data class TranslatedDto(val translated: String, val provider: String?)
+
+/** nannies/viewers.php: recent is empty and locked is true without Nanny-App Plus. */
+data class ProfileViewersDto(val viewsLast30Days: Int, val locked: Boolean, val recent: List<ProfileViewerDto>?)
+
+data class ProfileViewerDto(val userId: Int, val name: String, val photoUrl: String?, val viewedAt: String)
+
+data class VerifiedDocumentDto(val type: String?, val title: String?, val addedAt: String?)

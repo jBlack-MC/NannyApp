@@ -79,4 +79,5 @@ object NetworkModule {
     @Provides @Singleton fun provideAdminApi(retrofit: Retrofit): AdminApi = retrofit.create(AdminApi::class.java)
     @Provides @Singleton fun provideStaticContentApi(retrofit: Retrofit): StaticContentApi = retrofit.create(StaticContentApi::class.java)
     @Provides @Singleton fun provideReportApi(retrofit: Retrofit): ReportApi = retrofit.create(ReportApi::class.java)
+    @Provides @Singleton fun providePlusApi(retrofit: Retrofit): PlusApi = retrofit.create(PlusApi::class.java)
 }

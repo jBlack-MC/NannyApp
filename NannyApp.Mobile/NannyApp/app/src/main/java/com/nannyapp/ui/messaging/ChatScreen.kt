@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import com.nannyapp.R
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import com.nannyapp.ui.components.TranslatableText
 
 @Composable
 fun ChatScreen(onBack: () -> Unit, onReport: () -> Unit, viewModel: ChatViewModel = hiltViewModel()) {
@@ -42,7 +43,7 @@ fun ChatScreen(onBack: () -> Unit, onReport: () -> Unit, viewModel: ChatViewMode
         },
         bottomBar = {
             Surface(shadowElevation = 4.dp) {
-                Row(Modifier.padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(Modifier.navigationBarsPadding().imePadding().padding(12.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     OutlinedTextField(
                         value = state.draft, onValueChange = viewModel::onDraftChange,
                         placeholder = { Text("Type a message…") }, modifier = Modifier.weight(1f), singleLine = true,
@@ -84,7 +85,12 @@ private fun MessageBubble(msg: com.nannyapp.domain.model.ChatMessage) {
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.widthIn(max = 280.dp),
         ) {
-            Text(msg.content, color = textColor, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
+            if (msg.isMine) {
+                Text(msg.content, color = textColor, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
+            } else {
+                TranslatableText(msg.content, color = textColor, linkColor = MaterialTheme.colorScheme.primary,
+                    style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
+            }
         }
         Text(
             text = msg.createdAt + if (msg.isMine) (if (msg.isRead) " · Read" else " · Sent") else "",

@@ -34,12 +34,42 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import androidx.lifecycle.viewModelScope
+import com.nannyapp.util.safeApiCall
+import com.nannyapp.util.Resource
+import com.nannyapp.data.api.dto.LanguageDto
+import com.nannyapp.data.api.PlusApi
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settings: AppSettings,
     @ApplicationContext private val context: Context,
+    private val plusApi: PlusApi,
 ) : ViewModel() {
+    // Offline fallback: South Africa's languages that the translation service handles.
+    private val _languages = MutableStateFlow(
+        listOf("en" to "English", "zu" to "isiZulu", "xh" to "isiXhosa", "af" to "Afrikaans", "nso" to "Sepedi",
+            "tn" to "Setswana", "st" to "Sesotho", "ts" to "Xitsonga", "ss" to "siSwati", "nr" to "isiNdebele")
+            .map { (code, name) -> LanguageDto(code, name, name, true) },
+    )
+    val languages: StateFlow<List<LanguageDto>> = _languages.asStateFlow()
+    private val _contentLanguage = MutableStateFlow(settings.contentLanguage)
+    val contentLanguage: StateFlow<String> = _contentLanguage.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            (safeApiCall { plusApi.languages() } as? Resource.Success)?.data?.takeIf { it.isNotEmpty() }?.let { _languages.value = it }
+        }
+    }
+
+    fun setContentLanguage(code: String) {
+        settings.setContentLanguage(code)
+        _contentLanguage.value = code
+    }
+
     val themeMode: StateFlow<ThemeMode> = settings.themeMode
     val backgroundSync: StateFlow<Boolean> = settings.backgroundSyncEnabled
     val languageTag: String get() = settings.languageTag
@@ -100,6 +130,31 @@ fun SettingsScreen(
                             // Resources are chosen when the screen is created, so rebuild it in the new language.
                             (context as? Activity)?.recreate()
                         }
+                    }
+                }
+            }
+
+            val languages by viewModel.languages.collectAsState()
+            val contentLanguage by viewModel.contentLanguage.collectAsState()
+            var showAllLanguages by remember { mutableStateOf(false) }
+            SettingsSection(stringResource(R.string.settings_translate_into), stringResource(R.string.settings_translate_note)) {
+                Text(stringResource(R.string.settings_recommended_sa), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                languages.filter { it.recommended }.forEach { lang ->
+                    ChoiceRow(lang.nativeName, selected = contentLanguage == lang.code) { viewModel.setContentLanguage(lang.code) }
+                }
+                val others = languages.filterNot { it.recommended }
+                if (others.isNotEmpty()) {
+                    if (showAllLanguages || others.any { it.code == contentLanguage }) {
+                        Text(stringResource(R.string.settings_other_languages), style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                        others.forEach { lang ->
+                            ChoiceRow(if (lang.nativeName == lang.name) lang.name else "${lang.nativeName} (${lang.name})", selected = contentLanguage == lang.code) {
+                                viewModel.setContentLanguage(lang.code)
+                            }
+                        }
+                    } else {
+                        LinkRow(stringResource(R.string.settings_show_all_languages, others.size)) { showAllLanguages = true }
                     }
                 }
             }
