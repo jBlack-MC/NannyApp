@@ -11,10 +11,14 @@ plugins {
 // A release must explicitly identify its API; debug remains emulator-friendly.
 val releaseApiUrl = providers.gradleProperty("NANNYAPP_RELEASE_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_RELEASE_API_URL"))
-    .orElse("https://api.nannyapp.com/api/")
+    .orElse("")
 val debugApiUrl = providers.gradleProperty("NANNYAPP_DEBUG_API_URL")
     .orElse(providers.environmentVariable("NANNYAPP_DEBUG_API_URL"))
     .orElse("http://10.0.2.2/nannyapp/api/")
+val releaseKeystoreFile = System.getenv("NANNYAPP_RELEASE_KEYSTORE_FILE")
+val releaseKeystorePassword = System.getenv("NANNYAPP_RELEASE_KEYSTORE_PASSWORD")
+val releaseKeyAlias = System.getenv("NANNYAPP_RELEASE_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("NANNYAPP_RELEASE_KEY_PASSWORD")
 val debugUri = runCatching { URI(debugApiUrl.get()) }.getOrNull()
 require(debugUri != null && debugUri.scheme in listOf("http", "https")
     && !debugUri.host.isNullOrBlank() && debugUri.rawUserInfo == null
@@ -76,6 +80,16 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    signingConfigs {
+        create("release") {
+            if (!releaseKeystoreFile.isNullOrBlank()) {
+                storeFile = file(releaseKeystoreFile)
+                storePassword = releaseKeystorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
     sourceSets {
         getByName("main") {

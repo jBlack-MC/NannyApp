@@ -72,6 +72,27 @@ to that absolute file path (or use the local fallback
 APK download header; do not put signed APKs under `assets/` or another browsable
 web folder.
 
+### GitHub Releases (recommended)
+
+The included `.github/workflows/android-release.yml` builds the Android project
+when you push a tag such as `v1.0.0` and attaches the APK to that GitHub
+Release. Before using it, add these GitHub repository secrets: a base64-encoded
+keystore named `NANNYAPP_RELEASE_KEYSTORE_BASE64`, plus
+`NANNYAPP_RELEASE_KEYSTORE_PASSWORD`, `NANNYAPP_RELEASE_KEY_ALIAS` and
+`NANNYAPP_RELEASE_KEY_PASSWORD`. Set the repository variable
+`NANNYAPP_RELEASE_API_URL` if the app's production API URL is not
+`https://api.nannyapp.com/api/`.
+
+After the release exists, configure the PHP server with:
+
+```text
+NANNYAPP_APK_URL=https://github.com/jBlack-MC/NannyApp/releases/latest/download/NannyApp.apk
+```
+
+The web download button redirects to that release asset. Your existing APK can
+also be uploaded manually as `NannyApp.apk` for the first release. Never commit
+the APK or signing keystore to Git.
+
 **Important — make the server reachable from the device:**
 - Start XAMPP (Apache + MySQL) on your PC.
 - Emulator: the host PC is `10.0.2.2`, so `config.xml` already points to
