@@ -13,7 +13,8 @@ When importing `jBlack-MC/NannyApp`:
 - Output directory: leave empty
 - Install command: leave empty
 
-The repository contains `vercel.json`, which routes the PHP web pages and
+The repository contains `Dockerfile.vercel` and `.htaccess`. Vercel runs the
+PHP application as a container on Fluid compute; Apache routes web pages and
 `/api/*` endpoints through `api/index.php`.
 
 ## Supabase database values
@@ -63,7 +64,8 @@ private so application-generated signed URLs remain protected.
 
 ## First deployment
 
-1. Deploy the Vercel project once.
+1. Deploy the Vercel project once. The Vercel project root must be `./` so
+   `Dockerfile.vercel` is detected.
 2. Open `https://YOUR-VERCEL-DOMAIN.vercel.app/`.
 3. While the migration token is temporarily enabled, run this from PowerShell:
 
@@ -92,3 +94,18 @@ After Vercel gives the project its final HTTPS URL, build the APK with:
 
 The URL must end with `/api/`. Update the same value in the GitHub Actions
 release environment when publishing the APK.
+
+## GitHub automation
+
+Vercel Git integration deploys every commit merged into `main`. The repository
+CI workflow continues to run PHP security checks and Android tests before a
+release. The optional `Supabase migration` workflow is manual because schema
+changes should not run automatically against production without approval.
+
+Set these GitHub repository values before using that workflow:
+
+- Variable `NANNYAPP_PRODUCTION_URL`: `https://YOUR-VERCEL-DOMAIN.vercel.app`
+- Secret `NANNYAPP_MIGRATION_TOKEN`: the same token temporarily configured in Vercel
+
+Run it from **GitHub → Actions → Supabase migration → Run workflow**. After a
+successful migration, remove the migration token from both GitHub and Vercel.

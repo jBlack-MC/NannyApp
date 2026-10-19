@@ -1,0 +1,42 @@
+name: Supabase migration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: Apply approved production schema migrations
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Validate deployment settings
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+          TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_URL" || { echo 'Missing repository variable NANNYAPP_PRODUCTION_URL'; exit 1; }
+          test -n "$TOKEN" || { echo 'Missing repository secret NANNYAPP_MIGRATION_TOKEN'; exit 1; }
+          case "$APP_URL" in https://*) ;; *) echo 'NANNYAPP_PRODUCTION_URL must use HTTPS'; exit 1 ;; esac
+
+      - name: Apply migrations through the protected application endpoint
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+          TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
+        run: |
+          set -euo pipefail
+          response=$(curl --fail-with-body --silent --show-error --retry 3 \
+            --request POST "$APP_URL/api/migrate.php" \
+            --header "X-Nanny-Migration-Token: $TOKEN")
+          echo "$response"
+          echo "$response" | grep -F '"ok":true'
+
+      - name: Verify application health
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error "$APP_URL/api/health.php"
