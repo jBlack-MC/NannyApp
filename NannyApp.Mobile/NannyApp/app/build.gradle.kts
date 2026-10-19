@@ -50,8 +50,9 @@ android {
         applicationId = "com.nannyapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 2
-        versionName = "1.0.1"
+        // Increase this for every published APK so Android accepts it as an update.
+        versionCode = 3
+        versionName = "1.0.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

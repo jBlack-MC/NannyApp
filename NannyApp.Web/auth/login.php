@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (auth_rate_limited('login', (string) ($_POST['email'] ?? ''), 5)) {
         $errors[] = 'Too many login attempts. Please wait 15 minutes and try again.';
     } else {
-        $email    = trim($_POST['email'] ?? '');
+        $email    = strtolower(trim($_POST['email'] ?? ''));
         $password = $_POST['password'] ?? '';
 
         $stmt = db()->prepare('SELECT * FROM users WHERE email = ?');

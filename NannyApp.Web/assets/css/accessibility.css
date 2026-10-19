@@ -37,6 +37,41 @@
 .form-control { color: var(--ink); }
 [data-theme="dark"] .cta-shell .home-newsletter .form-control { background: var(--surface); color: var(--text); }
 
+/* Dark-mode contrast guard: older page components still use white surfaces
+   and browser-default controls. Keep their text tied to the theme tokens. */
+[data-theme="dark"] :is(
+    .brand-logo-wrap, .btn:not(.btn-primary):not(.btn-danger), .chip,
+    .hero-notif, .hero-search, .hero-booking, .hb-field, .field input,
+    .field select, .field textarea, .chat-compose input, .stat, .auth,
+    .auth-main, .modal, .toast, .footer, .footer-admin-col, .footer-guest,
+    .faq-item, .tcard, .tip-card, .price-box, .res-emergency-item,
+    .res-meal-item, .subscribe-form input
+) {
+    background: var(--surface) !important;
+    color: var(--text) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] :is(
+    .brand-logo-wrap *, .hero-notif *, .hero-search *, .hero-booking *,
+    .hb-field *, .stat *, .auth *, .modal *, .toast *, .footer *,
+    .footer-admin-col *, .footer-guest *, .faq-item *, .tcard *,
+    .tip-card *, .price-box *, .res-emergency-item *, .res-meal-item *
+) {
+    color: inherit;
+}
+
+[data-theme="dark"] :is(p, li, td, dd, label, .field label, .card p, .card li)
+    { color: var(--text); }
+[data-theme="dark"] :is(.muted, small, .help-text, th, dt, .field-help)
+    { color: var(--text-light); }
+[data-theme="dark"] :is(input, select, textarea) {
+    color: var(--text) !important;
+    caret-color: var(--text);
+    color-scheme: dark;
+}
+[data-theme="dark"] option { background: var(--surface); color: var(--text); }
+
 /* ---------- Readable status colours ----------
    --ok / --warn / --bad are too light to read as text on their own tints (about 2:1).
    These text variants reach 4.5:1 in the light theme; the dark theme keeps the bright hues. */

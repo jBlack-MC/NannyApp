@@ -7,7 +7,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 $body = json_body();
-$email = trim((string) ($body['email'] ?? ''));
+$email = strtolower(trim((string) ($body['email'] ?? '')));
 $password = (string) ($body['password'] ?? '');
 
 if ($email === '' || $password === '') {
