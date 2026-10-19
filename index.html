@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Welcome to Nanny-App</title>
+  <style>
+    body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f5f1fa;color:#30223d;font:18px/1.6 system-ui,sans-serif}
+    main{text-align:center;max-width:32rem;padding:3rem 1.5rem}h1{font-size:2.8rem;margin:.5rem 0}p{color:#655471}
+    .mark{display:inline-grid;place-items:center;width:80px;height:80px;border-radius:24px;background:#7955a3;color:white;font-size:40px}
+    button{font:inherit;background:#7955a3;color:white;border:0;border-radius:12px;padding:.7rem 1.5rem;cursor:pointer}
+  </style>
+</head>
+<body>
+  <main>
+    <span class="mark" aria-hidden="true">N</span>
+    <h1>Nanny-App</h1>
+    <p>Care you can count on.</p>
+    <p id="status" role="status">Opening your community…</p>
+    <button id="retry" hidden>Try again</button>
+    <noscript><p>Enable JavaScript to continue to Nanny-App.</p></noscript>
+  </main>
+  <script>
+    const status = document.getElementById('status');
+    const retry = document.getElementById('retry');
+    async function openApp() {
+      retry.hidden = true;
+      status.textContent = 'Opening your community…';
+      try {
+        const response = await fetch('/api/runtime-ready', {cache:'no-store', signal:AbortSignal.timeout(15000)});
+        if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) throw new Error('Unavailable');
+        const result = await response.json();
+        if (result.runtime !== 'nannyapp-php') throw new Error('Unavailable');
+        window.location.replace('/index.php');
+      } catch {
+        status.textContent = 'Nanny-App is temporarily unavailable. Please try again shortly.';
+        retry.hidden = false;
+      }
+    }
+    retry.addEventListener('click', openApp);
+    openApp();
+  </script>
+</body>
+</html>

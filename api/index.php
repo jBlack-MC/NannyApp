@@ -13,6 +13,20 @@ $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $requestPath = rawurldecode($requestPath);
 $requestPath = '/' . ltrim($requestPath, '/');
 
+if ($requestPath === '/' || $requestPath === '/index.html') {
+    header('Content-Type: text/html; charset=utf-8');
+    readfile(dirname(__DIR__) . '/index.html');
+    exit;
+}
+
+// A database-independent readiness check for the splash screen.
+if ($requestPath === '/api/runtime-ready') {
+    header('Content-Type: application/json');
+    header('Cache-Control: no-store');
+    echo '{"runtime":"nannyapp-php"}';
+    exit;
+}
+
 $webRoot = dirname(__DIR__) . '/NannyApp.Web';
 $apiRoot = dirname(__DIR__) . '/NannyApp.Mobile/NannyApp/api';
 $isApiRequest = $requestPath === '/api' || str_starts_with($requestPath, '/api/');

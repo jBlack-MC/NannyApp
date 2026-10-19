@@ -1,5 +1,8 @@
 **
 !index.php
+!index.html
+!api/
+!api/**
 !.htaccess
 !vercel.json
 !NannyApp.Shared/
