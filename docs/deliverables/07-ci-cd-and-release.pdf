@@ -1,0 +1,115 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Length 2378 >>
+stream
+BT
+/F1 11 Tf
+50 790 Td
+(NANNY-APP - CI/CD AND APK RELEASE PLAN) Tj
+0 -16 Td
+(Task 2 implementation evidence | Version 1.0 | 19 October 2026) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(1. PIPELINE) Tj
+0 -16 Td
+(Commit or pull request -> PHP/security checks -> Android tests/lint/build) Tj
+0 -16 Td
+(-> review and tag -> signed APK GitHub Release.) Tj
+0 -16 Td
+(Every change is checked by GitHub Actions. Releases are created from tags) Tj
+0 -16 Td
+(so the source, APK and notes remain traceable.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(2. GITHUB ACTIONS CHECKS) Tj
+0 -16 Td
+(CI: PHP/security suite, Android debug build, JVM tests, lint and unsigned) Tj
+0 -16 Td
+(release compilation. Output: test summary and build artifacts.) Tj
+0 -16 Td
+(Android release: JDK 21, Android SDK 36, HTTPS API validation, signing) Tj
+0 -16 Td
+(and APK signature verification. Output: NannyApp.apk GitHub asset.) Tj
+0 -16 Td
+(Supabase migration: protected migration endpoint and health check.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(3. REQUIRED REPOSITORY CONFIGURATION) Tj
+0 -16 Td
+(NANNYAPP_RELEASE_KEYSTORE_BASE64) Tj
+0 -16 Td
+(NANNYAPP_RELEASE_KEYSTORE_PASSWORD) Tj
+0 -16 Td
+(NANNYAPP_RELEASE_KEY_ALIAS) Tj
+0 -16 Td
+(NANNYAPP_RELEASE_KEY_PASSWORD) Tj
+0 -16 Td
+(Set NANNYAPP_RELEASE_API_URL to an HTTPS API ending in /api/. Never) Tj
+0 -16 Td
+(commit secrets or the signing keystore.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(4. RELEASE PROCEDURE) Tj
+0 -16 Td
+(1. Run CI and confirm tests, lint and release compilation pass.) Tj
+0 -16 Td
+(2. Create and push an annotated version tag such as v1.0.2.) Tj
+0 -16 Td
+(3. GitHub Actions builds, signs and verifies the APK and attaches it.) Tj
+0 -16 Td
+(4. Set NANNYAPP_APK_URL on the web host to the latest-release URL.) Tj
+0 -16 Td
+(5. Install on a real Android phone and record the result.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(5. QUALITY AND ROLLBACK) Tj
+0 -16 Td
+(Automated checks pass; API is HTTPS; migrations are applied; signature) Tj
+0 -16 Td
+(verifies; registration, verification, login and settings work on a real) Tj
+0 -16 Td
+(device; and the previous GitHub release remains available for rollback.) Tj
+0 -16 Td
+() Tj
+0 -16 Td
+(6. DEMONSTRATION EVIDENCE) Tj
+0 -16 Td
+(Show the green Actions run, GitHub Release APK asset, website download) Tj
+0 -16 Td
+(page, phone installation, registration/login, database/API records and) Tj
+0 -16 Td
+(a voice-over explaining the release pipeline.) Tj
+0 -16 Td
+ET
+endstream
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000311 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+2741
+%%EOF

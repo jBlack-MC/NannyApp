@@ -9,6 +9,7 @@ $catalogue = [
     ['slug' => 'design-brief', 'title' => 'Design brief', 'description' => 'The interface direction, visual language and accessibility choices.', 'html' => '04-design-brief.html', 'pdf' => '04-design-brief.pdf'],
     ['slug' => 'backend-schema', 'title' => 'Backend schema and API', 'description' => 'Database tables, API responsibilities and authentication architecture.', 'html' => '05-backend-schema.html', 'pdf' => '05-backend-schema.pdf'],
     ['slug' => 'implementation-plan', 'title' => 'Implementation plan', 'description' => 'Implementation phases, testing, DevOps and delivery evidence.', 'html' => '06-implementation-plan.html', 'pdf' => '06-implementation-plan.pdf'],
+    ['slug' => 'ci-cd-and-release', 'title' => 'CI/CD and APK release', 'description' => 'GitHub Actions, signed APK publishing, web distribution and release evidence.', 'html' => '07-ci-cd-and-release.html', 'pdf' => '07-ci-cd-and-release.pdf'],
 ];
 
 // Catalogue metadata is persisted when the migration is available. The

@@ -140,6 +140,7 @@ def main() -> None:
         ("design-brief", "Design brief", "The interface direction, visual language and accessibility choices.", "04-design-brief.html", "04-design-brief.pdf", 4),
         ("backend-schema", "Backend schema and API", "Database tables, API responsibilities and authentication architecture.", "05-backend-schema.html", "05-backend-schema.pdf", 5),
         ("implementation-plan", "Implementation plan", "Implementation phases, testing, DevOps and delivery evidence.", "06-implementation-plan.html", "06-implementation-plan.pdf", 6),
+        ("ci-cd-and-release", "CI/CD and APK release", "GitHub Actions, signed APK publishing, web distribution and release evidence.", "07-ci-cd-and-release.html", "07-ci-cd-and-release.pdf", 7),
     ]
     for slug, title, description, html_file, pdf_file, order in deliverables:
         cur.execute("""INSERT INTO project_deliverables (slug,title,description,category,html_file,pdf_file,sort_order,is_active)

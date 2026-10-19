@@ -1,7 +1,7 @@
 # Nanny-App documentation deliverables
 
 Open [index.html](index.html) for the HTML suite. Each numbered document has a
-matching PDF generated from the same HTML and shared stylesheet.
+matching PDF suitable for submission and download.
 
 | Deliverable | HTML | PDF |
 | --- | --- | --- |
@@ -11,6 +11,7 @@ matching PDF generated from the same HTML and shared stylesheet.
 | Design Brief | [HTML](04-design-brief.html) | [PDF](04-design-brief.pdf) |
 | Backend Schema & API | [HTML](05-backend-schema.html) | [PDF](05-backend-schema.pdf) |
 | Implementation Plan | [HTML](06-implementation-plan.html) | [PDF](06-implementation-plan.pdf) |
+| CI/CD and APK Release Plan | [HTML](07-ci-cd-and-release.html) | [PDF](07-ci-cd-and-release.pdf) |
 
 The documents describe the repository state on 10 October 2026. Regenerate the
 HTML after editing `build-docs.js` with `node docs/deliverables/build-docs.js`,

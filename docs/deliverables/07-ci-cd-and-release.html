@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="GitHub Actions CI/CD, Android APK release and web distribution plan">
+  <title>CI/CD and APK Release | Nanny-App</title>
+  <link rel="stylesheet" href="assets/document.css">
+</head>
+<body>
+<article class="page">
+  <header class="hero">
+    <div class="eyebrow">Nanny-App · Product &amp; Engineering</div>
+    <h1>CI/CD and APK Release Plan</h1>
+    <p>Automated verification, signed Android releases, GitHub distribution and website delivery.</p>
+    <div class="meta"><span>Version 1.0</span><span>19 October 2026</span><span>Status: Task 2 implementation evidence</span></div>
+  </header>
+  <main class="content">
+    <h2>1. Pipeline</h2>
+    <div class="flow"><div class="node">Commit / pull request</div><div class="arrow">→</div><div class="node">PHP and security checks</div><div class="arrow">→</div><div class="node">Android tests, lint and build</div><div class="arrow">→</div><div class="node">Review and tag</div><div class="arrow">→</div><div class="node">Signed APK GitHub Release</div></div>
+    <p>Every change is checked by GitHub Actions. A release is deliberately created from a version tag so the source, APK and release notes are traceable.</p>
+
+    <h2>2. GitHub Actions checks</h2>
+    <div class="table-wrap"><table><tr><th>Workflow</th><th>Checks</th><th>Output</th></tr><tr><td>CI</td><td>PHP/security integration suite, Android debug build, JVM tests, lint and unsigned release compilation.</td><td>Test summary and build artifacts.</td></tr><tr><td>Android release</td><td>JDK 21, Android SDK 36, release API URL validation, signing and APK signature verification.</td><td>GitHub Release asset named <code>NannyApp.apk</code>.</td></tr><tr><td>Supabase migration</td><td>Protected migration endpoint and health check.</td><td>Versioned database schema.</td></tr></table></div>
+
+    <h2>3. Required repository configuration</h2>
+    <ul><li><code>NANNYAPP_RELEASE_KEYSTORE_BASE64</code></li><li><code>NANNYAPP_RELEASE_KEYSTORE_PASSWORD</code></li><li><code>NANNYAPP_RELEASE_KEY_ALIAS</code></li><li><code>NANNYAPP_RELEASE_KEY_PASSWORD</code></li></ul>
+    <p>Set the repository variable <code>NANNYAPP_RELEASE_API_URL</code> to the HTTPS API ending in <code>/api/</code>. Secrets and the signing keystore are never committed.</p>
+
+    <h2>4. Release procedure</h2>
+    <ol><li>Run the CI workflow and confirm the Android tests, lint and release compilation pass.</li><li>Create and push an annotated version tag, for example <code>v1.0.2</code>.</li><li>GitHub Actions builds, signs and verifies the APK, then attaches it to the GitHub Release.</li><li>Set <code>NANNYAPP_APK_URL</code> on the web host to the stable latest-release URL.</li><li>Open the website download page and install the APK on a real Android phone.</li><li>Record the release tag, APK SHA-256, device test result and rollback version.</li></ol>
+
+    <h2>5. Quality and rollback gates</h2>
+    <div class="grid"><div class="card"><h3>Before release</h3><p>All automated checks pass, API is HTTPS, database migrations are applied, and the APK signature verifies.</p></div><div class="card"><h3>Real device</h3><p>Install on Android 8+, register, verify email, log in, change settings, exercise core features and capture evidence.</p></div><div class="card"><h3>Web distribution</h3><p>The download endpoint redirects to the GitHub release asset and never exposes the signing key or source secrets.</p></div><div class="card"><h3>Rollback</h3><p>Keep the prior GitHub release and APK URL available. Re-point the website to the previous tag if a release is withdrawn.</p></div></div>
+
+    <h2>6. Evidence for the demonstration</h2>
+    <ul><li>GitHub Actions run showing green CI and Android build steps.</li><li>GitHub Release page showing the APK asset and tag.</li><li>Website download page and successful phone installation.</li><li>Voice-over showing registration, authentication, database/API records and the release pipeline.</li></ul>
+  </main>
+  <footer class="footer">Nanny-App · Care · Connect · Comfort · Task 2 implementation evidence</footer>
+</article>
+</body>
+</html>

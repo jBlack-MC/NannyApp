@@ -97,3 +97,8 @@ jobs:
           generate_release_notes: true
           files: NannyApp.Mobile/NannyApp/app/build/outputs/apk/release/NannyApp.apk
           fail_on_unmatched_files: true
+          body: |
+            Signed Android release for Nanny-App.
+
+            API: ${{ vars.NANNYAPP_RELEASE_API_URL || 'https://nannyapp-two.vercel.app/api/' }}
+            Install this APK on a real Android phone for the Task 2 demonstration.

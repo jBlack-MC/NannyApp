@@ -9,6 +9,7 @@ $files = [
     'design-brief' => ['html' => '04-design-brief.html', 'pdf' => '04-design-brief.pdf'],
     'backend-schema' => ['html' => '05-backend-schema.html', 'pdf' => '05-backend-schema.pdf'],
     'implementation-plan' => ['html' => '06-implementation-plan.html', 'pdf' => '06-implementation-plan.pdf'],
+    'ci-cd-and-release' => ['html' => '07-ci-cd-and-release.html', 'pdf' => '07-ci-cd-and-release.pdf'],
 ];
 $slug = (string) ($_GET['slug'] ?? '');
 $format = (string) ($_GET['format'] ?? '');

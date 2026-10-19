@@ -180,3 +180,38 @@ apksigner sign --ks nanny.keystore --out nanny-app.apk nanny-aligned.apk
   parent-issued check-in PIN before a nanny is paid out. Admin profile
   records.
 + **1.0.0** — Initial release.
+
+## PowerShell release commands
+
+Run these from the repository root after configuring the four GitHub signing
+secrets and the `NANNYAPP_RELEASE_API_URL` repository variable. Never commit
+the keystore or any secret values.
+
+```powershell
+git status
+git add .github/workflows/ci.yml .github/workflows/android-release.yml `
+  NannyApp.Mobile NannyApp.Shared NannyApp.Web docs scripts .env.production.example
+git commit -m "Add Task 2 CI/CD and APK release deliverables"
+git push origin main
+
+# This starts android-release.yml and publishes NannyApp.apk.
+git tag -a v1.0.2 -m "Nanny-App Android release v1.0.2"
+git push origin v1.0.2
+```
+
+To rerun an existing tag:
+
+```powershell
+gh workflow run "Android release" -f tag=v1.0.2
+gh run watch
+gh release view v1.0.2
+```
+
+After the workflow is green, configure the web host with:
+
+```text
+NANNYAPP_APK_URL=https://github.com/jBlack-MC/NannyApp/releases/latest/download/NannyApp.apk
+```
+
+The CI workflow uploads unsigned verification APKs as workflow artifacts;
+only the tag-controlled Android release workflow publishes a signed APK.
