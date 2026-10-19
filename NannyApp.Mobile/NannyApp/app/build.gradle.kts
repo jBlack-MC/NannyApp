@@ -51,8 +51,8 @@ android {
         minSdk = 26
         targetSdk = 35
         // Increase this for every published APK so Android accepts it as an update.
-        versionCode = 3
-        versionName = "1.0.3"
+        versionCode = 4
+        versionName = "1.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
