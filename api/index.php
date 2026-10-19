@@ -15,8 +15,9 @@ $requestPath = '/' . ltrim($requestPath, '/');
 
 $webRoot = dirname(__DIR__) . '/NannyApp.Web';
 $apiRoot = dirname(__DIR__) . '/NannyApp.Mobile/NannyApp/api';
+$isApiRequest = $requestPath === '/api' || str_starts_with($requestPath, '/api/');
 
-if (str_starts_with($requestPath, '/api/')) {
+if ($isApiRequest) {
     $relative = ltrim(substr($requestPath, 5), '/');
     $target = $apiRoot . '/' . $relative;
 } else {
@@ -24,8 +25,16 @@ if (str_starts_with($requestPath, '/api/')) {
     $target = $webRoot . '/' . ($relative === '' ? 'index.php' : $relative);
 }
 
+// Resolve directory requests and clean PHP URLs before realpath() validation.
+if (is_dir($target)) {
+    $target = rtrim($target, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'index.php';
+} elseif (!is_file($target) && pathinfo($target, PATHINFO_EXTENSION) === '') {
+    $phpTarget = $target . '.php';
+    if (is_file($phpTarget)) $target = $phpTarget;
+}
+
 $realTarget = realpath($target);
-$allowedRoot = str_starts_with($target, $apiRoot . '/') ? $apiRoot : $webRoot;
+$allowedRoot = $isApiRequest ? $apiRoot : $webRoot;
 $realRoot = realpath($allowedRoot);
 
 if ($realTarget === false || $realRoot === false || !str_starts_with($realTarget, $realRoot . DIRECTORY_SEPARATOR)) {

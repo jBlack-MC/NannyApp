@@ -4,7 +4,7 @@ require_once __DIR__ . '/config/config.php';
 
 $apkPath = getenv('NANNYAPP_APK_PATH') ?: dirname(__DIR__) . '/NannyApp.Shared/releases/NannyApp-latest.apk';
 $apkPath = is_string($apkPath) ? $apkPath : '';
-$apkUrl = getenv('NANNYAPP_APK_URL') ?: '';
+$apkUrl = getenv('NANNYAPP_APK_URL') ?: 'https://github.com/jBlack-MC/NannyApp/releases/latest/download/NannyApp.apk';
 $apkUrl = is_string($apkUrl) ? trim($apkUrl) : '';
 $apkUrlIsValid = $apkUrl !== '' && filter_var($apkUrl, FILTER_VALIDATE_URL)
     && (parse_url($apkUrl, PHP_URL_SCHEME) === 'https');
