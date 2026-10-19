@@ -85,12 +85,13 @@ private fun MessageBubble(msg: com.nannyapp.domain.model.ChatMessage) {
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.widthIn(max = 280.dp),
         ) {
-            if (msg.isMine) {
-                Text(msg.content, color = textColor, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
-            } else {
-                TranslatableText(msg.content, color = textColor, linkColor = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.bodyLarge, modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp))
-            }
+            TranslatableText(
+                msg.content,
+                color = textColor,
+                linkColor = if (msg.isMine) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            )
         }
         Text(
             text = msg.createdAt + if (msg.isMine) (if (msg.isRead) " · Read" else " · Sent") else "",

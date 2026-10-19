@@ -94,7 +94,7 @@ This is the main PHP website — see the [repo-wide overview](../README.md) for 
 | Layer | Technology |
 | --- | --- |
 | Server | PHP 8.x |
-| Database | MySQL / MariaDB via PDO |
+| Database | MySQL / MariaDB or Supabase PostgreSQL via PDO |
 | Local environment | XAMPP (Apache + MySQL) |
 | CSS | Single modular design system in `assets/css/` (`variables.css`, `reset.css`, `layout.css`, `navbar.css`, `components.css`, `forms.css`, `animations.css`, `responsive.css`, `pages.css`, `dashboard.css`, `style.css`) — shared by every page, including the landing page |
 | JavaScript | Vanilla JS (`assets/js/app.js`), plus small inline scripts per page for AJAX (messages, save-nanny) |

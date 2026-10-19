@@ -9,7 +9,9 @@ function is_rate_limited(string $key, int $maxAttempts = 5, int $windowSeconds =
         $pdo->beginTransaction();
         $key = hash('sha256', $key);
         // Upsert takes an exclusive row lock, avoiding INSERT IGNORE's shared-lock upgrade race.
-        $pdo->prepare('INSERT INTO security_rate_limits (bucket, attempts, resets_at) VALUES (?, 0, 0) ON DUPLICATE KEY UPDATE bucket = VALUES(bucket)')->execute([$key]);
+        $pdo->prepare(DB_DRIVER === 'pgsql'
+            ? 'INSERT INTO security_rate_limits (bucket, attempts, resets_at) VALUES (?, 0, 0) ON CONFLICT (bucket) DO NOTHING'
+            : 'INSERT INTO security_rate_limits (bucket, attempts, resets_at) VALUES (?, 0, 0) ON DUPLICATE KEY UPDATE bucket = VALUES(bucket)')->execute([$key]);
         $stmt = $pdo->prepare('SELECT attempts, resets_at, UNIX_TIMESTAMP() AS now_at FROM security_rate_limits WHERE bucket = ? FOR UPDATE');
         $stmt->execute([$key]);
         $row = $stmt->fetch();

@@ -19,12 +19,7 @@ function health_reply(int $httpCode, string $status, array $checks): never
 
 // db() exits with a plain-text 500 on failure; connect directly so monitors always get JSON.
 try {
-    $pdo = new PDO(
-        sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', DB_HOST, DB_PORT, DB_NAME),
-        DB_USER,
-        DB_PASS,
-        [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_TIMEOUT => 3]
-    );
+    $pdo = db();
 } catch (PDOException $e) {
     log_exception($e, 'health_database_down');
     health_reply(503, 'down', ['database' => 'failed']);

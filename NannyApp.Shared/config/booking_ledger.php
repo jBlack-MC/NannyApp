@@ -13,6 +13,6 @@ function update_booking_ledger(PDO $pdo, int $id, string $operation, bool $compl
     } elseif ($operation==='receive') {
         if ($pay['method']!=='manual' || $pay['status']!=='pending') throw new RuntimeException('No pending manual payment.');
         $state=$completed?'released':'held';
-        $pdo->prepare("UPDATE payments SET status='paid',payout_status=?,released_at=IF(?='released',NOW(),NULL) WHERE booking_id=?")->execute([$state,$state,$id]);
+        $pdo->prepare("UPDATE payments SET status='paid',payout_status=?,released_at=CASE WHEN ?='released' THEN NOW() ELSE NULL END WHERE booking_id=?")->execute([$state,$state,$id]);
     } else throw new LogicException('Unknown ledger operation.');
 }

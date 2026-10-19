@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.php": {
+      "runtime": "vercel-php@0.9.0",
+      "maxDuration": 60
+    }
+  },
+  "routes": [
+    { "src": "/assets/(.*)", "dest": "/NannyApp.Web/assets/$1" },
+    { "src": "/(.*\\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2|webmanifest))", "dest": "/NannyApp.Web/$1" },
+    { "src": "/(.*)", "dest": "/api/index.php" }
+  ]
+}

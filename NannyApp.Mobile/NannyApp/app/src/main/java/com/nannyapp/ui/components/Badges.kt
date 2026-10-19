@@ -76,7 +76,7 @@ fun BookingStatusChip(status: BookingStatus, modifier: Modifier = Modifier) {
         color = color,
         style = MaterialTheme.typography.labelMedium,
         modifier = modifier
-            .background(color.copy(alpha = 0.12f), RoundedCornerShape(50))
+            .background(color.copy(alpha = 0.18f), RoundedCornerShape(50))
             .padding(horizontal = 10.dp, vertical = 4.dp),
     )
 }
@@ -97,7 +97,7 @@ fun SupportStatusChip(status: SupportStatus, modifier: Modifier = Modifier) {
     }
     Text(
         text = label, color = color, style = MaterialTheme.typography.labelMedium,
-        modifier = modifier.background(color.copy(alpha = 0.12f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp),
+        modifier = modifier.background(color.copy(alpha = 0.18f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 4.dp),
     )
 }
 

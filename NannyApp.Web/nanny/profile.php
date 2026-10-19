@@ -4,7 +4,9 @@ require_role('nanny');
 
 $me = current_user()['id'];
 
-db()->prepare('INSERT IGNORE INTO nanny_profiles (user_id, verification_status) VALUES (?, "pending")')
+db()->prepare(DB_DRIVER === 'pgsql'
+    ? "INSERT INTO nanny_profiles (user_id, verification_status) VALUES (?, 'pending') ON CONFLICT DO NOTHING"
+    : 'INSERT IGNORE INTO nanny_profiles (user_id, verification_status) VALUES (?, "pending")')
     ->execute([$me]);
 
 $stmt = db()->prepare('SELECT * FROM nanny_profiles WHERE user_id = ?');
@@ -82,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             SET bio=?, experience_years=?, hourly_rate=?, location=?,
                 skills=?, availability=?, languages=?, qualifications=?, specialisations=?,
                 gender=?, date_of_birth=?,
-                verification_status = IF(verification_status="verified","pending",verification_status)';
+                verification_status = CASE WHEN verification_status=\'verified\' THEN \'pending\' ELSE verification_status END';
     $params = [$bio, $experience, $rate, $location, $skills, $avail, $languages, $quals ?: null, $specs ?: null, $gender, $dob ?: null];
     if ($newPhoto) { $sql .= ', photo_url=?';   $params[] = $newPhoto; }
     if ($newBanner) { $sql .= ', banner_image=?'; $params[] = $newBanner; }

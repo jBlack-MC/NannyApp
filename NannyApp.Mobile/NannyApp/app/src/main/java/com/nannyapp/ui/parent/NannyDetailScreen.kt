@@ -113,13 +113,15 @@ fun NannyDetailScreen(
                         if (nanny.extendedLocked) {
                             Spacer(Modifier.height(16.dp))
                             AppCard(Modifier.fillMaxWidth(), onClick = onPlus) {
-                                Row(Modifier.padding(16.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-                                    Icon(Icons.Outlined.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                    Spacer(Modifier.width(12.dp))
-                                    Column(Modifier.weight(1f)) {
-                                        Text(stringResource(R.string.plus_locked_title), style = MaterialTheme.typography.titleSmall)
-                                        Text(stringResource(R.string.plus_locked_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                        Icon(Icons.Outlined.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
+                                        Spacer(Modifier.width(8.dp))
+                                        Text(stringResource(R.string.plus_locked_title), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                                        PlusBadge(stringResource(R.string.plus_name))
                                     }
+                                    Text(stringResource(R.string.plus_locked_body), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    TextActionButton(text = "Unlock with NannyApp Plus", onClick = onPlus)
                                 }
                             }
                         } else if (!nanny.verifiedDocuments.isNullOrEmpty()) {
