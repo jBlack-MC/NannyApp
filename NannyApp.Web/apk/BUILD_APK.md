@@ -183,28 +183,44 @@ apksigner sign --ks nanny.keystore --out nanny-app.apk nanny-aligned.apk
 
 ## PowerShell release commands
 
-Run these from the repository root after configuring the four GitHub signing
-secrets and the `NANNYAPP_RELEASE_API_URL` repository variable. Never commit
-the keystore or any secret values.
+Run these from the repository root. The release workflow requires the four
+GitHub signing secrets and the `NANNYAPP_RELEASE_API_URL` repository variable.
+Never commit the keystore or any secret values. Release tags are immutable in
+practice, so use a new tag for every APK build; `v1.0.2` points to an older
+commit and will not contain later fixes.
 
 ```powershell
+# The current repair work is on this branch. Commit it first.
+git switch fix/holiday-cache-on-main
 git status
 git add .github/workflows/ci.yml .github/workflows/android-release.yml `
   NannyApp.Mobile NannyApp.Shared NannyApp.Web docs scripts .env.production.example
-git commit -m "Add Task 2 CI/CD and APK release deliverables"
+git commit -m "Repair demo accounts and improve mobile release"
+git push origin fix/holiday-cache-on-main
+
+# Publish the same commit on main, which is the branch used for the website.
+git switch main
+git pull --ff-only origin main
+git merge --no-ff fix/holiday-cache-on-main -m "Merge mobile release and database repair"
 git push origin main
 
 # This starts android-release.yml and publishes NannyApp.apk.
-git tag -a v1.0.2 -m "Nanny-App Android release v1.0.2"
-git push origin v1.0.2
+git tag -a v1.0.3 -m "Nanny-App Android release v1.0.3"
+git push origin v1.0.3
 ```
 
-To rerun an existing tag:
+Watch and verify the build:
 
 ```powershell
-gh workflow run "Android release" -f tag=v1.0.2
 gh run watch
-gh release view v1.0.2
+gh release view v1.0.3
+```
+
+If the tag already exists, run the workflow manually against that tag:
+
+```powershell
+gh workflow run "Android release" -f tag=v1.0.3
+gh run watch
 ```
 
 After the workflow is green, configure the web host with:

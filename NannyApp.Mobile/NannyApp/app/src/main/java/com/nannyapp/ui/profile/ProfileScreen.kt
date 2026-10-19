@@ -78,6 +78,22 @@ fun ProfileScreen(
                     Column {
                         Text(state.user!!.fullName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                         Text(state.user!!.email, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Spacer(Modifier.height(6.dp))
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            shape = MaterialTheme.shapes.small,
+                        ) {
+                            Text(
+                                text = when (state.user!!.role.name) {
+                                    "NANNY" -> "Nanny account"
+                                    "ADMIN" -> "Administrator account"
+                                    else -> "Parent account"
+                                },
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                            )
+                        }
                     }
                 }
                 Spacer(Modifier.height(12.dp))
@@ -85,6 +101,27 @@ fun ProfileScreen(
                 Text("Profile ${state.completion}% complete", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(6.dp))
                 LinearProgressIndicator(progress = { state.completion / 100f }, modifier = Modifier.fillMaxWidth(), trackColor = MaterialTheme.colorScheme.outlineVariant)
+
+                Spacer(Modifier.height(16.dp))
+                AppCard(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("Your Nanny-App journey", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            when (state.user!!.role.name) {
+                                "NANNY" -> "Complete your professional profile, set availability, respond to parent requests, and manage bookings from the dashboard."
+                                "ADMIN" -> "Review profiles, monitor activity, and manage project deliverables from the web admin area."
+                                else -> "Complete your family profile, discover nannies, message safely, and create bookings from the parent dashboard."
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            "Account status: ${state.user!!.status.name.lowercase().replaceFirstChar { it.uppercase() }}${if (state.user!!.emailVerified) " • Email verified" else " • Verify your email"}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = if (state.user!!.emailVerified) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
 
                 Spacer(Modifier.height(20.dp))
                 if (state.editing) {
