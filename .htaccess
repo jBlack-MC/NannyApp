@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Serve the existing web assets from the web application directory.
+RewriteRule ^assets/(.*)$ NannyApp.Web/assets/$1 [L]
+RewriteRule ^(.+\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2|webmanifest))$ NannyApp.Web/$1 [L]
+
+# Route PHP web pages and Android API requests through the shared front controller.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ api/index.php [L,QSA]
