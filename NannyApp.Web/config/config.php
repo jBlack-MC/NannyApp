@@ -32,9 +32,9 @@ $dbUrl = trim((string) (getenv('NANNYAPP_DB_URL') ?: getenv('POSTGRES_URL_NON_PO
 $dbParts = $dbUrl !== '' ? parse_url($dbUrl) : false;
 $dbUrlHost = is_array($dbParts) ? (string) ($dbParts['host'] ?? '') : '';
 $dbUrlPort = is_array($dbParts) ? (string) ($dbParts['port'] ?? '') : '';
-$dbUrlUser = is_array($dbParts) ? (string) ($dbParts['user'] ?? '') : '';
-$dbUrlPass = is_array($dbParts) ? (string) ($dbParts['pass'] ?? '') : '';
-$dbUrlName = is_array($dbParts) ? ltrim((string) ($dbParts['path'] ?? ''), '/') : '';
+$dbUrlUser = is_array($dbParts) ? rawurldecode((string) ($dbParts['user'] ?? '')) : '';
+$dbUrlPass = is_array($dbParts) ? rawurldecode((string) ($dbParts['pass'] ?? '')) : '';
+$dbUrlName = is_array($dbParts) ? rawurldecode(ltrim((string) ($dbParts['path'] ?? ''), '/')) : '';
 define('DB_DRIVER', strtolower((string) (getenv('NANNYAPP_DB_DRIVER') ?: ($dbUrl !== '' || getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
 define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: $dbUrlHost ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
 define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: $dbUrlPort ?: getenv('POSTGRES_PORT') ?: (DB_DRIVER === 'pgsql' ? '5432' : '3306'));

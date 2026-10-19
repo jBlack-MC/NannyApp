@@ -19,7 +19,7 @@ $nannyappDbHost = is_array($nannyappDbParts) ? (string) ($nannyappDbParts['host'
 $nannyappDbPort = is_array($nannyappDbParts) ? (string) ($nannyappDbParts['port'] ?? '') : '';
 $nannyappDbUser = is_array($nannyappDbParts) ? rawurldecode((string) ($nannyappDbParts['user'] ?? '')) : '';
 $nannyappDbPass = is_array($nannyappDbParts) ? rawurldecode((string) ($nannyappDbParts['pass'] ?? '')) : '';
-$nannyappDbName = is_array($nannyappDbParts) ? ltrim((string) ($nannyappDbParts['path'] ?? ''), '/') : '';
+$nannyappDbName = is_array($nannyappDbParts) ? rawurldecode(ltrim((string) ($nannyappDbParts['path'] ?? ''), '/')) : '';
 if (!defined('DB_DRIVER')) define('DB_DRIVER', strtolower((string)(getenv('NANNYAPP_DB_DRIVER') ?: ($nannyappDbUrl !== '' || getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
 if (!in_array(DB_DRIVER, ['mysql', 'pgsql'], true)) {
     throw new RuntimeException('NANNYAPP_DB_DRIVER must be mysql or pgsql.');
