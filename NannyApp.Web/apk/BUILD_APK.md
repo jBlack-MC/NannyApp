@@ -89,6 +89,26 @@ After the release exists, configure the PHP server with:
 NANNYAPP_APK_URL=https://github.com/jBlack-MC/NannyApp/releases/latest/download/NannyApp.apk
 ```
 
+To create the base64 keystore value without putting the keystore in Git, run
+the following from the directory containing the keystore and paste the output
+into the GitHub repository secret named `NANNYAPP_RELEASE_KEYSTORE_BASE64`:
+
+```bash
+base64 -w 0 nanny.keystore
+```
+
+On PowerShell, use:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes('.\\nanny.keystore'))
+```
+
+The release workflow requires all four secrets before it starts Gradle:
+`NANNYAPP_RELEASE_KEYSTORE_BASE64`, `NANNYAPP_RELEASE_KEYSTORE_PASSWORD`,
+`NANNYAPP_RELEASE_KEY_ALIAS`, and `NANNYAPP_RELEASE_KEY_PASSWORD`. If any is
+missing, the workflow stops with the secret name instead of an opaque shell
+failure.
+
 The web download button redirects to that release asset. Your existing APK can
 also be uploaded manually as `NannyApp.apk` for the first release. Never commit
 the APK or signing keystore to Git.
