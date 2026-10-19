@@ -22,9 +22,23 @@ DELETE FROM users WHERE email LIKE '%@bots.nanny-app.invalid';
 
 ## Named demo accounts
 
-`parent@nanny.app`, `james@nanny.app` and `amelia@nanny.app` exist only in the local Docker setup (`docs/LOCAL_DEVELOPMENT.md`). There, they use the public password `Password123!`. They are not created on the live site with that password, because anyone who reads this repository could sign in.
+The Supabase prototype database currently contains these working seeded
+accounts, all verified and active. For the coursework demonstration they use
+the shared password `Password123!`:
 
-To create them on the live site, add a repository secret **`NANNYAPP_DEMO_PASSWORD`** with a password of your own (12 or more characters), then run **Demo bots → add**. Only missing accounts are created; existing ones and their passwords are left alone.
+- `parent@nanny.app` — parent web/mobile account
+- `james@nanny.app` — parent web/mobile account
+- `amelia@nanny.app` — nanny web/mobile account
+- `admin@nanny.app` — web-only administrator account
+
+Change or remove these public demonstration credentials before any real-user
+launch. The production repair workflow should use a private
+`NANNYAPP_DEMO_PASSWORD` secret instead.
+
+To repair them on a deployed site, add a repository secret
+**`NANNYAPP_DEMO_PASSWORD`** with a password of your own (12 or more
+characters), then run **Demo bots → add**. Existing named demo accounts are
+now repaired as well as missing accounts.
 
 To check which demo accounts exist, run this in the Supabase SQL editor:
 

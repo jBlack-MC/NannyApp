@@ -133,6 +133,37 @@ def main() -> None:
         cur.execute("""INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end)
                        VALUES (%s,1,1,'08:00','17:00') ON CONFLICT DO NOTHING""", (uid,))
 
+    # Refresh the clearly labelled, non-loginable demo bots used by the
+    # prototype home/search screens. Their reserved .invalid addresses are
+    # never usable for real email delivery.
+    cur.execute("DELETE FROM users WHERE email LIKE '%@bots.nanny-app.invalid'")
+    bot_nannies = [
+        ("Amelia", "Johannesburg", 180, 6), ("Jasmine", "Cape Town", 165, 4),
+        ("Margaret", "Durban", 200, 12), ("Naledi", "Pretoria", 150, 3),
+        ("Grace", "Sandton", 220, 9), ("Zinhle", "Centurion", 140, 2),
+    ]
+    bot_parents = [("Thandi", "Johannesburg"), ("James", "Cape Town"), ("Priya", "Durban"), ("Sipho", "Pretoria")]
+    insert_user = """INSERT INTO users (full_name,email,password_hash,role,status,email_verified,profile_image)
+                    VALUES (%s,%s,%s,%s,'active',1,%s) RETURNING id"""
+    nanny_ids, parent_ids = [], []
+    for i, (name, city, rate, years) in enumerate(bot_nannies, 1):
+        cur.execute(insert_user, (f"{name} (Bot)", f"bot.nanny{i}@bots.nanny-app.invalid", bcrypt.hashpw(os.urandom(24), bcrypt.gensalt()).decode(), "nanny", f"assets/img/people/nanny-{i}.jpg"))
+        uid = cur.fetchone()[0]; nanny_ids.append(uid)
+        cur.execute("""INSERT INTO nanny_profiles (user_id,bio,experience_years,hourly_rate,location,skills,languages,verification_status,photo_url)
+                       VALUES (%s,%s,%s,%s,%s,'First aid, Homework help','English','verified',%s)""", (uid, f"Demo bot profile, not a real person. Reliable childcare in {city}.", years, rate, city, f"assets/img/people/nanny-{i}.jpg"))
+    for i, (name, city) in enumerate(bot_parents, 1):
+        cur.execute(insert_user, (f"{name} (Bot)", f"bot.parent{i}@bots.nanny-app.invalid", bcrypt.hashpw(os.urandom(24), bcrypt.gensalt()).decode(), "parent", f"assets/img/people/parent-{i}.jpg"))
+        uid = cur.fetchone()[0]; parent_ids.append(uid)
+        cur.execute("INSERT INTO parent_profiles (user_id,number_of_children) VALUES (%s,%s)", (uid, 1 + i % 3))
+    reviews = [(0, 0, 5), (1, 1, 5), (2, 2, 5), (3, 3, 4), (0, 4, 5), (1, 5, 4), (2, 0, 5), (3, 2, 5)]
+    for i, (parent_index, nanny_index, rating) in enumerate(reviews, 1):
+        cur.execute("""INSERT INTO bookings (parent_id,nanny_id,date_time,duration,location,notes,status)
+                       VALUES (%s,%s,CURRENT_TIMESTAMP - (%s * INTERVAL '1 day'),4,%s,'Demo bot booking.','completed') RETURNING id""", (parent_ids[parent_index], nanny_ids[nanny_index], 7 + i * 5, bot_parents[parent_index][1]))
+        booking_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO reviews (booking_id,reviewer_id,nanny_id,rating,comment) VALUES (%s,%s,%s,%s,%s)", (booking_id, parent_ids[parent_index], nanny_ids[nanny_index], rating, "Demo bot review for prototype data."))
+    cur.execute("""UPDATE nanny_profiles SET average_rating = COALESCE((SELECT ROUND(AVG(r.rating),2) FROM reviews r WHERE r.nanny_id=nanny_profiles.user_id),0)
+                   WHERE user_id IN (SELECT id FROM users WHERE email LIKE '%@bots.nanny-app.invalid')""")
+
     deliverables = [
         ("product-requirements", "Product requirements", "Project scope, users, features and assessment requirements.", "01-product-requirements.html", "01-product-requirements.pdf", 1),
         ("technical-requirements", "Technical requirements", "Technology stack, security, database and deployment requirements.", "02-technical-requirements.html", "02-technical-requirements.pdf", 2),

@@ -60,7 +60,8 @@ function remove_demo_bots(PDO $pdo): int
 
 /**
  * The named demo sign-in accounts used for demonstrations (parent@nanny.app, james@nanny.app,
- * amelia@nanny.app). Creates only missing ones; existing accounts and their passwords are left alone.
+ * amelia@nanny.app). Creates missing accounts and repairs existing demo
+ * accounts when this explicitly authorised helper is run.
  * No admin is created here: see docs/DEMO_ACCOUNTS.md.
  */
 function ensure_demo_accounts(PDO $pdo, string $password): array
@@ -71,10 +72,16 @@ function ensure_demo_accounts(PDO $pdo, string $password): array
     $hash = password_hash($password, PASSWORD_DEFAULT);
     $exists = $pdo->prepare('SELECT id FROM users WHERE email = ?');
     $insert = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, role, status, email_verified) VALUES (?, ?, ?, ?, 'active', ?)");
+    $repair = $pdo->prepare("UPDATE users SET password_hash = ?, role = ?, status = 'active', email_verified = 1, verification_token = NULL WHERE email = ?");
     $created = [];
     foreach ([['Thandi Mokoena', 'parent@nanny.app', 'parent'], ['James Naidoo', 'james@nanny.app', 'parent'], ['Amelia Dlamini', 'amelia@nanny.app', 'nanny']] as [$name, $email, $role]) {
         $exists->execute([$email]);
-        if ($exists->fetchColumn() !== false) continue;
+        $existingId = $exists->fetchColumn();
+        if ($existingId !== false) {
+            $repair->execute([$hash, $role, $email]);
+            $created[] = $email . ' (repaired)';
+            continue;
+        }
         $insert->execute([$name, $email, $hash, $role, '1']);
         $exists->execute([$email]);
         $id = (int) $exists->fetchColumn();
