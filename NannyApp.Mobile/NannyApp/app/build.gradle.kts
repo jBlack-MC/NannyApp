@@ -169,6 +169,8 @@ dependencies {
 
     // Coil
     implementation("io.coil-kt:coil-compose:2.6.0")
+    // Database avatars can be SVG files from the website (assets/img/avatar-*.svg).
+    implementation("io.coil-kt:coil-svg:2.6.0")
 
     // Google Play Billing (Nanny-App Plus). Play requires version 8 or later for updates after 31 Aug 2026.
     implementation("com.android.billingclient:billing:8.3.0")
