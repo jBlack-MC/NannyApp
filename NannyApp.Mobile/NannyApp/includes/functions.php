@@ -5,6 +5,8 @@
 
 declare(strict_types=1);
 
+require_once __DIR__ . '/../../../NannyApp.Shared/config/public_urls.php';
+
 // ----------------------------------------------------------------------
 //  URL / output helpers
 // ----------------------------------------------------------------------
@@ -324,21 +326,13 @@ function media_url(?string $path): ?string
  */
 function web_root_url(): string
 {
-    $api = api_root_url();
-    $origin = substr($api, 0, (int) strpos($api, '/', strlen('https://')));
-    $path = parse_url(getenv('NANNYAPP_BASE_URL') ?: '/nannyapp', PHP_URL_PATH) ?: '';
-    return $origin . rtrim($path, '/') . '/';
+    return nannyapp_public_base_url();
 }
 
 /** Absolute base URL of this API deployment, e.g. "https://host/nannyapp/api/". */
 function api_root_url(): string
 {
-    $scheme = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
-    $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
-    $uri    = $_SERVER['REQUEST_URI'] ?? '/api/';
-    $pos    = strpos($uri, '/api/');
-    $base   = $pos !== false ? substr($uri, 0, $pos + 5) : '/api/';
-    return $scheme . '://' . $host . $base;
+    return web_root_url() . 'api/';
 }
 
 /** Render an avatar: the uploaded image if present, else coloured initials. */

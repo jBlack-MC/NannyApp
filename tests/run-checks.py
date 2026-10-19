@@ -24,6 +24,7 @@ try:
     for path in sorted((root / 'NannyApp.Web/assets/js').glob('*.js')):
         run(['node', '--check', str(path.relative_to(root))])
     run(['node', '--check', 'NannyApp.Web/service-worker.js'])
+    run([php, 'tests/security/public-urls.test.php'])
     for test in ['service-worker.test.cjs', 'install.test.cjs']:
         run(['node', 'tests/security/' + test])
     run([sys.executable, 'tests/security/android-cache.test.py'])
