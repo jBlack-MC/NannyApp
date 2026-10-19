@@ -86,13 +86,14 @@ require __DIR__ . '/../includes/header.php';
               // server itself (local development) or when NANNYAPP_DEMO_LOGIN=1 is set deliberately.
         $demoLogin = getenv('NANNYAPP_DEMO_LOGIN') === '1'
             || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
+        $demoPassword = (string) (getenv('NANNYAPP_DEMO_PASSWORD') ?: 'Password123!');
         if ($demoLogin): ?>
         <div class="demo-bar">
             <span class="demo-bar-label">Demo accounts — Log in as</span>
             <div class="demo-bar-btns">
-                <button type="button" class="btn btn-sm demo-btn" data-email="parent@nanny.app" data-pass="Password123!">Parent</button>
-                <button type="button" class="btn btn-sm demo-btn" data-email="amelia@nanny.app" data-pass="Password123!">Nanny</button>
-                <button type="button" class="btn btn-sm demo-btn" data-email="admin@nanny.app"  data-pass="Password123!">Admin</button>
+                <button type="button" class="btn btn-sm demo-btn" data-email="parent@nanny.app" data-pass="<?= e($demoPassword) ?>">Parent</button>
+                <button type="button" class="btn btn-sm demo-btn" data-email="amelia@nanny.app" data-pass="<?= e($demoPassword) ?>">Nanny</button>
+                <button type="button" class="btn btn-sm demo-btn" data-email="admin@nanny.app"  data-pass="<?= e($demoPassword) ?>">Admin</button>
             </div>
         </div>
         <?php endif; ?>
