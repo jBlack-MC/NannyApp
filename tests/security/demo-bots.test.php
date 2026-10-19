@@ -18,7 +18,7 @@ if (!in_array('sqlite', PDO::getAvailableDrivers(), true)) {
 $pdo = new PDO('sqlite::memory:', null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 $pdo->exec('PRAGMA foreign_keys = ON');
 $pdo->exec("CREATE TABLE users (id INTEGER PRIMARY KEY AUTOINCREMENT, full_name TEXT NOT NULL, email TEXT NOT NULL UNIQUE,
-    password_hash TEXT NOT NULL, role TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', email_verified INT NOT NULL DEFAULT 0, profile_image TEXT)");
+    password_hash TEXT NOT NULL, role TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active', email_verified INT NOT NULL DEFAULT 0, verification_token TEXT, profile_image TEXT)");
 $pdo->exec('CREATE TABLE parent_profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, number_of_children INT DEFAULT 0)');
 $pdo->exec("CREATE TABLE nanny_profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE, bio TEXT,
     experience_years INT DEFAULT 0, hourly_rate REAL DEFAULT 0, location TEXT, skills TEXT, languages TEXT, verification_status TEXT NOT NULL DEFAULT 'pending',
@@ -43,8 +43,10 @@ add_demo_bots($pdo);
 check($count('SELECT COUNT(*) FROM users') === 11 && $count('SELECT COUNT(*) FROM reviews') === 8, 're-adding refreshes instead of duplicating');
 
 check(ensure_demo_accounts($pdo, 'a-long-demo-password') === ['parent@nanny.app', 'james@nanny.app', 'amelia@nanny.app'], 'demo accounts created');
-check(ensure_demo_accounts($pdo, 'another-password!!') === [], 'existing demo accounts are left alone');
-check(password_verify('a-long-demo-password', (string) $pdo->query("SELECT password_hash FROM users WHERE email = 'parent@nanny.app'")->fetchColumn()), 'demo password kept');
+$pdo->exec("UPDATE users SET email_verified = 0, verification_token = 'stale' WHERE email = 'parent@nanny.app'");
+check(ensure_demo_accounts($pdo, 'another-password!!') === ['parent@nanny.app (repaired)', 'james@nanny.app (repaired)', 'amelia@nanny.app (repaired)'], 'existing demo accounts are repaired');
+check(password_verify('another-password!!', (string) $pdo->query("SELECT password_hash FROM users WHERE email = 'parent@nanny.app'")->fetchColumn()), 'repair sets the new password');
+check($pdo->query("SELECT email_verified || COALESCE(verification_token, '-') FROM users WHERE email = 'parent@nanny.app'")->fetchColumn() === '1-', 'repair verifies the account');
 foreach (['short', 'Password123!'] as $weak) {
     try { ensure_demo_accounts($pdo, $weak); check(false, "rejects $weak"); } catch (InvalidArgumentException) {}
 }

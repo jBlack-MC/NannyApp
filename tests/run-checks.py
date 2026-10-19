@@ -25,6 +25,7 @@ try:
         run(['node', '--check', str(path.relative_to(root))])
     run(['node', '--check', 'NannyApp.Web/service-worker.js'])
     run([php, 'tests/security/public-urls.test.php'])
+    run([php, 'tests/security/db-settings.test.php'])
     run([php, 'tests/security/web-sessions.test.php'])
     run([php, 'tests/security/demo-bots.test.php'])
     for test in ['service-worker.test.cjs', 'install.test.cjs']:
