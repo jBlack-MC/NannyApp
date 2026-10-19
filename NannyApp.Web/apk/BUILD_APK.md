@@ -109,6 +109,33 @@ The release workflow requires all four secrets before it starts Gradle:
 missing, the workflow stops with the secret name instead of an opaque shell
 failure.
 
+The previous `v1.0.3` run failed because these secrets were not configured. To
+create a signing key once and save it in GitHub without committing it, run this
+from PowerShell. Choose your own passwords and keep a backup of the keystore.
+
+```powershell
+keytool -genkeypair -v -keystore .\nanny-release.jks -alias nannyapp `
+  -keyalg RSA -keysize 2048 -validity 10000 `
+  -storepass "YOUR_KEYSTORE_PASSWORD" -keypass "YOUR_KEY_PASSWORD" `
+  -dname "CN=Nanny-App, OU=Mobile, O=Nanny-App, L=Johannesburg, S=Gauteng, C=ZA"
+
+$keystore64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes('.\nanny-release.jks'))
+$keystore64 | gh secret set NANNYAPP_RELEASE_KEYSTORE_BASE64 --repo jBlack-MC/NannyApp
+"YOUR_KEYSTORE_PASSWORD" | gh secret set NANNYAPP_RELEASE_KEYSTORE_PASSWORD --repo jBlack-MC/NannyApp
+"nannyapp" | gh secret set NANNYAPP_RELEASE_KEY_ALIAS --repo jBlack-MC/NannyApp
+"YOUR_KEY_PASSWORD" | gh secret set NANNYAPP_RELEASE_KEY_PASSWORD --repo jBlack-MC/NannyApp
+
+# v1.0.3 already exists and can now be rebuilt.
+gh workflow run android-release.yml --repo jBlack-MC/NannyApp -f tag=v1.0.3
+gh run watch --repo jBlack-MC/NannyApp
+gh release view v1.0.3 --repo jBlack-MC/NannyApp
+```
+
+Do not commit `nanny-release.jks`; add it to `.git/info/exclude` or delete it
+after storing a secure backup. If a phone already has an APK signed with a
+different key, uninstall that old APK once before installing this first signed
+release. Future releases signed with this same key will update normally.
+
 The web download button redirects to that release asset. Your existing APK can
 also be uploaded manually as `NannyApp.apk` for the first release. Never commit
 the APK or signing keystore to Git.
