@@ -9,6 +9,7 @@ import hashlib
 import os
 import re
 from pathlib import Path
+from urllib.parse import parse_qs, unquote, urlparse
 
 import psycopg2
 
@@ -54,13 +55,24 @@ def pg_statement(sql: str) -> list[str]:
 
 
 def main() -> None:
+    database_url = os.environ.get("NANNYAPP_DB_URL") or os.environ.get("POSTGRES_URL_NON_POOLING")
+    parsed = urlparse(database_url) if database_url else None
+    query = parse_qs(parsed.query) if parsed else {}
+    host = os.environ.get("NANNYAPP_DB_HOST") or (parsed.hostname if parsed else None) or "aws-0-us-east-1.pooler.supabase.com"
+    port = os.environ.get("NANNYAPP_DB_PORT") or (str(parsed.port) if parsed and parsed.port else None) or "5432"
+    dbname = os.environ.get("NANNYAPP_DB_NAME") or (parsed.path.lstrip("/") if parsed else "") or "postgres"
+    user = os.environ.get("NANNYAPP_DB_USER") or (unquote(parsed.username) if parsed and parsed.username else None)
+    password = os.environ.get("NANNYAPP_DB_PASS") or (unquote(parsed.password) if parsed and parsed.password else None)
+    if not user or password is None:
+        raise RuntimeError("Set NANNYAPP_DB_URL (or NANNYAPP_DB_USER and NANNYAPP_DB_PASS).")
     conn = psycopg2.connect(
-        host=os.environ.get("NANNYAPP_DB_HOST", "aws-0-us-east-1.pooler.supabase.com"),
-        port=os.environ.get("NANNYAPP_DB_PORT", "5432"),
-        dbname=os.environ.get("NANNYAPP_DB_NAME", "postgres"),
-        user=os.environ["NANNYAPP_DB_USER"],
-        password=os.environ["NANNYAPP_DB_PASS"],
-        sslmode="require",
+        host=host,
+        port=port,
+        dbname=dbname,
+        user=user,
+        password=password,
+        sslmode=os.environ.get("NANNYAPP_DB_SSLMODE", query.get("sslmode", ["require"])[0]),
+        connect_timeout=15,
     )
     conn.autocommit = True
     cur = conn.cursor()
@@ -88,9 +100,13 @@ def main() -> None:
 
     # bcrypt is compatible with PHP password_hash(..., PASSWORD_DEFAULT).
     import bcrypt
-    password_hash = bcrypt.hashpw(b"Password123!", bcrypt.gensalt()).decode()
+    demo_password = os.environ.get("NANNYAPP_DEMO_PASSWORD", "Password123!")
+    if len(demo_password) < 8:
+        raise RuntimeError("NANNYAPP_DEMO_PASSWORD must be at least 8 characters.")
+    password_hash = bcrypt.hashpw(demo_password.encode(), bcrypt.gensalt()).decode()
     demos = [
         ("Demo Parent", "parent@nanny.app", "parent"),
+        ("James Naidoo", "james@nanny.app", "parent"),
         ("Demo Nanny", "amelia@nanny.app", "nanny"),
         ("Demo Admin", "admin@nanny.app", "admin"),
     ]
@@ -99,6 +115,17 @@ def main() -> None:
                        VALUES (%s,%s,%s,%s,1,'active')
                        ON CONFLICT (email) DO UPDATE SET password_hash=EXCLUDED.password_hash,
                          email_verified=1, status='active'""", (full_name, email, password_hash, role))
+        cur.execute("SELECT id FROM users WHERE email=%s", (email,))
+        user_id = cur.fetchone()[0]
+        if role == "parent":
+            cur.execute("""INSERT INTO parent_profiles (user_id, number_of_children)
+                           VALUES (%s, 1) ON CONFLICT (user_id) DO NOTHING""", (user_id,))
+        elif role == "nanny":
+            cur.execute("""INSERT INTO nanny_profiles (user_id, bio, experience_years,
+                           hourly_rate, location, skills, availability, verification_status)
+                           VALUES (%s, %s, 5, 170, 'Johannesburg', 'First aid, Homework help',
+                           'Weekdays', 'verified') ON CONFLICT (user_id) DO NOTHING""",
+                        (user_id, "Demo nanny account for trying Nanny-App."))
 
     # A small repeatable dataset makes the deployed prototype demonstrable
     # without relying on hand-created records in the dashboard.
@@ -181,7 +208,7 @@ def main() -> None:
                          is_active=1""", (slug, title, description, html_file, pdf_file, order))
     cur.close()
     conn.close()
-    print("demo accounts ready: parent@nanny.app, amelia@nanny.app, admin@nanny.app")
+    print("database ready: migrations, demo accounts, profiles, bot data and deliverables are synchronized")
 
 
 if __name__ == "__main__":

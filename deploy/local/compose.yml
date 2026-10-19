@@ -22,6 +22,7 @@ x-app: &app
     NANNYAPP_STORAGE_DRIVER: local
     NANNYAPP_STORAGE_DIR: /srv/nannyapp/private/uploads
     NANNYAPP_DEMO_LOGIN: "1"
+    NANNYAPP_DEMO_PASSWORD: "Password123!"
   volumes:
     - uploads:/srv/nannyapp/private/uploads
     - ./apache.conf:/etc/apache2/sites-available/000-default.conf:ro
@@ -63,6 +64,7 @@ services:
       NANNYAPP_DB_PASS: ""
       NANNYAPP_BASE_URL: http://localhost
       NANNYAPP_ALLOW_DEMO_SEED: "true"
+      NANNYAPP_DEMO_PASSWORD: "Password123!"
     volumes:
       - ./seed-demo.php:/srv/nannyapp/deploy/local/seed-demo.php:ro
     command: ["sh", "-c", "php NannyApp.Shared/bin/migrate.php && php deploy/local/seed-demo.php"]

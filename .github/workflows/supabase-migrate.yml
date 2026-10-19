@@ -1,4 +1,4 @@
-name: Supabase migration
+name: Supabase database sync
 
 on:
   workflow_dispatch:
@@ -9,43 +9,60 @@ on:
       - 'NannyApp.Shared/database/**'
       - 'NannyApp.Shared/config/migrations.php'
       - 'NannyApp.Shared/bin/migrate.php'
-      - 'NannyApp.Mobile/NannyApp/api/migrate.php'
+      - 'scripts/bootstrap_supabase.py'
+      - 'scripts/requirements-supabase.txt'
       - '.github/workflows/supabase-migrate.yml'
 
 permissions:
   contents: read
 
 jobs:
-  migrate:
-    name: Apply approved production schema migrations
+  sync:
+    name: Migrate, seed and verify Supabase
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Validate deployment settings
+      - name: Validate database settings
         env:
+          DATABASE_URL: ${{ secrets.NANNYAPP_DB_URL }}
           APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
-          TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
         run: |
           set -euo pipefail
+          test -n "$DATABASE_URL" || { echo 'Missing secret NANNYAPP_DB_URL'; exit 1; }
           test -n "$APP_URL" || { echo 'Missing repository variable NANNYAPP_PRODUCTION_URL'; exit 1; }
-          test -n "$TOKEN" || { echo 'Missing repository secret NANNYAPP_MIGRATION_TOKEN'; exit 1; }
           case "$APP_URL" in https://*) ;; *) echo 'NANNYAPP_PRODUCTION_URL must use HTTPS'; exit 1 ;; esac
 
-      - name: Apply migrations through the protected application endpoint
-        env:
-          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
-          TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
-        run: |
-          set -euo pipefail
-          response=$(curl --fail-with-body --silent --show-error --retry 3 \
-            --request POST "$APP_URL/api/migrate.php" \
-            --header "X-Nanny-Migration-Token: $TOKEN")
-          echo "$response"
-          echo "$response" | grep -F '"ok":true'
+      - uses: actions/checkout@v6
 
-      - name: Verify application health
+      - name: Install Supabase database client
+        run: python3 -m pip install --disable-pip-version-check -r scripts/requirements-supabase.txt
+
+      - name: Apply migrations and repair demo data
+        env:
+          NANNYAPP_DB_URL: ${{ secrets.NANNYAPP_DB_URL }}
+          NANNYAPP_DB_SSLMODE: require
+          NANNYAPP_DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
+        run: python3 scripts/bootstrap_supabase.py
+
+      - name: Verify deployed API uses the same database
         env:
           APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
         run: |
           set -euo pipefail
-          curl --fail-with-body --silent --show-error "$APP_URL/api/health.php"
+          health=$(curl --fail-with-body --silent --show-error --retry 3 "$APP_URL/api/health.php")
+          echo "$health"
+          echo "$health" | grep -F '"status":"ok"'
+
+      - name: Verify demo login through the deployed API
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+          DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
+        run: |
+          set -euo pipefail
+          test -n "$DEMO_PASSWORD" || { echo 'Missing secret NANNYAPP_DEMO_PASSWORD'; exit 1; }
+          response=$(curl --fail-with-body --silent --show-error --retry 3 \
+            --request POST "$APP_URL/api/auth/login.php" \
+            --header 'Content-Type: application/json' \
+            --data "{\"email\":\"parent@nanny.app\",\"password\":\"$DEMO_PASSWORD\",\"rememberMe\":true}")
+          echo "$response" | sed 's/"token":"[^"]*"/"token":"[redacted]"/'
+          echo "$response" | grep -F '"success":true'
