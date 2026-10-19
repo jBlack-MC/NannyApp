@@ -153,4 +153,7 @@ interface StaticContentRepository {
 
     /** The server's copy. It differs from the bundled one only after an edit has been published. */
     suspend fun getPublishedPage(pageKey: String): Resource<StaticPage>
+
+    /** Gallery photos, top-rated nannies and testimonials from the website's home page. */
+    suspend fun getHomeContent(): Resource<HomeContent>
 }

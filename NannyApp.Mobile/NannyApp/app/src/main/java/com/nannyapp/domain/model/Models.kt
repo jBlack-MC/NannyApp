@@ -254,6 +254,20 @@ data class BookingWizardState(
     val estimatedAmount: Double get() = (nanny?.hourlyRate ?: 0.0) * durationHours
 }
 
+/** The website's home-page content, shown on the Welcome screen. Lists are empty when unavailable. */
+data class HomeContent(
+    val galleryImages: List<String> = emptyList(),
+    val topNannies: List<HomeNanny> = emptyList(),
+    val testimonials: List<Testimonial> = emptyList(),
+)
+
+data class HomeNanny(
+    val userId: Int, val fullName: String, val photoUrl: String?, val location: String?,
+    val hourlyRate: Double, val averageRating: Double, val reviewCount: Int, val experienceYears: Int,
+)
+
+data class Testimonial(val parentName: String, val nannyName: String, val comment: String, val rating: Int)
+
 /** One of the public information pages (About, Safety, Pricing, ...), mirroring the website. */
 data class StaticPage(
     val title: String,

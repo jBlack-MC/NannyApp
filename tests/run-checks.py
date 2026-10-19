@@ -28,6 +28,7 @@ try:
         run(['node', 'tests/security/' + test])
     run([sys.executable, 'tests/security/android-cache.test.py'])
     run([sys.executable, 'tests/security/public-content.test.py', php])
+    run([sys.executable, 'tests/security/home-content.test.py', php])
     run([sys.executable, 'tests/security/download.test.py', php])
     if shutil.which('apache2'):
         run([sys.executable, 'tests/security/apache.test.py'])

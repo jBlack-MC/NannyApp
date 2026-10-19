@@ -92,6 +92,20 @@ data class CreatedIdDto(val id: Int)
 /** One South African public holiday, from content/holidays.php. */
 data class HolidayDto(val date: String, val name: String)
 
+/** content/home.php: what the website's home page shows. Image URLs are absolute. */
+data class HomeContentDto(
+    val galleryImages: List<String>? = null,
+    val topNannies: List<HomeNannyDto>? = null,
+    val testimonials: List<TestimonialDto>? = null,
+)
+
+data class HomeNannyDto(
+    val userId: Int, val fullName: String, val photoUrl: String?, val location: String?,
+    val hourlyRate: Double, val averageRating: Double, val reviewCount: Int, val experienceYears: Int,
+)
+
+data class TestimonialDto(val parentName: String, val nannyName: String, val comment: String, val rating: Int)
+
 /** subscriptions/status.php and subscriptions/verify.php. accountReference is attached to Play purchases. */
 data class PlusStatusDto(
     val active: Boolean,

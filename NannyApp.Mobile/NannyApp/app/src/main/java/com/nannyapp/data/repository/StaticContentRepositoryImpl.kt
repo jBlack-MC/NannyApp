@@ -6,7 +6,10 @@ import com.google.gson.reflect.TypeToken
 import com.nannyapp.data.api.StaticContentApi
 import com.nannyapp.data.api.dto.PageBlockDto
 import com.nannyapp.data.api.dto.PageContentDto
+import com.nannyapp.domain.model.HomeContent
+import com.nannyapp.domain.model.HomeNanny
 import com.nannyapp.domain.model.PageBlock
+import com.nannyapp.domain.model.Testimonial
 import com.nannyapp.domain.model.StaticPage
 import com.nannyapp.domain.repository.StaticContentRepository
 import com.nannyapp.util.Resource
@@ -42,6 +45,17 @@ class StaticContentRepositoryImpl @Inject constructor(
 
     override suspend fun getPublishedPage(pageKey: String): Resource<StaticPage> =
         safeApiCall { api.getPage(pageKey) }.map { it.asDomain() }
+
+    override suspend fun getHomeContent(): Resource<HomeContent> =
+        safeApiCall { api.getHome() }.map { dto ->
+            HomeContent(
+                galleryImages = dto.galleryImages.orEmpty(),
+                topNannies = dto.topNannies.orEmpty().map {
+                    HomeNanny(it.userId, it.fullName, it.photoUrl, it.location, it.hourlyRate, it.averageRating, it.reviewCount, it.experienceYears)
+                },
+                testimonials = dto.testimonials.orEmpty().map { Testimonial(it.parentName, it.nannyName, it.comment, it.rating) },
+            )
+        }
 
     private fun PageContentDto.asDomain() =
         StaticPage(title = title ?: pageKey, body = body.orEmpty(), blocks = blocks.orEmpty().mapNotNull { it.asDomain() })

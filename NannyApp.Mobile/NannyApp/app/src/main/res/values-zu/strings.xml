@@ -79,6 +79,17 @@
     <string name="welcome_cta_body">Vula i-akhawunti mahhala ukuze ubuke abanakekeli abaqinisekisiwe futhi uthumele isicelo sakho sokuqala sokubhuka.</string>
     <string name="welcome_create_account">Vula i-akhawunti mahhala</string>
     <string name="welcome_explore">Hlola i-Nanny-App</string>
+    <string name="welcome_nannies_eyebrow">Abanakekeli</string>
+    <string name="welcome_nannies_title">Abanakekeli abalinganiswe kakhulu</string>
+    <string name="welcome_view_all">Bona konke</string>
+    <string name="welcome_gallery_eyebrow">Igalari</string>
+    <string name="welcome_gallery_title">Izikhathi zokunakekela</string>
+    <string name="welcome_gallery_image">Isithombe segalari sokunakekelwa kwezingane</string>
+    <string name="welcome_testimonials_eyebrow">Ubufakazi</string>
+    <string name="welcome_testimonials_title">Imindeni ithemba i-Nanny-App</string>
+    <string name="welcome_booked_with">Ubhukhe u-%1$s</string>
+    <string name="welcome_rate_per_hour">R%1$d/ihora</string>
+    <string name="welcome_years_experience">%1$d+ iminyaka</string>
 
     <string name="settings_title">Izilungiselelo</string>
     <string name="settings_appearance">Ukubukeka</string>

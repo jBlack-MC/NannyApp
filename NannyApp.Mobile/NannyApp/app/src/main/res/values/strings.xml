@@ -82,6 +82,17 @@
     <string name="welcome_cta_body">Create a free account to browse verified nannies and send your first booking request.</string>
     <string name="welcome_create_account">Create a free account</string>
     <string name="welcome_explore">Explore Nanny-App</string>
+    <string name="welcome_nannies_eyebrow">Nannies</string>
+    <string name="welcome_nannies_title">Top-rated caregivers</string>
+    <string name="welcome_view_all">View all</string>
+    <string name="welcome_gallery_eyebrow">Gallery</string>
+    <string name="welcome_gallery_title">Moments of care</string>
+    <string name="welcome_gallery_image">Childcare gallery image</string>
+    <string name="welcome_testimonials_eyebrow">Testimonials</string>
+    <string name="welcome_testimonials_title">Families trust Nanny-App</string>
+    <string name="welcome_booked_with">Booked with %1$s</string>
+    <string name="welcome_rate_per_hour">R%1$d/hr</string>
+    <string name="welcome_years_experience">%1$d+ yrs</string>
 
     <!-- Settings -->
     <string name="settings_title">Settings</string>

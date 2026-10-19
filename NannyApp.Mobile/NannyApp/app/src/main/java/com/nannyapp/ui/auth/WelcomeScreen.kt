@@ -6,13 +6,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,9 +32,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.nannyapp.R
+import com.nannyapp.domain.model.HomeNanny
+import com.nannyapp.domain.model.Testimonial
 import com.nannyapp.ui.components.AppCard
 import com.nannyapp.ui.components.NannyAppBrand
+import com.nannyapp.ui.components.PersonPhoto
+import com.nannyapp.ui.components.RatingView
+import com.nannyapp.ui.components.RemoteImage
 import com.nannyapp.ui.components.PrimaryButton
 import com.nannyapp.ui.components.SecondaryButton
 import com.nannyapp.ui.components.TextActionButton
@@ -38,7 +50,8 @@ import androidx.compose.ui.platform.LocalDensity
 
 /**
  * Native counterpart of the website's home page (NannyApp.Web/index.php): the same headline,
- * photos and sections, without the website's live statistics or testimonials.
+ * photos and sections. Gallery photos, top-rated nannies and testimonials come from the server;
+ * the bundled photos show until they load and whenever the phone is offline.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -49,7 +62,9 @@ fun WelcomeScreen(
     onRegister: () -> Unit,
     onStaticPage: (String) -> Unit,
     onSettings: () -> Unit,
+    viewModel: WelcomeViewModel = hiltViewModel(),
 ) {
+    val home by viewModel.home.collectAsState()
     Column(
         modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState()),
@@ -79,6 +94,9 @@ fun WelcomeScreen(
                     Feature(Icons.Outlined.Assignment, R.string.welcome_why_records_title, R.string.welcome_why_records_body),
                 ),
             )
+            if (home.topNannies.isNotEmpty()) TopNannies(home.topNannies, onViewAll = onFindCare)
+            Gallery(home.galleryImages)
+            if (home.testimonials.isNotEmpty()) Testimonials(home.testimonials)
             HowItWorks()
             SafetyBand(onSafety = { onStaticPage("safety") })
             NannyBand(onBecomeNanny)
@@ -326,6 +344,99 @@ private fun ExploreLinks(onStaticPage: (String) -> Unit) {
                 row.forEach { (label, key) ->
                     TextButton(onClick = { onStaticPage(key) }, modifier = Modifier.weight(1f)) {
                         Text(stringResource(label), style = MaterialTheme.typography.labelLarge, maxLines = 1)
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Photos bundled in the app: the website's home-page gallery, shown offline and while loading. */
+private val bundledGallery = listOf(
+    R.drawable.welcome_hero, R.drawable.welcome_about, R.drawable.welcome_gallery_1,
+    R.drawable.welcome_gallery_2, R.drawable.welcome_gallery_3, R.drawable.welcome_gallery_4,
+)
+
+@Composable
+private fun SectionTitle(@StringRes eyebrow: Int, @StringRes title: Int) {
+    Eyebrow(eyebrow, center = true)
+    Text(stringResource(title), style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+}
+
+@Composable
+private fun TopNannies(nannies: List<HomeNanny>, onViewAll: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionTitle(R.string.welcome_nannies_eyebrow, R.string.welcome_nannies_title)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(nannies, key = { it.userId }) { nanny ->
+                AppCard(Modifier.width(220.dp), onClick = onViewAll) {
+                    PersonPhoto(
+                        name = nanny.fullName, url = nanny.photoUrl, shape = RoundedCornerShape(0.dp),
+                        initialsStyle = MaterialTheme.typography.displaySmall,
+                        modifier = Modifier.fillMaxWidth().height(160.dp),
+                    )
+                    Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text(nanny.fullName, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+                        nanny.location?.takeIf { it.isNotBlank() }?.let {
+                            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
+                        }
+                        RatingView(nanny.averageRating, nanny.reviewCount, compact = true)
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                            Text(stringResource(R.string.welcome_years_experience, nanny.experienceYears), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.welcome_rate_per_hour, nanny.hourlyRate.toInt()), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        }
+        TextActionButton(text = stringResource(R.string.welcome_view_all), onClick = onViewAll)
+    }
+}
+
+@Composable
+private fun Gallery(remote: List<String>) {
+    // The server's photos when it answered, else the bundled ones; each remote photo shows a bundled one until it loads.
+    val count = if (remote.isNotEmpty()) remote.size else bundledGallery.size
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionTitle(R.string.welcome_gallery_eyebrow, R.string.welcome_gallery_title)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            items(count) { index ->
+                RemoteImage(
+                    url = remote.getOrNull(index),
+                    fallback = bundledGallery[index % bundledGallery.size],
+                    contentDescription = stringResource(R.string.welcome_gallery_image),
+                    modifier = Modifier.size(width = 220.dp, height = 165.dp).clip(RoundedCornerShape(16.dp)),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun Testimonials(testimonials: List<Testimonial>) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        SectionTitle(R.string.welcome_testimonials_eyebrow, R.string.welcome_testimonials_title)
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            itemsIndexed(testimonials) { _, t ->
+                AppCard(Modifier.width(280.dp)) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row {
+                            repeat(5) { i ->
+                                Icon(
+                                    if (i < t.rating) Icons.Filled.Star else Icons.Outlined.StarBorder, contentDescription = null,
+                                    tint = Color(0xFFF5A623), modifier = Modifier.size(18.dp),
+                                )
+                            }
+                        }
+                        Text("“${t.comment}”", style = MaterialTheme.typography.bodyMedium, maxLines = 6)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            PersonPhoto(name = t.parentName, url = null, modifier = Modifier.size(36.dp))
+                            Spacer(Modifier.width(10.dp))
+                            Column {
+                                Text(t.parentName, style = MaterialTheme.typography.titleSmall)
+                                Text(stringResource(R.string.welcome_booked_with, t.nannyName), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        }
                     }
                 }
             }

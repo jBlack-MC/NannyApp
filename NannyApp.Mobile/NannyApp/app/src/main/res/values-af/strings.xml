@@ -79,6 +79,17 @@
     <string name="welcome_cta_body">Skep ’n gratis rekening om geverifieerde kinderoppassers te deursoek en jou eerste besprekingsversoek te stuur.</string>
     <string name="welcome_create_account">Skep ’n gratis rekening</string>
     <string name="welcome_explore">Verken Nanny-App</string>
+    <string name="welcome_nannies_eyebrow">Kinderoppassers</string>
+    <string name="welcome_nannies_title">Topgegradeerde versorgers</string>
+    <string name="welcome_view_all">Sien almal</string>
+    <string name="welcome_gallery_eyebrow">Galery</string>
+    <string name="welcome_gallery_title">Oomblikke van sorg</string>
+    <string name="welcome_gallery_image">Kindersorg-galeryfoto</string>
+    <string name="welcome_testimonials_eyebrow">Getuigskrifte</string>
+    <string name="welcome_testimonials_title">Gesinne vertrou Nanny-App</string>
+    <string name="welcome_booked_with">Bespreek by %1$s</string>
+    <string name="welcome_rate_per_hour">R%1$d/uur</string>
+    <string name="welcome_years_experience">%1$d+ jaar</string>
 
     <string name="settings_title">Instellings</string>
     <string name="settings_appearance">Voorkoms</string>
