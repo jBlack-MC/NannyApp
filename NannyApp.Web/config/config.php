@@ -15,8 +15,14 @@ define('SUPPORT_EMAIL', getenv('NANNYAPP_SUPPORT_EMAIL') ?: 'support@example.inv
 define('SUPPORT_PHONE', getenv('NANNYAPP_SUPPORT_PHONE') ?: 'Not configured');
 define('APP_TAGLINE', 'Care • Connect • Comfort');
 
-// Base URL of the app (folder under htdocs). No trailing slash.
-define('BASE_URL', rtrim(getenv('NANNYAPP_BASE_URL') ?: '/nannyapp', '/'));
+// Base URL of the app (folder under htdocs). No trailing slash. Vercel
+// provides VERCEL_URL without a scheme, so use it as a safe preview fallback
+// when an explicit production URL has not yet been configured.
+$configuredBaseUrl = trim((string) (getenv('NANNYAPP_BASE_URL') ?: ''));
+if ($configuredBaseUrl === '' && ($vercelUrl = trim((string) (getenv('VERCEL_URL') ?: ''))) !== '') {
+    $configuredBaseUrl = 'https://' . $vercelUrl;
+}
+define('BASE_URL', rtrim($configuredBaseUrl !== '' ? $configuredBaseUrl : '/nannyapp', '/'));
 
 // --- Database (XAMPP defaults) ----------------------------------------
 define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: '127.0.0.1');
