@@ -10,15 +10,15 @@
 
 declare(strict_types=1);
 
-if (!defined('DB_DRIVER')) define('DB_DRIVER', strtolower((string)(getenv('NANNYAPP_DB_DRIVER') ?: 'mysql')));
+if (!defined('DB_DRIVER')) define('DB_DRIVER', strtolower((string)(getenv('NANNYAPP_DB_DRIVER') ?: (getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
 if (!in_array(DB_DRIVER, ['mysql', 'pgsql'], true)) {
     throw new RuntimeException('NANNYAPP_DB_DRIVER must be mysql or pgsql.');
 }
-if (!defined('DB_HOST')) define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: '127.0.0.1');
-if (!defined('DB_PORT')) define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: '3306');
-if (!defined('DB_NAME')) define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: 'nanny_app');
-if (!defined('DB_USER')) define('DB_USER', getenv('NANNYAPP_DB_USER') ?: 'root');
-if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
+if (!defined('DB_HOST')) define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
+if (!defined('DB_PORT')) define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: getenv('POSTGRES_PORT') ?: (DB_DRIVER === 'pgsql' ? '5432' : '3306'));
+if (!defined('DB_NAME')) define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
+if (!defined('DB_USER')) define('DB_USER', getenv('NANNYAPP_DB_USER') ?: getenv('POSTGRES_USER') ?: 'root');
+if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: getenv('POSTGRES_PASSWORD') ?: '');
 if (!defined('DB_SSLMODE')) define('DB_SSLMODE', getenv('NANNYAPP_DB_SSLMODE') ?: 'require');
 
 // Where uploaded files (profile photos, verification docs, etc.) live —

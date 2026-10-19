@@ -25,11 +25,11 @@ if ($configuredBaseUrl === '' && ($vercelUrl = trim((string) (getenv('VERCEL_URL
 define('BASE_URL', rtrim($configuredBaseUrl !== '' ? $configuredBaseUrl : '/nannyapp', '/'));
 
 // --- Database (XAMPP defaults) ----------------------------------------
-define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: '127.0.0.1');
-define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: '3306');
-define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: 'nanny_app');
-define('DB_USER', getenv('NANNYAPP_DB_USER') ?: 'root');
-define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: '');
+define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
+define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: getenv('POSTGRES_PORT') ?: ((getenv('NANNYAPP_DB_DRIVER') ?: (getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql')) === 'pgsql' ? '5432' : '3306'));
+define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
+define('DB_USER', getenv('NANNYAPP_DB_USER') ?: getenv('POSTGRES_USER') ?: 'root');
+define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: getenv('POSTGRES_PASSWORD') ?: '');
 
 // --- Error reporting (off in production; errors go to server log only) ---
 error_reporting(E_ALL);
