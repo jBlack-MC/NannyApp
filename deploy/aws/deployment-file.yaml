@@ -1,0 +1,8 @@
+template-file-path: deploy/aws/ec2-stack.yml
+parameters:
+  VpcId: vpc-0232b7a42378bf399
+  PublicSubnetId: subnet-056099018991f035e
+  KeyName: nannyapp-production
+  SshCidr: 155.93.135.97/32
+  InstanceType: t3.small
+tags: {}
