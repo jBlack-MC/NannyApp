@@ -4,6 +4,9 @@ RewriteEngine On
 RewriteRule ^assets/(.*)$ NannyApp.Web/assets/$1 [L]
 RewriteRule ^(.+\.(?:css|js|png|jpg|jpeg|gif|svg|webp|ico|woff2|webmanifest))$ NannyApp.Web/$1 [L]
 
+# The document root is a directory, so route the homepage explicitly.
+RewriteRule ^$ api/index.php [L,QSA]
+
 # Route PHP web pages and Android API requests through the shared front controller.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
