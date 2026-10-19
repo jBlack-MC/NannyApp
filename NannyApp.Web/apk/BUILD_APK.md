@@ -81,7 +81,7 @@ keystore named `NANNYAPP_RELEASE_KEYSTORE_BASE64`, plus
 `NANNYAPP_RELEASE_KEYSTORE_PASSWORD`, `NANNYAPP_RELEASE_KEY_ALIAS` and
 `NANNYAPP_RELEASE_KEY_PASSWORD`. Set the repository variable
 `NANNYAPP_RELEASE_API_URL` if the app's production API URL is not
-`https://api.nannyapp.com/api/`.
+`https://nannyapp-two.vercel.app/api/`.
 
 After the release exists, configure the PHP server with:
 

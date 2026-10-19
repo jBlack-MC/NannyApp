@@ -76,7 +76,7 @@ jobs:
 
       - name: Build signed release APK
         env:
-          RELEASE_API_URL: ${{ vars.NANNYAPP_RELEASE_API_URL || 'https://api.nannyapp.com/api/' }}
+          RELEASE_API_URL: ${{ vars.NANNYAPP_RELEASE_API_URL || 'https://nannyapp-two.vercel.app/api/' }}
           NANNYAPP_RELEASE_KEYSTORE_FILE: ${{ runner.temp }}/nannyapp-release.jks
           NANNYAPP_RELEASE_KEYSTORE_PASSWORD: ${{ secrets.NANNYAPP_RELEASE_KEYSTORE_PASSWORD }}
           NANNYAPP_RELEASE_KEY_ALIAS: ${{ secrets.NANNYAPP_RELEASE_KEY_ALIAS }}
