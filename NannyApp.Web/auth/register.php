@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $old['full_name'] = trim($_POST['full_name'] ?? '');
-    $old['email']     = trim($_POST['email'] ?? '');
+    $old['email']     = strtolower(trim($_POST['email'] ?? ''));
     $old['phone']     = trim($_POST['phone'] ?? '');
     $old['role']      = $_POST['role'] ?? 'parent';
     $password         = $_POST['password'] ?? '';

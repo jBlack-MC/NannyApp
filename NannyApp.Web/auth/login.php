@@ -33,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors[] = 'Admin accounts can only sign in from a web browser. Please open ' . APP_NAME . ' in Chrome, Safari or another browser to access the admin panel.';
 
             /* ── Email verification check ─────────────────────────── */
-            } elseif (isset($user['email_verified']) && (int)$user['email_verified'] === 0) {
+            } elseif (nannyapp_email_verification_required() && isset($user['email_verified']) && (int)$user['email_verified'] === 0) {
                 $errors[] = 'Please verify your email address before logging in. Check your inbox for a verification link.';
 
             } else {

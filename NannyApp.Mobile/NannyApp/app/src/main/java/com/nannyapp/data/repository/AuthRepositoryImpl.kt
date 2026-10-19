@@ -92,8 +92,18 @@ class AuthRepositoryImpl @Inject constructor(
         return when (result) {
             is Resource.Success -> {
                 val user = result.data.user.asDomain()
-                // Registration stays signed out until email verification and a fresh login.
-                sessionManager.clearSession()
+                // The API has already issued a shared session token. Keep it so
+                // an account created on the APK can immediately use the APK and
+                // the web portal with the same credentials.
+                sessionManager.saveSession(
+                    result.data.token,
+                    user.id,
+                    user.role,
+                    user.fullName,
+                    user.email,
+                    rememberMe = true,
+                )
+                sessionManager.withCurrentSession(result.data.token) { userDao.upsert(user.toEntity()) }
                 Resource.Success(user)
             }
             is Resource.Error -> result

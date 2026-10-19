@@ -27,7 +27,7 @@ if (!$user || !password_verify($password, $user['password_hash'])) {
     json_error('Incorrect email or password. Please try again.', 401);
 }
 
-if ((int) $user['email_verified'] === 0) {
+if (nannyapp_email_verification_required() && (int) $user['email_verified'] === 0) {
     json_error('Please verify your email before logging in. Check your inbox for the verification link.', 403);
 }
 

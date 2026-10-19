@@ -10,7 +10,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 $b = json_body();
 $role = in_array($b['role'] ?? '', ['parent', 'nanny'], true) ? $b['role'] : 'parent';
 $fullName = trim((string) ($b['fullName'] ?? ''));
-$email = trim((string) ($b['email'] ?? ''));
+$email = strtolower(trim((string) ($b['email'] ?? '')));
 $phone = trim((string) ($b['phone'] ?? ''));
 $password = (string) ($b['password'] ?? '');
 

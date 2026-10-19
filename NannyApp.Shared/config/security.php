@@ -38,9 +38,21 @@ function auth_rate_limited(string $action, string $account, int $limit = 5): boo
     return $ipLimited || $accountLimited;
 }
 
+/**
+ * Email delivery is optional in the hosted prototype. Keep the policy in one
+ * place so web login, the native API, and token validation agree. Production
+ * deployments can set NANNYAPP_REQUIRE_EMAIL_VERIFICATION=1 to enforce it.
+ */
+function nannyapp_email_verification_required(): bool
+{
+    return getenv('NANNYAPP_REQUIRE_EMAIL_VERIFICATION') === '1';
+}
+
 function verified_active_user(?array $user): bool
 {
-    return $user !== null && (int) ($user['email_verified'] ?? 0) === 1 && ($user['status'] ?? '') === 'active';
+    return $user !== null
+        && (nannyapp_email_verification_required() || (int) ($user['email_verified'] ?? 0) === 1)
+        && ($user['status'] ?? '') === 'active';
 }
 
 /** Serialize token issuance with credential rotation; never issue from a stale login snapshot. */
@@ -55,7 +67,8 @@ function lock_current_credentials(PDO $pdo, int $userId, string $expectedHash): 
 
 function store_remember_token_if_current(int $userId, string $expectedHash, string $token): bool
 {
-    $stmt = db()->prepare("UPDATE users SET remember_token=? WHERE id=? AND password_hash=? AND status='active' AND email_verified=1");
+    $verification = nannyapp_email_verification_required() ? ' AND email_verified=1' : '';
+    $stmt = db()->prepare("UPDATE users SET remember_token=? WHERE id=? AND password_hash=? AND status='active'" . $verification);
     $stmt->execute([$token, $userId, $expectedHash]);
     return $stmt->rowCount() === 1;
 }
