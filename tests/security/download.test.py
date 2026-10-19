@@ -1,11 +1,15 @@
 """Serve only a synthetic APK from a disposable loopback PHP server."""
 import os, pathlib, subprocess, sys, tempfile, time, urllib.request, urllib.error
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 root = pathlib.Path(__file__).resolve().parents[2]
 with tempfile.TemporaryDirectory(prefix='nanny-download-') as folder:
     apk = pathlib.Path(folder) / 'synthetic.apk'
     payload = b'SYNTHETIC-NOT-AN-INSTALLABLE-APK'
     apk.write_bytes(payload)
     env = dict(os.environ, NANNYAPP_APK_PATH=str(apk), NANNYAPP_BASE_URL='http://127.0.0.1:13386')
+    env.pop('NANNYAPP_APK_URL', None)
     process = subprocess.Popen([sys.argv[1], '-S', '127.0.0.1:13386', '-t', str(root / 'NannyApp.Web')], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         url = 'http://127.0.0.1:13386/download-app.php'
@@ -26,11 +30,13 @@ with tempfile.TemporaryDirectory(prefix='nanny-download-') as folder:
         apk.unlink()
         with urllib.request.urlopen(url, timeout=3) as r:
             assert r.status == 200
-            assert b'not published yet' in r.read()
-        try: urllib.request.urlopen(url+'?platform=android', timeout=3)
-        except urllib.error.HTTPError as e: assert e.code == 503
-        else: raise AssertionError('Missing APK must not return a fake download')
-        print('PASS install page, exact synthetic download, headers, missing-release behavior')
+            assert b'Download Android app' in r.read()
+        try: urllib.request.build_opener(NoRedirect()).open(url+'?platform=android', timeout=3)
+        except urllib.error.HTTPError as e:
+            assert e.code == 302
+            assert e.headers['Location'] == 'https://github.com/jBlack-MC/NannyApp/releases/latest/download/NannyApp.apk'
+        else: raise AssertionError('Missing local APK must redirect to the published release')
+        print('PASS install page, exact synthetic download, headers, GitHub release fallback (no external download)')
     finally:
         process.terminate()
         process.wait(timeout=10)
