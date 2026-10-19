@@ -20,9 +20,16 @@ $_SERVER += ['SERVER_NAME' => 'localhost', 'HTTP_HOST' => 'localhost', 'REQUEST_
 $root = dirname(__DIR__, 2);
 require_once $root . '/NannyApp.Web/config/config.php';
 
-$hash = password_hash('Password123!', PASSWORD_DEFAULT);
-$insert = db()->prepare("INSERT IGNORE INTO users (full_name, email, password_hash, role, phone, email_verified, status)
-    VALUES (?, ?, ?, ?, '+27 82 000 0000', 1, 'active')");
+$demoPassword = (string) (getenv('NANNYAPP_DEMO_PASSWORD') ?: 'Password123!');
+if (strlen($demoPassword) < 8) {
+    fwrite(STDERR, "NANNYAPP_DEMO_PASSWORD must be at least 8 characters.\n");
+    exit(1);
+}
+$hash = password_hash($demoPassword, PASSWORD_DEFAULT);
+$insert = db()->prepare("INSERT INTO users (full_name, email, password_hash, role, phone, email_verified, status)
+    VALUES (?, ?, ?, ?, '+27 82 000 0000', 1, 'active')
+    ON DUPLICATE KEY UPDATE password_hash = VALUES(password_hash), role = VALUES(role),
+      email_verified = 1, status = 'active'");
 foreach ([
     ['Thandi Mokoena', 'parent@nanny.app', 'parent'],
     ['James Naidoo', 'james@nanny.app', 'parent'],
@@ -31,6 +38,20 @@ foreach ([
 ] as [$name, $email, $role]) {
     $insert->execute([$name, $email, $hash, $role]);
 }
+
+// Keep the local accounts usable even when the database already existed with
+// incomplete profile rows.
+$parentProfile = db()->prepare("INSERT INTO parent_profiles (user_id, number_of_children)
+    SELECT id, 1 FROM users WHERE email = ?
+    ON DUPLICATE KEY UPDATE number_of_children = GREATEST(number_of_children, 1)");
+$nannyProfile = db()->prepare("INSERT INTO nanny_profiles
+    (user_id, bio, experience_years, hourly_rate, location, verification_status)
+    SELECT id, 'Demo nanny account for local testing.', 5, 170, 'Johannesburg', 'verified'
+    FROM users WHERE email = ?
+    ON DUPLICATE KEY UPDATE verification_status = 'verified'");
+$parentProfile->execute(['parent@nanny.app']);
+$parentProfile->execute(['james@nanny.app']);
+$nannyProfile->execute(['amelia@nanny.app']);
 
 // seed_demo.php is an admin page; sign the script in as the demo admin.
 $admin = db()->query("SELECT id, password_hash FROM users WHERE email = 'admin@nanny.app'")->fetch();
@@ -46,4 +67,4 @@ $counts = db()->query("SELECT
     (SELECT COUNT(*) FROM nanny_profiles WHERE verification_status = 'verified') AS verified_nannies,
     (SELECT COUNT(*) FROM bookings) AS bookings")->fetch();
 echo "Demo data ready: {$counts['users']} users, {$counts['verified_nannies']} verified nannies, {$counts['bookings']} bookings.\n";
-echo "Sign in with parent@nanny.app / Password123! (or a seeded parent such as lebo.khumalo@gmail.com).\n";
+echo "Sign in with parent@nanny.app and the configured demo password.\n";
