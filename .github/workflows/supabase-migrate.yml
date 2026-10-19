@@ -2,6 +2,15 @@ name: Supabase migration
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'NannyApp.Shared/database/**'
+      - 'NannyApp.Shared/config/migrations.php'
+      - 'NannyApp.Shared/bin/migrate.php'
+      - 'NannyApp.Mobile/NannyApp/api/migrate.php'
+      - '.github/workflows/supabase-migrate.yml'
 
 permissions:
   contents: read

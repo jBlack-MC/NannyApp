@@ -16,7 +16,8 @@ RUN a2enmod rewrite headers \
        'ServerTokens Prod' \
        'ServerSignature Off' \
        > /etc/apache2/conf-available/nannyapp.conf \
-    && a2enconf nannyapp
+    && a2enconf nannyapp \
+    && printf '%s\n' 'DirectoryIndex index.php' > /etc/apache2/mods-enabled/dir.conf
 
 WORKDIR /var/www/html
 COPY . /var/www/html/

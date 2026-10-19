@@ -1,4 +1,7 @@
 **
+!index.php
+!.htaccess
+!vercel.json
 !NannyApp.Shared/
 !NannyApp.Shared/config/
 !NannyApp.Shared/config/*.php
