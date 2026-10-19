@@ -45,6 +45,7 @@ if (!isset($isActive) || !is_callable($isActive)) {
                         <a class="<?= $isActive('admin/users.php') ? 'active' : '' ?>" href="<?= url('admin/users.php') ?>">Users</a>
                         <a class="<?= $isActive('admin/bookings.php') ? 'active' : '' ?>" href="<?= url('admin/bookings.php') ?>">Bookings</a>
                         <a class="<?= $isActive('admin/reports.php') ? 'active' : '' ?>" href="<?= url('admin/reports.php') ?>">Reports</a>
+                        <a class="<?= $isActive('admin/deliverables.php') ? 'active' : '' ?>" href="<?= url('admin/deliverables.php') ?>">Project files</a>
                     <?php else: ?>
                         <a class="<?= $isActive('parent/nannies.php') ? 'active' : '' ?>" href="<?= url('parent/nannies.php') ?>">Find Care</a>
                         <a class="<?= $isActive('auth/register.php') ? 'active' : '' ?>" href="<?= url('auth/register.php') ?>">Become a Nanny</a>

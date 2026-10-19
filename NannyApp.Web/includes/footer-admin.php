@@ -68,6 +68,7 @@
                 <div class="footer-admin-col">
                     <h4><?= icon('chart-column') ?> Analytics & Operations</h4>
                     <a href="<?= url('admin/reports.php') ?>">Reports & Analytics</a>
+                    <a href="<?= url('admin/deliverables.php') ?>">Project deliverables</a>
                     <a href="<?= url('admin/dashboard.php') ?>">System Status</a>
                     <a href="<?= url('admin/payments.php') ?>">Revenue Report</a>
                     <a href="<?= url('admin/users.php') ?>">User Activity</a>

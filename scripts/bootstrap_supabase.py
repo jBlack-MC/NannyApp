@@ -19,7 +19,7 @@ FILES = [
     "migrate_v5_api.sql", "phase1_constraints.sql", "phase2_authentication.sql",
     "migrate_v6_security.sql", "migrate_v7_email_outbox.sql",
     "migrate_v8_operations.sql", "migrate_v9_reports_holidays.sql",
-    "migrate_v10_plus_translation.sql",
+    "migrate_v10_plus_translation.sql", "migrate_v11_deliverables.sql",
 ]
 
 
@@ -132,6 +132,21 @@ def main() -> None:
                        ON CONFLICT (user_id) DO NOTHING""", (uid, "Reliable childcare professional for the Nanny-App demo.", 2 + i, 85 + i * 5, "Johannesburg", "First Aid,Homework Assistance", "Weekdays", 4.0 + (i % 10) / 10, "English", "Demo qualification"))
         cur.execute("""INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end)
                        VALUES (%s,1,1,'08:00','17:00') ON CONFLICT DO NOTHING""", (uid,))
+
+    deliverables = [
+        ("product-requirements", "Product requirements", "Project scope, users, features and assessment requirements.", "01-product-requirements.html", "01-product-requirements.pdf", 1),
+        ("technical-requirements", "Technical requirements", "Technology stack, security, database and deployment requirements.", "02-technical-requirements.html", "02-technical-requirements.pdf", 2),
+        ("app-flow", "Application flow", "User journeys and the web-to-mobile application flow.", "03-app-flow.html", "03-app-flow.pdf", 3),
+        ("design-brief", "Design brief", "The interface direction, visual language and accessibility choices.", "04-design-brief.html", "04-design-brief.pdf", 4),
+        ("backend-schema", "Backend schema and API", "Database tables, API responsibilities and authentication architecture.", "05-backend-schema.html", "05-backend-schema.pdf", 5),
+        ("implementation-plan", "Implementation plan", "Implementation phases, testing, DevOps and delivery evidence.", "06-implementation-plan.html", "06-implementation-plan.pdf", 6),
+    ]
+    for slug, title, description, html_file, pdf_file, order in deliverables:
+        cur.execute("""INSERT INTO project_deliverables (slug,title,description,category,html_file,pdf_file,sort_order,is_active)
+                       VALUES (%s,%s,%s,'Project documentation',%s,%s,%s,1)
+                       ON CONFLICT (slug) DO UPDATE SET title=EXCLUDED.title, description=EXCLUDED.description,
+                         html_file=EXCLUDED.html_file, pdf_file=EXCLUDED.pdf_file, sort_order=EXCLUDED.sort_order,
+                         is_active=1""", (slug, title, description, html_file, pdf_file, order))
     cur.close()
     conn.close()
     print("demo accounts ready: parent@nanny.app, amelia@nanny.app, admin@nanny.app")

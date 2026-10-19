@@ -10,15 +10,25 @@
 
 declare(strict_types=1);
 
-if (!defined('DB_DRIVER')) define('DB_DRIVER', strtolower((string)(getenv('NANNYAPP_DB_DRIVER') ?: (getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
+// Vercel/Supabase integrations may provide only a PostgreSQL URL. Parse it
+// here as well as in the web config because the native-app API loads this
+// shared file directly.
+$nannyappDbUrl = trim((string) (getenv('NANNYAPP_DB_URL') ?: getenv('POSTGRES_URL_NON_POOLING') ?: ''));
+$nannyappDbParts = $nannyappDbUrl !== '' ? parse_url($nannyappDbUrl) : false;
+$nannyappDbHost = is_array($nannyappDbParts) ? (string) ($nannyappDbParts['host'] ?? '') : '';
+$nannyappDbPort = is_array($nannyappDbParts) ? (string) ($nannyappDbParts['port'] ?? '') : '';
+$nannyappDbUser = is_array($nannyappDbParts) ? rawurldecode((string) ($nannyappDbParts['user'] ?? '')) : '';
+$nannyappDbPass = is_array($nannyappDbParts) ? rawurldecode((string) ($nannyappDbParts['pass'] ?? '')) : '';
+$nannyappDbName = is_array($nannyappDbParts) ? ltrim((string) ($nannyappDbParts['path'] ?? ''), '/') : '';
+if (!defined('DB_DRIVER')) define('DB_DRIVER', strtolower((string)(getenv('NANNYAPP_DB_DRIVER') ?: ($nannyappDbUrl !== '' || getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
 if (!in_array(DB_DRIVER, ['mysql', 'pgsql'], true)) {
     throw new RuntimeException('NANNYAPP_DB_DRIVER must be mysql or pgsql.');
 }
-if (!defined('DB_HOST')) define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
-if (!defined('DB_PORT')) define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: getenv('POSTGRES_PORT') ?: (DB_DRIVER === 'pgsql' ? '5432' : '3306'));
-if (!defined('DB_NAME')) define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
-if (!defined('DB_USER')) define('DB_USER', getenv('NANNYAPP_DB_USER') ?: getenv('POSTGRES_USER') ?: 'root');
-if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: getenv('POSTGRES_PASSWORD') ?: '');
+if (!defined('DB_HOST')) define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: $nannyappDbHost ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
+if (!defined('DB_PORT')) define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: $nannyappDbPort ?: getenv('POSTGRES_PORT') ?: (DB_DRIVER === 'pgsql' ? '5432' : '3306'));
+if (!defined('DB_NAME')) define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: $nannyappDbName ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
+if (!defined('DB_USER')) define('DB_USER', getenv('NANNYAPP_DB_USER') ?: $nannyappDbUser ?: getenv('POSTGRES_USER') ?: 'root');
+if (!defined('DB_PASS')) define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: $nannyappDbPass ?: getenv('POSTGRES_PASSWORD') ?: '');
 if (!defined('DB_SSLMODE')) define('DB_SSLMODE', getenv('NANNYAPP_DB_SSLMODE') ?: 'require');
 
 // Where uploaded files (profile photos, verification docs, etc.) live —

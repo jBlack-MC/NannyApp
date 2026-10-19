@@ -54,7 +54,7 @@ try {
     } else {
         db()->prepare(
             'INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, skills, languages, qualifications, specialisations, verification_status)
-             VALUES (:uid, :bio, :exp, :rate, :loc, :skills, :lang, :qual, :spec, "pending")'
+             VALUES (:uid, :bio, :exp, :rate, :loc, :skills, :lang, :qual, :spec, \'pending\')'
         )->execute([
             'uid' => $userId, 'bio' => $b['bio'] ?? null, 'exp' => $b['experienceYears'] ?? 0,
             'rate' => $b['hourlyRate'] ?? 0, 'loc' => $b['location'] ?? null, 'skills' => $b['skills'] ?? null,

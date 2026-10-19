@@ -152,6 +152,7 @@ require __DIR__ . '/../includes/header.php';
         <a class="btn" href="<?= url('admin/bookings.php') ?>">Bookings</a>
         <a class="btn" href="<?= url('admin/payments.php') ?>">Payments</a>
         <a class="btn" href="<?= url('admin/reports.php') ?>">Reports</a>
+        <a class="btn" href="<?= url('admin/deliverables.php') ?>">Project deliverables</a>
     </div>
 </div>
 
