@@ -1,4 +1,4 @@
-﻿package com.nannyapp.data.repository
+package com.nannyapp.data.repository
 
 import com.nannyapp.data.api.AuthApi
 import com.nannyapp.data.api.dto.*
@@ -51,6 +51,22 @@ class AuthRepositoryImpl @Inject constructor(
                 val dto = result.data
                 val user = dto.user.asDomain()
                 sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe)
+                sessionManager.withCurrentSession(dto.token) { userDao.upsert(user.toEntity()) }
+                Resource.Success(user)
+            }
+            is Resource.Error -> result
+            Resource.Loading -> Resource.Loading
+        }
+    }
+
+    override suspend fun googleLogin(idToken: String): Resource<User> {
+        val result = safeApiCall { api.googleSso(GoogleSsoRequestDto(idToken)) }
+        return when (result) {
+            is Resource.Success -> {
+                val dto = result.data
+                val user = dto.user.asDomain()
+                // SSO sessions are always persistent (no explicit "remember me" toggle).
+                sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe = true)
                 sessionManager.withCurrentSession(dto.token) { userDao.upsert(user.toEntity()) }
                 Resource.Success(user)
             }

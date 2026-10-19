@@ -60,6 +60,16 @@ android {
 
         // Release value is checked before any release build. Configure with -P or environment.
         buildConfigField("String", "API_BASE_URL", "\"${releaseApiUrl.get().replace("\\", "\\\\").replace("\"", "\\\"")}\"")
+
+        // Google OAuth 2.0 Web Client ID (from Google Cloud Console > Credentials).
+        // Override with -PNANNYAPP_GOOGLE_WEB_CLIENT_ID or the environment variable.
+        buildConfigField(
+            "String", "GOOGLE_WEB_CLIENT_ID",
+            "\"${providers.gradleProperty("NANNYAPP_GOOGLE_WEB_CLIENT_ID")
+                .orElse(providers.environmentVariable("NANNYAPP_GOOGLE_WEB_CLIENT_ID"))
+                .orElse("YOUR_WEB_CLIENT_ID.apps.googleusercontent.com")
+                .get()}\"",
+        )
     }
 
     buildTypes {
@@ -125,6 +135,11 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     debugImplementation("androidx.compose.ui:ui-tooling")
 
+    // Google Credential Manager (SSO / Sign-In with Google)
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
@@ -174,6 +189,8 @@ dependencies {
 
     // Testing
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+    testImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2024.06.00"))

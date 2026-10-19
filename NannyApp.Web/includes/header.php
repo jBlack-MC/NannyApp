@@ -50,7 +50,8 @@ $isActive = static function (string $path, bool $prefix = false) use ($requestPa
     })();
     </script>
     <link rel="manifest" href="<?= url('manifest.webmanifest') ?>">
-    <link rel="icon" href="<?= url('assets/img/icon.svg') ?>" type="image/svg+xml">
+    <link rel="icon" href="<?= url('assets/favicon.ico') ?>" sizes="any">
+    <link rel="icon" href="<?= url('assets/img/favicon-32.png') ?>" type="image/png" sizes="32x32">
     <?php // Self-hosted fonts; preloading the two Latin files avoids a flash of fallback text. ?>
     <link rel="preload" href="<?= url('assets/fonts/manrope-latin-wght-normal.woff2') ?>" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="<?= url('assets/fonts/sora-latin-wght-normal.woff2') ?>" as="font" type="font/woff2" crossorigin>
@@ -68,7 +69,7 @@ $isActive = static function (string $path, bool $prefix = false) use ($requestPa
     <link rel="stylesheet" href="<?= url('assets/css/pages.css') ?>">
     <link rel="stylesheet" href="<?= url('assets/css/accessibility.css') ?>">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <link rel="apple-touch-icon" href="<?= url('assets/Icon_Logo.png') ?>">
+    <link rel="apple-touch-icon" href="<?= url('assets/img/apple-touch-icon.png') ?>">
 </head>
 <body class="<?= isset($bodyClass) ? e($bodyClass) : '' ?>">
 <a class="skip-link" href="#main">Skip to content</a>

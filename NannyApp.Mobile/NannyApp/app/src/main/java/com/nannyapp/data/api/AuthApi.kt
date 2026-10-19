@@ -1,4 +1,4 @@
-﻿package com.nannyapp.data.api
+package com.nannyapp.data.api
 
 import com.nannyapp.data.api.dto.*
 import retrofit2.Response
@@ -26,4 +26,7 @@ interface AuthApi {
 
     @POST("auth/resend-verification.php")
     suspend fun resendVerification(@Body body: ResendVerificationRequestDto): Response<ApiEnvelope<Unit>>
+
+    @POST("auth/google.php")
+    suspend fun googleSso(@Body body: GoogleSsoRequestDto): Response<ApiEnvelope<LoginResponseDto>>
 }

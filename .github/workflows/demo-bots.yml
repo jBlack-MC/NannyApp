@@ -1,0 +1,43 @@
+name: Demo bots
+
+# Adds or removes the obviously-fake demo accounts on the production site.
+# Bots: names end in "(Bot)", e-mails end in @bots.nanny-app.invalid, nobody can sign in as them.
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Add (or refresh) the bots, or remove every bot
+        required: true
+        type: choice
+        options:
+          - add
+          - remove
+
+permissions:
+  contents: read
+
+jobs:
+  bots:
+    name: ${{ inputs.action }} demo bots
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Call the protected application endpoint
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+          TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
+          # Optional: also creates parent@nanny.app, james@nanny.app and amelia@nanny.app if missing.
+          DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
+          ACTION: ${{ inputs.action }}
+        run: |
+          set -euo pipefail
+          test -n "$APP_URL" || { echo 'Missing repository variable NANNYAPP_PRODUCTION_URL'; exit 1; }
+          test -n "$TOKEN" || { echo 'Missing repository secret NANNYAPP_MIGRATION_TOKEN'; exit 1; }
+          body=$(jq -n --arg action "$ACTION" --arg pw "$DEMO_PASSWORD" '{action: $action, demoPassword: $pw}')
+          response=$(curl --fail-with-body --silent --show-error --retry 3 \
+            --request POST "$APP_URL/api/bots.php" \
+            --header "X-Nanny-Migration-Token: $TOKEN" \
+            --header 'Content-Type: application/json' \
+            --data "$body")
+          echo "$response"
+          echo "$response" | grep -F '"ok":true'

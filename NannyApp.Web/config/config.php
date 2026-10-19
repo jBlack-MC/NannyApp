@@ -24,12 +24,24 @@ if ($configuredBaseUrl === '' && ($vercelUrl = trim((string) (getenv('VERCEL_URL
 }
 define('BASE_URL', rtrim($configuredBaseUrl !== '' ? $configuredBaseUrl : '/nannyapp', '/'));
 
-// --- Database (XAMPP defaults) ----------------------------------------
-define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
-define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: getenv('POSTGRES_PORT') ?: ((getenv('NANNYAPP_DB_DRIVER') ?: (getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql')) === 'pgsql' ? '5432' : '3306'));
-define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
-define('DB_USER', getenv('NANNYAPP_DB_USER') ?: getenv('POSTGRES_USER') ?: 'root');
-define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: getenv('POSTGRES_PASSWORD') ?: '');
+// --- Database (XAMPP defaults / Supabase PostgreSQL) ------------------
+// Supabase integrations commonly expose POSTGRES_URL_NON_POOLING but do
+// not expose the matching POSTGRES_* fields consistently. Prefer the URL
+// when present so the web login and the migration runner use the same host.
+$dbUrl = trim((string) (getenv('NANNYAPP_DB_URL') ?: getenv('POSTGRES_URL_NON_POOLING') ?: ''));
+$dbParts = $dbUrl !== '' ? parse_url($dbUrl) : false;
+$dbUrlHost = is_array($dbParts) ? (string) ($dbParts['host'] ?? '') : '';
+$dbUrlPort = is_array($dbParts) ? (string) ($dbParts['port'] ?? '') : '';
+$dbUrlUser = is_array($dbParts) ? (string) ($dbParts['user'] ?? '') : '';
+$dbUrlPass = is_array($dbParts) ? (string) ($dbParts['pass'] ?? '') : '';
+$dbUrlName = is_array($dbParts) ? ltrim((string) ($dbParts['path'] ?? ''), '/') : '';
+define('DB_DRIVER', strtolower((string) (getenv('NANNYAPP_DB_DRIVER') ?: ($dbUrl !== '' || getenv('POSTGRES_HOST') ? 'pgsql' : 'mysql'))));
+define('DB_HOST', getenv('NANNYAPP_DB_HOST') ?: $dbUrlHost ?: getenv('POSTGRES_HOST') ?: '127.0.0.1');
+define('DB_PORT', getenv('NANNYAPP_DB_PORT') ?: $dbUrlPort ?: getenv('POSTGRES_PORT') ?: (DB_DRIVER === 'pgsql' ? '5432' : '3306'));
+define('DB_NAME', getenv('NANNYAPP_DB_NAME') ?: $dbUrlName ?: getenv('POSTGRES_DATABASE') ?: 'nanny_app');
+define('DB_USER', getenv('NANNYAPP_DB_USER') ?: $dbUrlUser ?: getenv('POSTGRES_USER') ?: 'root');
+define('DB_PASS', getenv('NANNYAPP_DB_PASS') ?: $dbUrlPass ?: getenv('POSTGRES_PASSWORD') ?: '');
+define('DB_SSLMODE', getenv('NANNYAPP_DB_SSLMODE') ?: 'require');
 
 // --- Error reporting (off in production; errors go to server log only) ---
 error_reporting(E_ALL);
@@ -66,7 +78,10 @@ if (session_status() === PHP_SESSION_NONE) {
     if (is_https_request() || ($_SERVER['SERVER_NAME'] !== 'localhost' && $_SERVER['SERVER_NAME'] !== '127.0.0.1')) {
         ini_set('session.cookie_secure', '1');
     }
-    
+
+    // Serverless hosts keep sessions in the database instead of each instance's own disk.
+    require_once __DIR__ . '/../../NannyApp.Shared/config/session.php';
+    nannyapp_configure_sessions();
     session_start();
 }
 

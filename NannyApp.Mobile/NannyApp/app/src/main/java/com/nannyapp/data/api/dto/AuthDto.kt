@@ -26,6 +26,7 @@ data class RegisterRequestDto(
     val specialisations: String? = null,
 )
 
+data class GoogleSsoRequestDto(val idToken: String)
 data class ForgotPasswordRequestDto(val email: String)
 data class ResetPasswordRequestDto(val token: String, val newPassword: String)
 data class VerifyEmailRequestDto(val token: String)

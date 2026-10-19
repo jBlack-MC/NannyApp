@@ -1,7 +1,14 @@
 package com.nannyapp.ui.auth
 
+import android.content.Context
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.nannyapp.BuildConfig
 import com.nannyapp.data.preferences.SessionManager
 import com.nannyapp.domain.model.Gender
 import com.nannyapp.domain.model.UserRole
@@ -76,6 +83,31 @@ class LoginViewModel @Inject constructor(
                 is Resource.Success -> _state.value = _state.value.copy(loading = false, loggedInRole = result.data.role)
                 is Resource.Error -> _state.value = _state.value.copy(loading = false, error = friendlyLoginError(result.message))
                 Resource.Loading -> {}
+            }
+        }
+    }
+
+    fun googleSso(context: Context) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(loading = true, error = null)
+            try {
+                val credentialManager = CredentialManager.create(context)
+                val googleIdOption = GetGoogleIdOption.Builder()
+                    .setFilterByAuthorizedAccounts(false)
+                    .setServerClientId(BuildConfig.GOOGLE_WEB_CLIENT_ID)
+                    .build()
+                val request = GetCredentialRequest(listOf(googleIdOption))
+                val response = credentialManager.getCredential(context = context, request = request)
+                val googleCred = GoogleIdTokenCredential.createFrom(response.credential.data)
+                when (val result = authRepository.googleLogin(googleCred.idToken)) {
+                    is Resource.Success -> _state.value = _state.value.copy(loading = false, loggedInRole = result.data.role)
+                    is Resource.Error -> _state.value = _state.value.copy(loading = false, error = result.message)
+                    Resource.Loading -> {}
+                }
+            } catch (e: GetCredentialCancellationException) {
+                _state.value = _state.value.copy(loading = false, error = null)
+            } catch (e: Exception) {
+                _state.value = _state.value.copy(loading = false, error = "Google sign-in failed. Please try again.")
             }
         }
     }
