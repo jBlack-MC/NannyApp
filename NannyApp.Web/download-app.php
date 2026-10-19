@@ -21,6 +21,10 @@ if ($downloadRequested && $apkAvailable) {
     exit;
 }
 if ($downloadRequested && !$apkAvailable && $apkUrlIsValid) {
+    // The GitHub latest-release pointer changes after every successful tag
+    // build; never let the web host cache an older redirect.
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
     header('Location: ' . $apkUrl, true, 302);
     exit;
 }
