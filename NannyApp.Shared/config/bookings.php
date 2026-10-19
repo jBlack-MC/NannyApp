@@ -19,7 +19,9 @@ function save_booking_availability(PDO $pdo,int $nannyId,array $days): void
         $nanny=lock_booking_nanny($pdo,$nannyId);
         if ($nanny['role']!=='nanny' || $nanny['status']!=='active') throw new BookingError('Nanny account required.',403);
         foreach ($days as $day) {
-            $pdo->prepare('INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE is_available=VALUES(is_available),time_start=VALUES(time_start),time_end=VALUES(time_end)')->execute([$nannyId,$day['dayOfWeek'],(int)$day['isAvailable'],$day['timeStart'].':00',$day['timeEnd'].':00']);
+            $pdo->prepare(DB_DRIVER === 'pgsql'
+                ? 'INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end) VALUES (?,?,?,?,?) ON CONFLICT (nanny_id,day_of_week) DO UPDATE SET is_available=EXCLUDED.is_available,time_start=EXCLUDED.time_start,time_end=EXCLUDED.time_end'
+                : 'INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE is_available=VALUES(is_available),time_start=VALUES(time_start),time_end=VALUES(time_end)')->execute([$nannyId,$day['dayOfWeek'],(int)$day['isAvailable'],$day['timeStart'].':00',$day['timeEnd'].':00']);
             $pdo->prepare('DELETE FROM availability_slots WHERE nanny_id=? AND day_of_week=?')->execute([$nannyId,$day['dayOfWeek']]);
             foreach (array_unique($day['slots']??[]) as $slot) $pdo->prepare('INSERT INTO availability_slots (nanny_id,day_of_week,slot) VALUES (?,?,?)')->execute([$nannyId,$day['dayOfWeek'],$slot]);
         }

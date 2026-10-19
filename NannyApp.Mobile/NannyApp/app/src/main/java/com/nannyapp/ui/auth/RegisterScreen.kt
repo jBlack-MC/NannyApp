@@ -93,9 +93,10 @@ fun RegisterScreen(
 private fun RoleOption(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
     val colors = if (selected) CardDefaults.elevatedCardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
         else CardDefaults.elevatedCardColors()
+    val textColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
     ElevatedCard(onClick = onClick, modifier = modifier, colors = colors) {
         Box(Modifier.padding(vertical = 16.dp).fillMaxWidth(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-            Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal)
+            Text(label, fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal, color = textColor)
         }
     }
 }

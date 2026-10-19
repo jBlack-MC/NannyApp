@@ -225,7 +225,7 @@ private fun PageBlockView(block: PageBlock, centered: Boolean, inPriceCard: Bool
         }
         "tag" -> when {
             inPriceCard -> Text(
-                block.text, style = MaterialTheme.typography.labelMedium, color = Color.White,
+                block.text, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50)).padding(horizontal = 12.dp, vertical = 4.dp),
             )
             else -> Text(

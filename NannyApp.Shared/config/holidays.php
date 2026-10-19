@@ -35,7 +35,9 @@ function public_holidays(PDO $pdo, int $year, ?callable $fetch = null): array
             $holidays[] = ['date' => $row['date'], 'name' => mb_substr($row['name'], 0, 80)];
         }
     }
-    $pdo->prepare('REPLACE INTO public_holidays_cache (country, year, payload, fetched_at) VALUES (?, ?, ?, NOW())')
+    $pdo->prepare(DB_DRIVER === 'pgsql'
+        ? 'INSERT INTO public_holidays_cache (country, year, payload, fetched_at) VALUES (?, ?, ?, NOW()) ON CONFLICT (country, year) DO UPDATE SET payload=EXCLUDED.payload, fetched_at=EXCLUDED.fetched_at'
+        : 'REPLACE INTO public_holidays_cache (country, year, payload, fetched_at) VALUES (?, ?, ?, NOW())')
         ->execute([HOLIDAYS_COUNTRY, $year, json_encode($holidays)]);
     return $holidays;
 }

@@ -15,6 +15,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import com.nannyapp.util.canUseOfflineCache
+import kotlinx.coroutines.flow.first
+
 @Singleton
 class UserRepositoryImpl @Inject constructor(
     private val api: UserApi,
@@ -23,8 +26,14 @@ class UserRepositoryImpl @Inject constructor(
 ) : UserRepository {
 
     override suspend fun getProfile(): Resource<User> {
+        val token = sessionManager.currentToken()
+        val userId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() }
         val result = safeApiCall { api.getProfile() }
         if (result is Resource.Success) userDao.upsert(result.data.asDomain().toEntity())
+        else if (result is Resource.Error && result.canUseOfflineCache() && userId != null) {
+            val cached = userDao.observe(userId).first()
+            if (cached != null) return Resource.Success(cached.asDomain())
+        }
         return result.map { it.asDomain() }
     }
 

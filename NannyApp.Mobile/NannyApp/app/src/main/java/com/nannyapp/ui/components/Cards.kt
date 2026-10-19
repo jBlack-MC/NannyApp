@@ -149,6 +149,7 @@ fun SkillChip(label: String, modifier: Modifier = Modifier) {
     Text(
         label,
         style = MaterialTheme.typography.labelSmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier

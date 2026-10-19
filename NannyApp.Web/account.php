@@ -89,13 +89,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($isParent) {
                 db()->prepare(
-                    'INSERT INTO parent_profiles (user_id, emergency_contact, emergency_contact_name, emergency_contact_relationship, number_of_children)
-                     VALUES (?,?,?,?,?)
-                     ON DUPLICATE KEY UPDATE
-                         emergency_contact=VALUES(emergency_contact),
-                         emergency_contact_name=VALUES(emergency_contact_name),
-                         emergency_contact_relationship=VALUES(emergency_contact_relationship),
-                         number_of_children=VALUES(number_of_children)'
+                    DB_DRIVER === 'pgsql'
+                    ? 'INSERT INTO parent_profiles (user_id, emergency_contact, emergency_contact_name, emergency_contact_relationship, number_of_children) VALUES (?,?,?,?,?) ON CONFLICT (user_id) DO UPDATE SET emergency_contact=EXCLUDED.emergency_contact, emergency_contact_name=EXCLUDED.emergency_contact_name, emergency_contact_relationship=EXCLUDED.emergency_contact_relationship, number_of_children=EXCLUDED.number_of_children'
+                    : 'INSERT INTO parent_profiles (user_id, emergency_contact, emergency_contact_name, emergency_contact_relationship, number_of_children) VALUES (?,?,?,?,?) ON DUPLICATE KEY UPDATE emergency_contact=VALUES(emergency_contact), emergency_contact_name=VALUES(emergency_contact_name), emergency_contact_relationship=VALUES(emergency_contact_relationship), number_of_children=VALUES(number_of_children)'
                 )->execute([
                     $me['id'],
                     trim($_POST['emergency_contact'] ?? '') ?: null,

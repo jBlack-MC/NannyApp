@@ -4,7 +4,9 @@ require_role('admin');
 
 $me = current_user()['id'];
 
-db()->prepare('INSERT IGNORE INTO admin_profiles (user_id, access_level) VALUES (?, "support")')
+db()->prepare(DB_DRIVER === 'pgsql'
+    ? "INSERT INTO admin_profiles (user_id, access_level) VALUES (?, 'support') ON CONFLICT DO NOTHING"
+    : 'INSERT IGNORE INTO admin_profiles (user_id, access_level) VALUES (?, "support")')
     ->execute([$me]);
 
 $stmt = db()->prepare('SELECT * FROM admin_profiles WHERE user_id = ?');

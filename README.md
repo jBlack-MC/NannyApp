@@ -4,7 +4,7 @@
 
 Run `python tests/docker-checks.py` from the repository root for an isolated PHP/MariaDB security test environment with automatic cleanup. For non-Docker and Android commands, see [Automation](docs/AUTOMATION.md). CI runs on pushes and pull requests; private repositories require `FREE_CI_CONFIRMED=true` after the owner disables paid overages. No workflow deploys or publishes an app.
 
-Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. The [AWS deployment plan](docs/AWS_DEPLOYMENT.md) is the current hosting plan; Kubernetes is not needed for this stage.
+Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. The [Vercel + Supabase deployment guide](docs/VERCEL_SUPABASE_DEPLOY.md) is the low-cost hosting path; the AWS deployment remains available as a fallback.
 
 
 ![Nanny-App logo](NannyApp.Web/assets/Icon_Logo.png)
@@ -136,7 +136,7 @@ Nanny-App
 | Layer | Stack |
 | --- | --- |
 | Web app | PHP 8.x, plain PHP with MySQL access via PDO |
-| Database | MySQL / MariaDB |
+| Database | MySQL / MariaDB or Supabase PostgreSQL |
 | Native mobile app | Kotlin, Jetpack Compose |
 | API layer | PHP REST API for the Android app |
 | Storage | Local disk or S3-compatible object storage |
@@ -247,7 +247,7 @@ Default seeded accounts use the password `Password123!`.
 
 ## Deployment and production guidance
 
-Start with the [documentation index](docs/README.md) and [AWS plan](docs/AWS_DEPLOYMENT.md). Deployment files for the web, API, MariaDB and workers live in `deploy/aws/`.
+Start with the [documentation index](docs/README.md) and [Vercel + Supabase guide](docs/VERCEL_SUPABASE_DEPLOY.md). AWS deployment files remain in `deploy/aws/`.
 
 Before production:
 

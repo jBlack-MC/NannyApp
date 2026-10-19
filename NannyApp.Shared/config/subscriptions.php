@@ -107,9 +107,9 @@ function plus_verify_purchase(PDO $pdo, int $userId, string $productId, string $
     $holder = $existing->fetchColumn();
     if ($holder !== false && (int) $holder !== $userId) throw new InvalidArgumentException('This purchase belongs to a different account.');
 
-    $pdo->prepare('INSERT INTO subscriptions (user_id, product_id, purchase_token, token_hash, status, expires_at, auto_renewing, last_verified_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
-        ON DUPLICATE KEY UPDATE status = VALUES(status), expires_at = VALUES(expires_at), auto_renewing = VALUES(auto_renewing), last_verified_at = NOW()')
+    $pdo->prepare(DB_DRIVER === 'pgsql'
+        ? 'INSERT INTO subscriptions (user_id, product_id, purchase_token, token_hash, status, expires_at, auto_renewing, last_verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW()) ON CONFLICT (token_hash) DO UPDATE SET status = EXCLUDED.status, expires_at = EXCLUDED.expires_at, auto_renewing = EXCLUDED.auto_renewing, last_verified_at = NOW()'
+        : 'INSERT INTO subscriptions (user_id, product_id, purchase_token, token_hash, status, expires_at, auto_renewing, last_verified_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE status = VALUES(status), expires_at = VALUES(expires_at), auto_renewing = VALUES(auto_renewing), last_verified_at = NOW()')
         ->execute([$userId, $productId, $token, $hash, $status, $expiry, !empty($item['autoRenewingPlan']['autoRenewEnabled']) ? 1 : 0]);
 
     // Google refunds purchases that are not acknowledged within three days.
@@ -159,7 +159,9 @@ function plus_http(string $method, string $url, array $headers, ?string $body): 
 /** Records a parent's visit to a nanny profile, once per day, for the nanny's "who viewed me" list. */
 function plus_record_profile_view(PDO $pdo, int $nannyId, int $viewerId): void
 {
-    $pdo->prepare('INSERT IGNORE INTO profile_views (nanny_id, viewer_id, view_date, viewed_at) VALUES (?, ?, CURDATE(), NOW())')
+    $pdo->prepare(DB_DRIVER === 'pgsql'
+        ? 'INSERT INTO profile_views (nanny_id, viewer_id, view_date, viewed_at) VALUES (?, ?, CURDATE(), NOW()) ON CONFLICT DO NOTHING'
+        : 'INSERT IGNORE INTO profile_views (nanny_id, viewer_id, view_date, viewed_at) VALUES (?, ?, CURDATE(), NOW())')
         ->execute([$nannyId, $viewerId]);
 }
 

@@ -89,9 +89,15 @@ fun NannyDashboardScreen(
                     Spacer(Modifier.height(20.dp))
                     AppCard(Modifier.fillMaxWidth(), onClick = if (viewers.locked) onPlus else null) {
                         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Text(stringResource(R.string.plus_viewers_title, viewers.viewsLast30Days), style = MaterialTheme.typography.titleMedium)
+                            Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                                Text(stringResource(R.string.plus_viewers_title, viewers.viewsLast30Days), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
+                                if (viewers.locked) {
+                                    PlusBadge(stringResource(R.string.plus_name))
+                                }
+                            }
                             if (viewers.locked) {
-                                Text(stringResource(R.string.plus_viewers_locked), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
+                                Text(stringResource(R.string.plus_viewers_locked), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                TextActionButton(text = "Upgrade to see profile viewers", onClick = onPlus)
                             } else {
                                 viewers.recent.orEmpty().take(5).forEach { v ->
                                     Text("${v.name} · ${com.nannyapp.util.formatDateTime(v.viewedAt)}", style = MaterialTheme.typography.bodySmall,
