@@ -4,9 +4,8 @@ require_once __DIR__ . '/../config/config.php';
 /* ── Clear remember-me token from DB before destroying session ───────── */
 if (isset($_SESSION['user_id'])) {
     try {
-        db()->prepare('UPDATE users SET remember_token = NULL WHERE id = ?')
-           ->execute([$_SESSION['user_id']]);
-    } catch (Throwable) {}
+        revoke_all_user_sessions((int) $_SESSION['user_id']);
+    } catch (Throwable $e) { log_exception($e, 'logout_revocation_failed'); }
 }
 
 /* ── Expire the remember-me cookie ──────────────────────────────────── */

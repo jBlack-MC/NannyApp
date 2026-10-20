@@ -41,13 +41,7 @@ NANNYAPP_SUPPORT_EMAIL=support@YOUR-VERCEL-DOMAIN.vercel.app
 NANNYAPP_SUPPORT_PHONE=YOUR-SUPPORT-NUMBER
 NANNYAPP_MAIL_TRANSPORT=mail
 NANNYAPP_MAIL_FROM=Nanny-App <support@YOUR-VERCEL-DOMAIN.vercel.app>
-NANNYAPP_STORAGE_DRIVER=s3
-NANNYAPP_S3_BUCKET=nannyapp-media
-NANNYAPP_S3_REGION=eu-west-1
-NANNYAPP_S3_ACCESS_KEY=YOUR-SUPABASE-STORAGE-S3-ACCESS-KEY
-NANNYAPP_S3_SECRET_KEY=YOUR-SUPABASE-STORAGE-S3-SECRET-KEY
-NANNYAPP_S3_ENDPOINT=https://qvxhpjnnuwygpgcooqil.storage.supabase.co/storage/v1/s3
-NANNYAPP_S3_PUBLIC_BASE_URL=
+NANNYAPP_STORAGE_DRIVER=database
 NANNYAPP_STORAGE_QUOTA_BYTES=104857600
 NANNYAPP_STORAGE_RESERVE_BYTES=20971520
 ```
@@ -55,12 +49,23 @@ NANNYAPP_STORAGE_RESERVE_BYTES=20971520
 Replace every `YOUR-...` value. Never commit these values or paste the
 database password and storage secret into chat.
 
-## Supabase Storage
+## Persistent uploads
 
-In Supabase open **Storage → New bucket**, create a private bucket named
-`nannyapp-media`. Then open **Storage → S3 Access Keys** and create an access
-key. Put the key and secret into the two Vercel variables above. The bucket is
-private so application-generated signed URLs remain protected.
+For a small prototype, set `NANNYAPP_STORAGE_DRIVER=database` as above. When
+`VERCEL` is set and no driver is specified, the application also defaults to
+`database`. Uploads are stored as base64 in the `stored_media` table, so apply
+migration v12 before testing uploads. The database driver rejects files larger
+than 8 MiB and consumes database storage; monitor size and back up the database.
+Hosted uploads are available only after the database connection, migration and
+storage configuration work on the deployed host. Do not treat a passing code
+build as proof that live uploads work.
+
+For larger files or volume, configure persistent S3-compatible storage instead:
+set `NANNYAPP_STORAGE_DRIVER=s3` and the applicable `NANNYAPP_S3_BUCKET`,
+`NANNYAPP_S3_REGION`, `NANNYAPP_S3_ACCESS_KEY`, `NANNYAPP_S3_SECRET_KEY` and
+`NANNYAPP_S3_ENDPOINT` values. Keep the bucket private and verify upload,
+readback, deletion and backup on the live host. Changing drivers does not migrate
+previously stored objects; plan that move separately.
 
 ## First deployment
 
@@ -79,7 +84,8 @@ private so application-generated signed URLs remain protected.
    `NANNYAPP_MIGRATION_TOKEN` from Vercel and redeploy so the endpoint is
    disabled. The existing `NannyApp.Shared/bin/migrate.php` remains available
    for CLI/server deployments.
-4. Open `https://YOUR-VERCEL-DOMAIN.vercel.app/api/health.php`; it should now
+4. Confirm migration v12 created `stored_media` before testing database-backed
+   uploads. Open `https://YOUR-VERCEL-DOMAIN.vercel.app/api/health.php`; it should now
    return an `ok` response.
 5. Test registration, login, nanny profile upload, booking, messaging, and the
    Android API before stopping the AWS instance.
@@ -97,15 +103,26 @@ release environment when publishing the APK.
 
 ## GitHub automation
 
-Vercel Git integration deploys every commit merged into `main`. The repository
-CI workflow continues to run PHP security checks and Android tests before a
-release. The optional `Supabase migration` workflow is manual because schema
-changes should not run automatically against production without approval.
+GitHub `main` protection requires reviewed pull requests and
+strict CI checks; see [Automation](AUTOMATION.md) for the administrator recovery
+exception. Disable automatic Vercel
+Production deployments from `main`; promote a verified deployment only after a
+release decision. Vercel settings are outside this repository, so verify this
+configuration in the project. Keep preview data and credentials separate.
+
+`Supabase database sync` runs only by manual dispatch from `main`, after
+the protected `production-db` environment. Merging a migration does not run it; configure an environment reviewer separately if needed.
+Back up and restore-test production data before dispatch. This workflow also
+repairs demo data; use the demo password secret only while demo accounts are
+intended.
 
 Set these GitHub repository values before using that workflow:
 
 - Variable `NANNYAPP_PRODUCTION_URL`: `https://YOUR-VERCEL-DOMAIN.vercel.app`
-- Secret `NANNYAPP_MIGRATION_TOKEN`: the same token temporarily configured in Vercel
+- Secret `NANNYAPP_DB_URL`: the Supabase database connection string
+- Secret `NANNYAPP_DEMO_PASSWORD`: private demo password while demo accounts are needed
 
-Run it from **GitHub → Actions → Supabase migration → Run workflow**. After a
-successful migration, remove the migration token from both GitHub and Vercel.
+Run it from **GitHub → Actions → Supabase database sync → Run workflow**, selecting
+`main`. The separate HTTP migration procedure above uses
+`NANNYAPP_MIGRATION_TOKEN`; remove that token from both GitHub and Vercel after
+its temporary use.

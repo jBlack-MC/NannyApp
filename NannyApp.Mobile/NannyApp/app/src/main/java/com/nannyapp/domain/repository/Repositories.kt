@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 interface AuthRepository {
     val currentUser: Flow<User?>
     suspend fun login(email: String, password: String, rememberMe: Boolean): Resource<User>
-    suspend fun googleLogin(idToken: String): Resource<User>
+    suspend fun googleLogin(idToken: String, rememberMe: Boolean): Resource<User>
     suspend fun register(request: RegisterData): Resource<User>
     suspend fun logout()
     suspend fun forgotPassword(email: String): Resource<Unit>
@@ -27,7 +27,7 @@ data class RegisterData(
     val role: UserRole,
     val fullName: String,
     val email: String,
-    val phone: String,
+    val phone: String?,
     val password: String,
     val dateOfBirth: String?,
     val address: String?,
@@ -49,7 +49,7 @@ data class RegisterData(
 )
 
 interface UserRepository {
-    suspend fun getProfile(): Resource<User>
+    suspend fun getProfile(allowOfflineCache: Boolean = true): Resource<User>
     suspend fun updateProfile(user: User): Resource<User>
     suspend fun changePassword(current: String, new: String): Resource<Unit>
     suspend fun uploadProfileImage(bytes: ByteArray, fileName: String): Resource<String>

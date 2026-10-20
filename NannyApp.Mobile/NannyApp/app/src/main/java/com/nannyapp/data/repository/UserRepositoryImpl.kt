@@ -25,12 +25,14 @@ class UserRepositoryImpl @Inject constructor(
     private val sessionManager: SessionManager,
 ) : UserRepository {
 
-    override suspend fun getProfile(): Resource<User> {
+    override suspend fun getProfile(allowOfflineCache: Boolean): Resource<User> {
         val token = sessionManager.currentToken()
         val userId = sessionManager.withCurrentSession(token) { sessionManager.currentUserId() }
         val result = safeApiCall { api.getProfile() }
-        if (result is Resource.Success) userDao.upsert(result.data.asDomain().toEntity())
-        else if (result is Resource.Error && result.canUseOfflineCache() && userId != null) {
+        if (result is Resource.Success) sessionManager.withCurrentSession(token) {
+            userDao.upsert(result.data.asDomain().toEntity())
+        }
+        else if (allowOfflineCache && result is Resource.Error && result.canUseOfflineCache() && userId != null) {
             val cached = userDao.observe(userId).first()
             if (cached != null) return Resource.Success(cached.asDomain())
         }

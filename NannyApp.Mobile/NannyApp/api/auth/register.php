@@ -14,8 +14,8 @@ $email = strtolower(trim((string) ($b['email'] ?? '')));
 $phone = trim((string) ($b['phone'] ?? ''));
 $password = (string) ($b['password'] ?? '');
 
-if ($fullName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || $phone === '' || strlen($password) < 8) {
-    json_error('Please fill in all required fields (password must be at least 8 characters).');
+if ($fullName === '' || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 8) {
+    json_error('Please enter your name, a valid email and a password of at least 8 characters.');
 }
 
 if (auth_rate_limited('register', $email, 3)) json_error('Too many requests. Try again later.', 429);
@@ -27,19 +27,19 @@ if ($existing->fetch()) {
 }
 
 $hash = password_hash($password, PASSWORD_DEFAULT);
-$verificationToken = bin2hex(random_bytes(32));
+$verificationRequired = nannyapp_email_verification_required();
 
 db()->beginTransaction();
 try {
     $stmt = db()->prepare(
         'INSERT INTO users (full_name, email, phone, password_hash, role, date_of_birth, address, gender,
                              email_verified, verification_token, verification_sent_at)
-         VALUES (:full_name, :email, :phone, :hash, :role, :dob, :address, :gender, 0, :token, NOW())'
+         VALUES (:full_name, :email, :phone, :hash, :role, :dob, :address, :gender, :verified, NULL, NULL)'
     );
     $stmt->execute([
-        'full_name' => $fullName, 'email' => $email, 'phone' => $phone, 'hash' => $hash, 'role' => $role,
+        'full_name' => $fullName, 'email' => $email, 'phone' => $phone ?: null, 'hash' => $hash, 'role' => $role,
         'dob' => ($b['dateOfBirth'] ?? null) ?: null, 'address' => ($b['address'] ?? null) ?: null,
-        'gender' => ($b['gender'] ?? null) ?: null, 'token' => $verificationToken,
+        'gender' => ($b['gender'] ?? null) ?: null, 'verified' => $verificationRequired ? 0 : 1,
     ]);
     $userId = (int) db()->lastInsertId();
 
@@ -69,7 +69,7 @@ try {
     json_error('Could not create your account. Please try again.', 500);
 }
 
-$mailSent = send_verification_email($userId, $email, $fullName);
+$mailSent = !$verificationRequired || send_verification_email($userId, $email, $fullName);
 
 $token = issue_api_token($userId);
 $stmt = db()->prepare('SELECT * FROM users WHERE id = :id');
@@ -84,4 +84,4 @@ json_response(true, [
         'profileImage' => media_url($user['profile_image']), 'dateOfBirth' => $user['date_of_birth'],
         'address' => $user['address'], 'gender' => $user['gender'], 'createdAt' => $user['created_at'],
     ],
-], $mailSent ? 'Account created. Please check your email to verify your account.' : 'Account created, but email delivery failed. Please request a new verification email.');
+], !$verificationRequired ? 'Account created. You can use your account now.' : ($mailSent ? 'Account created. Please check your email to verify your account.' : 'Account created, but email delivery failed. Please request a new verification email.'));

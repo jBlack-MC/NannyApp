@@ -105,7 +105,7 @@ final class NannyAppPostgresPDO extends PDO
     }
 }
 
-function db(): PDO
+function db(bool $optional = false): ?PDO
 {
     static $pdo = null;
 
@@ -138,6 +138,10 @@ function db(): PDO
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]);
         } catch (PDOException $e) {
+            if ($optional) {
+                log_exception($e, 'optional_database_connection_failed');
+                return null;
+            }
             // CLI workers must fail with a nonzero exit, not exit(string)'s success code.
             if (PHP_SAPI === 'cli') throw $e;
             http_response_code(500);

@@ -16,6 +16,13 @@ Only ports 80/443 are published. Restrict EC2 SSH to your own IP; do not expose
 outside any public document root. EBS stores named database/upload volumes;
 instance termination must not be your backup strategy.
 
+This Compose plan uses a persistent local upload volume. Verify its mount and
+off-host backups before accepting uploads. For larger deployments, configure
+`NANNYAPP_STORAGE_DRIVER=s3` with the required `NANNYAPP_S3_*` bucket and key
+settings, then verify upload and readback. The database driver described in the
+[Vercel guide](VERCEL_SUPABASE_DEPLOY.md) is for small prototypes and requires
+migration v12; the AWS example does not select it.
+
 ## Local verification on 2026-10-10
 
 PHP/JavaScript syntax, PWA isolation/install, account-cache isolation and APK
@@ -39,6 +46,13 @@ so do not substitute one without testing the MariaDB migrations. This deployment
 uses MariaDB on EC2; it does not provision RDS or promise high availability.
 
 ## Deploy on the Linux instance
+
+Prepare a reviewed pull request, wait for required CI checks and merge into
+protected `main` before selecting a revision for deployment. Follow the
+[repository review and release flow](AUTOMATION.md). Deploy a specific reviewed
+revision after an operator's release decision; this repository has no automatic
+AWS deployment workflow. Back up and restore-test the database before applying
+production migrations.
 
 The supplied console context selects **Stockholm (`eu-north-1`)**. In that region,
 open CloudFormation, choose Create stack / Upload a template file and upload

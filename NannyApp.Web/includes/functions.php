@@ -78,13 +78,15 @@ function current_user(): ?array
         $token = (string) $_COOKIE['na_remember'];
         if (preg_match('/^[a-f0-9]{64}$/', $token)) {
             try {
-                $stmt = db()->prepare('SELECT id, password_hash FROM users WHERE remember_token = ? AND email_verified = 1 AND status = "active" LIMIT 1');
+                $verification = nannyapp_email_verification_required() ? ' AND email_verified = 1' : '';
+                $stmt = db()->prepare("SELECT id, password_hash, session_version FROM users WHERE remember_token = ? AND status = 'active'" . $verification . ' LIMIT 1');
                 $stmt->execute([$token]);
                 $remembered = $stmt->fetch();
                 if ($remembered) {
                     session_regenerate_id(true);
                     $_SESSION['user_id'] = (int) $remembered['id'];
                     $_SESSION['auth_password'] = hash('sha256', $remembered['password_hash']);
+                    $_SESSION['session_version'] = (int) $remembered['session_version'];
                 } else {
                     setcookie('na_remember', '', time() - 3600, '/', '', false, true);
                 }
@@ -105,8 +107,8 @@ function current_user(): ?array
         $stmt->execute([$_SESSION['user_id']]);
         $cache = $stmt->fetch() ?: null;
     }
-    if ($cache && (!verified_active_user($cache) || !hash_equals(hash('sha256', $cache['password_hash']), (string) ($_SESSION['auth_password'] ?? '')))) {
-        unset($_SESSION['user_id'], $_SESSION['auth_password']);
+    if ($cache && (!verified_active_user($cache) || (int) $cache['session_version'] !== (int) ($_SESSION['session_version'] ?? -1) || !hash_equals(hash('sha256', $cache['password_hash']), (string) ($_SESSION['auth_password'] ?? '')))) {
+        unset($_SESSION['user_id'], $_SESSION['auth_password'], $_SESSION['session_version']);
         $cache = null;
     }
     return $cache;

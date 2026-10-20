@@ -11,6 +11,20 @@ $apkUrlIsValid = $apkUrl !== '' && filter_var($apkUrl, FILTER_VALIDATE_URL)
 
 $apkAvailable = is_file($apkPath) && is_readable($apkPath);
 $downloadRequested = ($_GET['platform'] ?? '') === 'android';
+// Metrics are best-effort: never make an APK unavailable because the DB is down.
+if ($downloadRequested && ($apkAvailable || $apkUrlIsValid)) {
+    // Count the request before streaming/redirecting. Never store an IP address or user agent.
+    $source = ($_GET['source'] ?? '') === 'apk-share' ? 'apk-share' : 'web';
+    try {
+        $metricsDb = db(true);
+        if ($metricsDb !== null) {
+            $metricsDb->prepare('INSERT INTO apk_download_events (source, delivery) VALUES (?, ?)')
+                ->execute([$source, $apkAvailable ? 'local' : 'github']);
+        }
+    } catch (Throwable $e) {
+        log_exception($e, 'apk_download_metric_failed');
+    }
+}
 if ($downloadRequested && $apkAvailable) {
     header('Content-Type: application/vnd.android.package-archive');
     header('Content-Length: ' . (string) filesize($apkPath));
@@ -42,7 +56,7 @@ require __DIR__ . '/includes/header.php';
             <h2>Android</h2>
             <p>Get the native app for Android 8.0 and newer.</p>
             <?php if ($apkAvailable || $apkUrlIsValid): ?>
-                <a class="btn btn-primary" href="<?= url('download-app.php?platform=android') ?>" download>Download Android app</a>
+                <a class="btn btn-primary" href="<?= url('download-app.php?platform=android') ?>">Download Android app</a>
                 <p class="muted">Your phone may ask permission to install from this browser. Only install the release downloaded from this site.</p>
             <?php else: ?>
                 <button class="btn btn-primary" type="button" disabled>Download Android app</button>

@@ -18,7 +18,11 @@ function seed_err(string $msg): void { global $errs; $errs[] = $msg; }
 /* ════════════════════════════════════════════════════════════
    CONSTANTS
    ════════════════════════════════════════════════════════════ */
-$PASS = password_hash('Password123!', PASSWORD_DEFAULT);
+// This script adds activity for the five named demo accounts only. It never
+// creates users or resets passwords. Preview legacy seed users before cleanup:
+// SELECT id,email,role,status FROM users WHERE email LIKE '%@bots.nanny-app.invalid'
+// OR email LIKE 'demo.parent%@nanny.app' OR email LIKE 'demo.nanny%@nanny.app';
+// Inspect their dependent bookings, reviews and payments before any manual removal.
 
 $SA_CITIES = [
     'Johannesburg', 'Sandton', 'Pretoria', 'Midrand', 'Centurion',
@@ -72,21 +76,18 @@ $parents_data = [
     ['Kobus Kruger',         'kobus.kruger@gmail.com',     'Pretoria',     '+27 82 111 2020'],
 ];
 
+$parents_data = [
+    ['Thandi Mokoena', 'parent@nanny.app', 'Johannesburg', ''],
+    ['James Naidoo', 'james@nanny.app', 'Cape Town', ''],
+];
 $parentIds = [];
-$insertUser = db()->prepare(
-    "INSERT IGNORE INTO users (full_name, email, password_hash, role, phone, email_verified, status, created_at)
-     VALUES (?, ?, ?, 'parent', ?, 1, 'active', NOW() - INTERVAL ? DAY)"
-);
 $insertParentProfile = db()->prepare(
     "INSERT IGNORE INTO parent_profiles (user_id, emergency_contact, number_of_children) VALUES (?, ?, ?)"
 );
 
 foreach ($parents_data as $i => [$name, $email, $city, $phone]) {
-    $insertUser->execute([$name, $email, $PASS, $phone, rand(30, 365)]);
-    $uid = (int)db()->lastInsertId();
-    if (!$uid) {
-        $uid = (int)db()->query("SELECT id FROM users WHERE email=".db()->quote($email))->fetchColumn();
-    }
+    $uid = (int)db()->query("SELECT id FROM users WHERE role='parent' AND email=".db()->quote($email))->fetchColumn();
+    if (!$uid) { seed_err("Missing demo parent: $email"); continue; }
     $parentIds[] = $uid;
     try { $insertParentProfile->execute([$uid, '+27 82 999 '.str_pad($i+1,4,'0',STR_PAD_LEFT), rand(1,3)]); } catch (Throwable) {}
     try { $updatePhoto->execute([$PARENT_PHOTOS[$i % count($PARENT_PHOTOS)], $uid]); } catch (Throwable) {}
@@ -129,29 +130,29 @@ $nannies_data = [
     ['Thandiwe Sibiya',    'thandiwe.sibiya@gmail.com',      'Johannesburg', 120, 10, 'isiZulu,Sesotho,English',   'Newborn Care,Cooking & Nutrition,First Aid,Housekeeping',       'A true all-round nanny — cooking, cleaning, and caring with heart.'],
 ];
 
+$nannies_data = [
+    ['Amelia Dlamini', 'amelia@nanny.app', 'Johannesburg', 170, 5, 'English,isiZulu', 'First Aid,Homework Assistance', 'Verified demo nanny.'],
+    ['Grace Dlamini', 'grace@nanny.app', 'Sandton', 150, 3, 'English', 'Early learning', 'Pending verification demo nanny.'],
+];
 $nannyIds = [];
-$insertNannyUser = db()->prepare(
-    "INSERT IGNORE INTO users (full_name, email, password_hash, role, phone, email_verified, status, created_at)
-     VALUES (?, ?, ?, 'nanny', ?, 1, 'active', NOW() - INTERVAL ? DAY)"
-);
 $insertNannyProfile = db()->prepare(
     "INSERT IGNORE INTO nanny_profiles
         (user_id, bio, location, hourly_rate, experience_years, skills, languages, verification_status, average_rating)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'verified', ?)"
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
 );
 
 foreach ($nannies_data as $i => [$name, $email, $city, $rate, $exp, $langs, $skills, $bio]) {
     $rating = min(5.0, round(3.8 + (mt_rand(0, 999) / 1000) * 1.2, 1));
-    $insertNannyUser->execute([$name, $email, $PASS, '+27 83 200 '.str_pad($i+1,4,'0',STR_PAD_LEFT), rand(60, 400)]);
-    $uid = (int)db()->lastInsertId();
-    if (!$uid) {
-        $uid = (int)db()->query("SELECT id FROM users WHERE email=".db()->quote($email))->fetchColumn();
-    }
+    $uid = (int)db()->query("SELECT id FROM users WHERE role='nanny' AND email=".db()->quote($email))->fetchColumn();
+    if (!$uid) { seed_err("Missing demo nanny: $email"); continue; }
     $nannyIds[] = ['id' => $uid, 'rate' => $rate, 'name' => $name, 'city' => $city];
-    try { $insertNannyProfile->execute([$uid, $bio, $city, $rate, $exp, $skills, $langs, $rating]); } catch (Throwable) {}
+    try { $insertNannyProfile->execute([$uid, $bio, $city, $rate, $exp, $skills, $langs, $i === 0 ? 'verified' : 'pending', $rating]); } catch (Throwable) {}
     try { $updatePhoto->execute([$NANNY_PHOTOS[$i % count($NANNY_PHOTOS)], $uid]); } catch (Throwable) {}
 }
 seed_log("Inserted/found " . count($nannyIds) . " nannies.");
+if (count($parentIds) !== 2 || count($nannyIds) !== 2) {
+    throw new RuntimeException('Create the five named demo accounts before seeding sample activity.');
+}
 
 /* ════════════════════════════════════════════════════════════
    3. AVAILABILITY (Mon-Fri 08-18, Sat 09-15)
@@ -248,7 +249,7 @@ $bInserted    = 0;
 
 foreach ($statusPlan as $idx => $status) {
     $pid   = $parentIds[array_rand($parentIds)];
-    $nanny = $nannyIds[array_rand($nannyIds)];
+    $nanny = $nannyIds[0]; // Only verified Amelia receives sample bookings.
     $nid   = $nanny['id'];
     $rate  = $nanny['rate'];
     $hrs   = [2,3,4,5,6,8][array_rand([2,3,4,5,6,8])];
@@ -389,7 +390,7 @@ foreach ($nannyIds as $n) {
         try { $insertNotif->execute([$n['id'], $title, $msg, rand(0,1), rand(0, 30)]); $notifsInserted++; } catch (Throwable) {}
     }
 }
-$adminId = (int)db()->query("SELECT id FROM users WHERE role='admin' LIMIT 1")->fetchColumn();
+$adminId = (int)db()->query("SELECT id FROM users WHERE role='admin' AND email='admin@nanny.app' LIMIT 1")->fetchColumn();
 if ($adminId) {
     foreach ($adminNotifs as [$title, $msg]) {
         try { $insertNotif->execute([$adminId, $title, $msg, 0, rand(0, 7)]); $notifsInserted++; } catch (Throwable) {}

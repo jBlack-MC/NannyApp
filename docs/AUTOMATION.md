@@ -2,16 +2,23 @@
 
 Validation on 2026-09-28: full Docker suite passed with PHP 8.3 and MariaDB 10.11; Windows Apache denial check also passed. Android debug/unit/lint passed (0 lint errors, 52 warnings); missing release URL was rejected and an explicitly configured unsigned release compiled. Merged manifest retains other Startup initializers and removes WorkManager default metadata. No GitHub-hosted run or device execution is claimed.
 
-This project uses free local tools and quota-limited GitHub Actions. No workflow deploys to a host, creates cloud resources, sends real email or publishes a signed application.
+This project uses local tools and quota-limited GitHub Actions. CI does not deploy. Separate manual workflows can change production demo data or publish a signed Android APK from protected `main`.
+
+## PR review and production release
+
+GitHub `main` branch protection requires a pull request with one approval, resolved conversations, stale-approval dismissal, and strict (up-to-date branch) CI checks for `PHP and synthetic security tests`, `Android build, unit tests and lint`, and `Validate Task 2 deliverables`. Force pushes and deletion are blocked. Administrators are not subject to these restrictions so the owner retains recovery access; an administrator can therefore bypass the normal review flow. Contributors should still open a branch and PR, wait for those checks, resolve conversations and obtain approval before merging. `Workflow validation` runs on workflow changes, but its path filter means it cannot be an unconditional required check. For private repositories, `FREE_CI_CONFIRMED=true` is needed for the CI jobs to run, subject to the billing conditions below.
+
+After a reviewed merge, an operator chooses when to release. GitHub environments `production-db` and `production-release` are restricted to protected branches; configure required reviewers if a separate deployment approval is needed. Dispatch production workflows from `main`. The Android workflow also requires an existing `vX.Y.Z` tag whose commit is in `main`. Protect version tags with a tag ruleset so only release operators can create or move them. Set `NANNYAPP_RELEASE_API_URL` explicitly for the release environment, along with signing secrets. Vercel production deployment must also be configured separately; see [Vercel + Supabase](VERCEL_SUPABASE_DEPLOY.md).
 
 ## What runs automatically
 
-On pushes, pull requests, manual dispatch and Mondays at 04:23 UTC (06:23 South Africa time), CI runs two jobs:
+On pushes, pull requests, manual dispatch and Mondays at 04:23 UTC (06:23 South Africa time), CI runs these jobs:
 
 1. **PHP and synthetic security tests:** builds the test image and starts a disposable MariaDB; runs PHP/JavaScript syntax checks, real HTTP/auth/media/recovery/rate-limit tests, fake-provider Resend failure tests, Apache access-denial tests, offline DAO/PWA regressions and app install/download tests.
 2. **Android build, unit tests and lint:** debug assembly, JVM tests, lint, a negative check that a missing release URL fails, and an unsigned release build using a synthetic non-routable API hostname. The release is compilation evidence only, not a publishable app.
+3. **Task 2 deliverables:** verifies the HTML and PDF documentation catalogue.
 
-Old runs are cancelled when a newer revision arrives. Jobs have timeouts, read-only repository permissions, no provider/signing secrets and no artifact uploads. A weekly schedule reruns the suite even without code changes. Scheduled jobs consume runner time and retain the same private-repository free-billing gate. Checks execute when triggered; they are not always-running production monitoring.
+Old runs are cancelled when a newer revision arrives. CI jobs have timeouts and read-only repository permissions; Android verification APKs are uploaded as workflow artifacts. A weekly schedule reruns the suite even without code changes. Scheduled jobs consume runner time and retain the same private-repository free-billing gate. Checks execute when triggered; they are not always-running production monitoring.
 
 For a **private repository**, both jobs remain disabled until the owner sets repository Actions variable `FREE_CI_CONFIRMED=true` after verifying that paid Actions/cache/storage overages are disabled in billing. This repository cannot change or guarantee your account billing settings. Standard public-repository runners are free; private repositories have included quotas and possible overage charges. See [GitHub billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions). Do not expose customer data or make a repository public merely to get runner minutes.
 
@@ -82,7 +89,8 @@ The planned free PHP host does not need a cluster. Kubernetes adds cluster opera
 
 - [ ] Confirm free-only Actions billing settings; enable `FREE_CI_CONFIRMED` for a private repository only afterward.
 - [ ] Push these files to run the remote jobs; local execution does not prove GitHub execution.
-- [ ] Where your repository plan supports it, require both CI jobs before merging. Branch-protection settings are external to this checkout and were not changed.
+- [x] Owner reports `main` branch protection with one PR approval, conversation resolution, strict security/Android/deliverables checks, and force-push/deletion blocks. Administrators retain bypass for recovery.
+- [ ] Configure protected version tags and required reviewers on both production environments. These settings are external to this checkout.
 - [ ] Resolve remaining review findings; passing the existing regressions is not a complete security certification.
 - [ ] Keep signed release/device checks, live free-host/mail/storage compatibility and backup/restore drills on the launch checklist.
 

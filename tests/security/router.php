@@ -20,6 +20,7 @@ if ($path === '/session') {
     $user = $stmt->fetch();
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['auth_password'] = hash('sha256', $user['password_hash']);
+    $_SESSION['session_version'] = (int) $user['session_version'];
     if (isset($_GET['details'])) echo json_encode(['session'=>session_id(),'csrf'=>csrf_token()]);
     else echo session_id();
     return;

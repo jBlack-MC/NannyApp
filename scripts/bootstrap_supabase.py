@@ -20,7 +20,7 @@ FILES = [
     "migrate_v5_api.sql", "phase1_constraints.sql", "phase2_authentication.sql",
     "migrate_v6_security.sql", "migrate_v7_email_outbox.sql",
     "migrate_v8_operations.sql", "migrate_v9_reports_holidays.sql",
-    "migrate_v10_plus_translation.sql", "migrate_v11_deliverables.sql",
+    "migrate_v10_plus_translation.sql", "migrate_v11_deliverables.sql", "migrate_v12_sessions_downloads.sql",
 ]
 
 
@@ -58,11 +58,20 @@ def main() -> None:
     database_url = os.environ.get("NANNYAPP_DB_URL") or os.environ.get("POSTGRES_URL_NON_POOLING")
     parsed = urlparse(database_url) if database_url else None
     query = parse_qs(parsed.query) if parsed else {}
-    host = os.environ.get("NANNYAPP_DB_HOST") or (parsed.hostname if parsed else None) or "aws-0-us-east-1.pooler.supabase.com"
-    port = os.environ.get("NANNYAPP_DB_PORT") or (str(parsed.port) if parsed and parsed.port else None) or "5432"
-    dbname = os.environ.get("NANNYAPP_DB_NAME") or (parsed.path.lstrip("/") if parsed else "") or "postgres"
-    user = os.environ.get("NANNYAPP_DB_USER") or (unquote(parsed.username) if parsed and parsed.username else None)
-    password = os.environ.get("NANNYAPP_DB_PASS") or (unquote(parsed.password) if parsed and parsed.password else None)
+    # A URL is one complete connection. Never combine it with stale field settings.
+    if parsed:
+        if parsed.scheme not in ("postgres", "postgresql") or not parsed.hostname:
+            raise RuntimeError("The database URL must be a PostgreSQL URL with a host.")
+        host, port = parsed.hostname, str(parsed.port or 5432)
+        dbname = unquote(parsed.path.lstrip("/")) or "postgres"
+        user = unquote(parsed.username) if parsed.username else None
+        password = unquote(parsed.password) if parsed.password else None
+    else:
+        host = os.environ.get("NANNYAPP_DB_HOST") or os.environ.get("POSTGRES_HOST") or "127.0.0.1"
+        port = os.environ.get("NANNYAPP_DB_PORT") or os.environ.get("POSTGRES_PORT") or "5432"
+        dbname = os.environ.get("NANNYAPP_DB_NAME") or os.environ.get("POSTGRES_DATABASE") or "nanny_app"
+        user = os.environ.get("NANNYAPP_DB_USER") or os.environ.get("POSTGRES_USER")
+        password = os.environ.get("NANNYAPP_DB_PASS") or os.environ.get("POSTGRES_PASSWORD")
     if not user or password is None:
         raise RuntimeError("Set NANNYAPP_DB_URL (or NANNYAPP_DB_USER and NANNYAPP_DB_PASS).")
     conn = psycopg2.connect(
@@ -98,98 +107,92 @@ def main() -> None:
         cur.execute("INSERT INTO schema_migrations (name, checksum) VALUES (%s, %s)", (name, checksum))
         print(f"applied {name}")
 
+    # Keep migration application idempotent; commit all demo DML together.
+    conn.autocommit = False
     # bcrypt is compatible with PHP password_hash(..., PASSWORD_DEFAULT).
     import bcrypt
-    demo_password = os.environ.get("NANNYAPP_DEMO_PASSWORD", "Password123!")
-    if len(demo_password) < 8:
-        raise RuntimeError("NANNYAPP_DEMO_PASSWORD must be at least 8 characters.")
+    demo_password = os.environ.get("NANNYAPP_DEMO_PASSWORD", "")
+    if len(demo_password) < 12 or demo_password == "Password123!":
+        raise RuntimeError("Set NANNYAPP_DEMO_PASSWORD to a non-public password of at least 12 characters.")
     password_hash = bcrypt.hashpw(demo_password.encode(), bcrypt.gensalt()).decode()
+    # Normal syncs preserve existing hashes and sessions. Set this explicitly
+    # for intentional credential repair/rotation; tell demo users the new password.
+    reset_demo_passwords = os.environ.get("NANNYAPP_RESET_DEMO_PASSWORDS") == "1"
     demos = [
-        ("Demo Parent", "parent@nanny.app", "parent"),
+        ("Thandi Mokoena", "parent@nanny.app", "parent"),
         ("James Naidoo", "james@nanny.app", "parent"),
-        ("Demo Nanny", "amelia@nanny.app", "nanny"),
+        ("Amelia Dlamini", "amelia@nanny.app", "nanny"),
+        ("Grace Dlamini", "grace@nanny.app", "nanny"),
         ("Demo Admin", "admin@nanny.app", "admin"),
     ]
     for full_name, email, role in demos:
+        cur.execute("SELECT role FROM users WHERE email=%s", (email,))
+        existing = cur.fetchone()
+        if existing and existing[0] != role:
+            raise RuntimeError(f"Demo email {email} belongs to a different role; inspect it manually.")
         cur.execute("""INSERT INTO users (full_name,email,password_hash,role,email_verified,status)
                        VALUES (%s,%s,%s,%s,1,'active')
-                       ON CONFLICT (email) DO UPDATE SET password_hash=EXCLUDED.password_hash,
-                         email_verified=1, status='active'""", (full_name, email, password_hash, role))
+                       ON CONFLICT (email) DO NOTHING""", (full_name, email, password_hash, role))
+        if existing and reset_demo_passwords:
+            cur.execute("""UPDATE users SET password_hash=%s, email_verified=1, status='active',
+                           session_version=session_version+1
+                           WHERE email=%s""", (password_hash, email))
+            cur.execute("DELETE FROM api_tokens WHERE user_id=(SELECT id FROM users WHERE email=%s)", (email,))
         cur.execute("SELECT id FROM users WHERE email=%s", (email,))
         user_id = cur.fetchone()[0]
         if role == "parent":
             cur.execute("""INSERT INTO parent_profiles (user_id, number_of_children)
-                           VALUES (%s, 1) ON CONFLICT (user_id) DO NOTHING""", (user_id,))
+                           VALUES (%s, %s) ON CONFLICT (user_id) DO NOTHING""",
+                        (user_id, 2 if email == "james@nanny.app" else 1))
         elif role == "nanny":
             cur.execute("""INSERT INTO nanny_profiles (user_id, bio, experience_years,
                            hourly_rate, location, skills, availability, verification_status)
-                           VALUES (%s, %s, 5, 170, 'Johannesburg', 'First aid, Homework help',
-                           'Weekdays', 'verified') ON CONFLICT (user_id) DO NOTHING""",
-                        (user_id, "Demo nanny account for trying Nanny-App."))
+                           VALUES (%s, %s, %s, %s, %s, 'First aid, Homework help',
+                           'Weekdays', %s) ON CONFLICT (user_id) DO NOTHING""",
+                        (user_id, "Pending verification demo nanny." if email == "grace@nanny.app" else "Verified demo nanny with first-aid experience.",
+                         3 if email == "grace@nanny.app" else 5, 150 if email == "grace@nanny.app" else 170,
+                         "Sandton" if email == "grace@nanny.app" else "Johannesburg",
+                         "pending" if email == "grace@nanny.app" else "verified"))
+            cur.execute("UPDATE nanny_profiles SET verification_status=%s WHERE user_id=%s",
+                        ("pending" if email == "grace@nanny.app" else "verified", user_id))
 
-    # A small repeatable dataset makes the deployed prototype demonstrable
-    # without relying on hand-created records in the dashboard.
-    parent_ids = []
-    for i in range(1, 11):
-        email = f"demo.parent{i}@nanny.app"
-        cur.execute("""INSERT INTO users (full_name,email,password_hash,role,email_verified,status)
-                       VALUES (%s,%s,%s,'parent',1,'active')
-                       ON CONFLICT (email) DO UPDATE SET password_hash=EXCLUDED.password_hash,
-                         email_verified=1, status='active'""", (f"Demo Parent {i}", email, password_hash))
-        cur.execute("SELECT id FROM users WHERE email=%s", (email,))
-        uid = cur.fetchone()[0]
-        parent_ids.append(uid)
-        cur.execute("""INSERT INTO parent_profiles (user_id, emergency_contact, number_of_children)
-                       VALUES (%s,%s,%s) ON CONFLICT (user_id) DO NOTHING""", (uid, f"+27 82 555 {i:04d}", 1))
-        cur.execute("""INSERT INTO children (parent_id,name,age,gender,allergies,medical_conditions,special_needs,
-                       favourite_activities,notes_for_nannies) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                       ON CONFLICT DO NOTHING""", (uid, f"Demo Child {i}", 3 + i % 8, "prefer_not_to_say", "None", "None", "None", "Reading and outdoor play", "Demo data"))
-
-    for i in range(1, 11):
-        email = f"demo.nanny{i}@nanny.app"
-        cur.execute("""INSERT INTO users (full_name,email,password_hash,role,email_verified,status)
-                       VALUES (%s,%s,%s,'nanny',1,'active')
-                       ON CONFLICT (email) DO UPDATE SET password_hash=EXCLUDED.password_hash,
-                         email_verified=1, status='active'""", (f"Demo Nanny {i}", email, password_hash))
-        cur.execute("SELECT id FROM users WHERE email=%s", (email,))
-        uid = cur.fetchone()[0]
-        cur.execute("""INSERT INTO nanny_profiles (user_id,bio,experience_years,hourly_rate,location,skills,
-                       availability,verification_status,average_rating,languages,qualifications)
-                       VALUES (%s,%s,%s,%s,%s,%s,%s,'verified',%s,%s,%s)
-                       ON CONFLICT (user_id) DO NOTHING""", (uid, "Reliable childcare professional for the Nanny-App demo.", 2 + i, 85 + i * 5, "Johannesburg", "First Aid,Homework Assistance", "Weekdays", 4.0 + (i % 10) / 10, "English", "Demo qualification"))
-        cur.execute("""INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end)
-                       VALUES (%s,1,1,'08:00','17:00') ON CONFLICT DO NOTHING""", (uid,))
-
-    # Refresh the clearly labelled, non-loginable demo bots used by the
-    # prototype home/search screens. Their reserved .invalid addresses are
-    # never usable for real email delivery.
-    cur.execute("DELETE FROM users WHERE email LIKE '%@bots.nanny-app.invalid'")
-    bot_nannies = [
-        ("Amelia", "Johannesburg", 180, 6), ("Jasmine", "Cape Town", 165, 4),
-        ("Margaret", "Durban", 200, 12), ("Naledi", "Pretoria", 150, 3),
-        ("Grace", "Sandton", 220, 9), ("Zinhle", "Centurion", 140, 2),
-    ]
-    bot_parents = [("Thandi", "Johannesburg"), ("James", "Cape Town"), ("Priya", "Durban"), ("Sipho", "Pretoria")]
-    insert_user = """INSERT INTO users (full_name,email,password_hash,role,status,email_verified,profile_image)
-                    VALUES (%s,%s,%s,%s,'active',1,%s) RETURNING id"""
-    nanny_ids, parent_ids = [], []
-    for i, (name, city, rate, years) in enumerate(bot_nannies, 1):
-        cur.execute(insert_user, (f"{name} (Bot)", f"bot.nanny{i}@bots.nanny-app.invalid", bcrypt.hashpw(os.urandom(24), bcrypt.gensalt()).decode(), "nanny", f"assets/img/people/nanny-{i}.jpg"))
-        uid = cur.fetchone()[0]; nanny_ids.append(uid)
-        cur.execute("""INSERT INTO nanny_profiles (user_id,bio,experience_years,hourly_rate,location,skills,languages,verification_status,photo_url)
-                       VALUES (%s,%s,%s,%s,%s,'First aid, Homework help','English','verified',%s)""", (uid, f"Demo bot profile, not a real person. Reliable childcare in {city}.", years, rate, city, f"assets/img/people/nanny-{i}.jpg"))
-    for i, (name, city) in enumerate(bot_parents, 1):
-        cur.execute(insert_user, (f"{name} (Bot)", f"bot.parent{i}@bots.nanny-app.invalid", bcrypt.hashpw(os.urandom(24), bcrypt.gensalt()).decode(), "parent", f"assets/img/people/parent-{i}.jpg"))
-        uid = cur.fetchone()[0]; parent_ids.append(uid)
-        cur.execute("INSERT INTO parent_profiles (user_id,number_of_children) VALUES (%s,%s)", (uid, 1 + i % 3))
-    reviews = [(0, 0, 5), (1, 1, 5), (2, 2, 5), (3, 3, 4), (0, 4, 5), (1, 5, 4), (2, 0, 5), (3, 2, 5)]
-    for i, (parent_index, nanny_index, rating) in enumerate(reviews, 1):
+    # Add sample activity using the named accounts. Legacy users and their
+    # dependent records are never deleted by bootstrap.
+    cur.execute("SELECT id FROM users WHERE email='parent@nanny.app' AND role='parent'")
+    parent_id = cur.fetchone()[0]
+    cur.execute("SELECT id FROM users WHERE email='james@nanny.app' AND role='parent'")
+    james_id = cur.fetchone()[0]
+    cur.execute("SELECT id FROM users WHERE email='amelia@nanny.app' AND role='nanny'")
+    nanny_id = cur.fetchone()[0]
+    cur.execute("SELECT id FROM users WHERE email='admin@nanny.app' AND role='admin'")
+    admin_id = cur.fetchone()[0]
+    for uid, name, age in ((parent_id, "Lebo", 4), (james_id, "Asha", 7), (james_id, "Ravi", 3)):
+        cur.execute("""INSERT INTO children (parent_id,name,age) SELECT %s,%s,%s WHERE NOT EXISTS
+                       (SELECT 1 FROM children WHERE parent_id=%s AND name=%s)""",
+                    (uid, name, age, uid, name))
+    cur.execute("UPDATE parent_profiles SET number_of_children=2 WHERE user_id=%s", (james_id,))
+    cur.execute("""INSERT INTO admin_profiles (user_id,access_level,department)
+                   SELECT %s,'super_admin','Operations' WHERE NOT EXISTS
+                   (SELECT 1 FROM admin_profiles WHERE user_id=%s)""", (admin_id, admin_id))
+    cur.execute("""INSERT INTO nanny_availability (nanny_id,day_of_week,is_available,time_start,time_end)
+                   SELECT %s,1,1,'08:00','17:00' WHERE NOT EXISTS
+                   (SELECT 1 FROM nanny_availability WHERE nanny_id=%s AND day_of_week=1)""", (nanny_id, nanny_id))
+    for uid, days, city, note, status in (
+        (parent_id, -14, "Johannesburg", "Demo sample: Thandi completed booking.", "completed"),
+        (james_id, 7, "Cape Town", "Demo sample: James pending booking.", "pending"),
+    ):
         cur.execute("""INSERT INTO bookings (parent_id,nanny_id,date_time,duration,location,notes,status)
-                       VALUES (%s,%s,CURRENT_TIMESTAMP - (%s * INTERVAL '1 day'),4,%s,'Demo bot booking.','completed') RETURNING id""", (parent_ids[parent_index], nanny_ids[nanny_index], 7 + i * 5, bot_parents[parent_index][1]))
-        booking_id = cur.fetchone()[0]
-        cur.execute("INSERT INTO reviews (booking_id,reviewer_id,nanny_id,rating,comment) VALUES (%s,%s,%s,%s,%s)", (booking_id, parent_ids[parent_index], nanny_ids[nanny_index], rating, "Demo bot review for prototype data."))
-    cur.execute("""UPDATE nanny_profiles SET average_rating = COALESCE((SELECT ROUND(AVG(r.rating),2) FROM reviews r WHERE r.nanny_id=nanny_profiles.user_id),0)
-                   WHERE user_id IN (SELECT id FROM users WHERE email LIKE '%@bots.nanny-app.invalid')""")
+                       SELECT %s,%s,CURRENT_TIMESTAMP + (%s * INTERVAL '1 day'),4,%s,%s,%s
+                       WHERE NOT EXISTS (SELECT 1 FROM bookings WHERE parent_id=%s AND nanny_id=%s AND notes=%s)""",
+                    (uid, nanny_id, days, city, note, status, uid, nanny_id, note))
+    cur.execute("""INSERT INTO saved_nannies (parent_id,nanny_id) SELECT %s,%s WHERE NOT EXISTS
+                   (SELECT 1 FROM saved_nannies WHERE parent_id=%s AND nanny_id=%s)""",
+                (james_id, nanny_id, james_id, nanny_id))
+    cur.execute("""INSERT INTO reviews (booking_id,reviewer_id,nanny_id,rating,comment)
+                   SELECT b.id,%s,%s,5,'Sample demo review.' FROM bookings b
+                   WHERE b.parent_id=%s AND b.nanny_id=%s AND b.notes='Demo sample: Thandi completed booking.'
+                   AND NOT EXISTS (SELECT 1 FROM reviews r WHERE r.booking_id=b.id AND r.reviewer_id=%s)""",
+                (parent_id, nanny_id, parent_id, nanny_id, parent_id))
 
     deliverables = [
         ("product-requirements", "Product requirements", "Project scope, users, features and assessment requirements.", "01-product-requirements.html", "01-product-requirements.pdf", 1),
@@ -206,9 +209,10 @@ def main() -> None:
                        ON CONFLICT (slug) DO UPDATE SET title=EXCLUDED.title, description=EXCLUDED.description,
                          html_file=EXCLUDED.html_file, pdf_file=EXCLUDED.pdf_file, sort_order=EXCLUDED.sort_order,
                          is_active=1""", (slug, title, description, html_file, pdf_file, order))
+    conn.commit()
     cur.close()
     conn.close()
-    print("database ready: migrations, demo accounts, profiles, bot data and deliverables are synchronized")
+    print("database ready: migrations, five named demo accounts, sample activity and deliverables are synchronized")
 
 
 if __name__ == "__main__":

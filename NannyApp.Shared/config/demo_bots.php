@@ -1,161 +1,116 @@
 <?php
 /**
- * Demo "bot" accounts that make an empty site look lived-in: verified nannies with photos,
- * parents, completed bookings and reviews.
- *
- * Every bot is obviously a bot and easy to remove:
- *   - its name ends in "(Bot)" and its bio says it is not a real person;
- *   - its e-mail is on the reserved domain bots.nanny-app.invalid, so no e-mail can ever reach anyone;
- *   - its password is random and never shown, so nobody can sign in as it.
- * Removing the bot users removes their profiles, bookings, payments and reviews (ON DELETE CASCADE).
- *
- * Run through api/bots.php (the "Demo bots" GitHub workflow) or NannyApp.Shared/bin/demo-bots.php.
+ * The five named demo sign-ins. Legacy bot rows are not removed automatically.
+ * Preview: SELECT id, email, role, status FROM users
+ *          WHERE email LIKE '%@bots.nanny-app.invalid'
+ *             OR email LIKE 'demo.parent%@nanny.app'
+ *             OR email LIKE 'demo.nanny%@nanny.app';
+ * Review bookings, reviews, payments, messages and profiles for these IDs too.
  */
-
 declare(strict_types=1);
 
 const DEMO_BOT_EMAIL_DOMAIN = 'bots.nanny-app.invalid';
-
-/** @return array{nannies: list<array>, parents: list<array>, reviews: list<array>} */
-function demo_bot_data(): array
-{
-    return [
-        'nannies' => [
-            ['Amelia', 'Johannesburg', 180, 6, 'Calm, structured routines for toddlers and school-age children.', 'First aid, Homework help, Meal prep', 'English, isiZulu'],
-            ['Jasmine', 'Cape Town', 165, 4, 'Playful learning through reading, music and outdoor time.', 'Early learning, Swimming, Arts and crafts', 'English, Afrikaans'],
-            ['Margaret', 'Durban', 200, 12, 'Experienced newborn and twins care, including overnight support.', 'Newborn care, Sleep routines, First aid', 'English, isiZulu'],
-            ['Naledi', 'Pretoria', 150, 3, 'After-school pick-ups, homework support and healthy snacks.', 'School runs, Homework help, Driving', 'English, Sesotho, Setswana'],
-            ['Grace', 'Sandton', 220, 9, 'Special-needs experience and gentle, patient support.', 'Special needs, First aid, Speech play', 'English'],
-            ['Zinhle', 'Centurion', 140, 2, 'Energetic weekend and date-night babysitting.', 'Babysitting, Games, Bedtime routines', 'English, isiZulu, isiXhosa'],
-        ],
-        'parents' => [
-            ['Thandi', 'Johannesburg'], ['James', 'Cape Town'], ['Priya', 'Durban'], ['Sipho', 'Pretoria'],
-        ],
-        // [parent index, nanny index, rating, comment]
-        'reviews' => [
-            [0, 0, 5, 'Amelia kept our routine on track and the kids adored her.'],
-            [1, 1, 5, 'Jasmine turned every afternoon into a little adventure.'],
-            [2, 2, 5, 'Margaret helped us through the newborn weeks. We finally slept!'],
-            [3, 3, 4, 'Reliable school pick-ups and homework always done.'],
-            [0, 4, 5, 'Grace is patient, kind and incredibly professional.'],
-            [1, 5, 4, 'Great for date nights: the kids were asleep when we got home.'],
-            [2, 0, 5, 'Punctual, warm and great with our toddler.'],
-            [3, 2, 5, 'Calm and experienced. Highly recommended.'],
-        ],
-    ];
-}
 
 function demo_bot_email(string $role, int $n): string
 {
     return "bot.$role.$n@" . DEMO_BOT_EMAIL_DOMAIN;
 }
 
-/** Deletes every bot user and, through the foreign keys, everything that belongs to them. Returns users removed. */
+/** Read-only preview of legacy bot users; deletion is a manual operation. */
+function preview_demo_bots(PDO $pdo): array
+{
+    $stmt = $pdo->prepare('SELECT id, email, role, status FROM users WHERE email LIKE ? ORDER BY id');
+    $stmt->execute(['%@' . DEMO_BOT_EMAIL_DOMAIN]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 function remove_demo_bots(PDO $pdo): int
 {
-    $stmt = $pdo->prepare('DELETE FROM users WHERE email LIKE ?');
-    $stmt->execute(['%@' . DEMO_BOT_EMAIL_DOMAIN]);
-    return $stmt->rowCount();
+    throw new LogicException('Automatic bot deletion is disabled. Preview legacy users and their dependent records first.');
+}
+
+/** Existing bot endpoint may still call this; it no longer creates bot users. */
+function add_demo_bots(PDO $pdo): array
+{
+    return ['nannies' => 0, 'parents' => 0, 'reviews' => 0];
 }
 
 /**
- * The named demo sign-in accounts used for demonstrations (parent@nanny.app, james@nanny.app,
- * amelia@nanny.app). Creates missing accounts and repairs existing demo
- * accounts when this explicitly authorised helper is run.
- * No admin is created here: see docs/DEMO_ACCOUNTS.md.
+ * Create the five named sign-ins. Existing passwords are preserved by default.
+ * Set NANNYAPP_RESET_DEMO_PASSWORDS=1 on the application for intentional
+ * rotation/repair, and tell demo users the new password.
  */
 function ensure_demo_accounts(PDO $pdo, string $password): array
 {
     if (strlen($password) < 12 || $password === 'Password123!') {
         throw new InvalidArgumentException('Choose a demo password of at least 12 characters (not the public Password123!).');
     }
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-    $exists = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-    $insert = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, role, status, email_verified) VALUES (?, ?, ?, ?, 'active', ?)");
-    $repair = $pdo->prepare("UPDATE users SET password_hash = ?, role = ?, status = 'active', email_verified = 1, verification_token = NULL WHERE email = ?");
-    $created = [];
-    foreach ([['Thandi Mokoena', 'parent@nanny.app', 'parent'], ['James Naidoo', 'james@nanny.app', 'parent'], ['Amelia Dlamini', 'amelia@nanny.app', 'nanny']] as [$name, $email, $role]) {
+    $accounts = [
+        ['Thandi Mokoena', 'parent@nanny.app', 'parent', null],
+        ['James Naidoo', 'james@nanny.app', 'parent', null],
+        ['Amelia Dlamini', 'amelia@nanny.app', 'nanny', 'verified'],
+        ['Grace Dlamini', 'grace@nanny.app', 'nanny', 'pending'],
+        ['Demo Admin', 'admin@nanny.app', 'admin', null],
+    ];
+    $exists = $pdo->prepare('SELECT id, role FROM users WHERE email = ?');
+    $insert = $pdo->prepare("INSERT INTO users (full_name, email, password_hash, role, status, email_verified) VALUES (?, ?, ?, ?, 'active', 1)");
+    $repair = $pdo->prepare("UPDATE users SET password_hash = ?, status = 'active', email_verified = 1,
+        session_version = session_version + 1 WHERE email = ?");
+    $revokeTokens = $pdo->prepare('DELETE FROM api_tokens WHERE user_id = ?');
+    $parentProfile = $pdo->prepare('INSERT INTO parent_profiles (user_id, number_of_children) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM parent_profiles WHERE user_id = ?)');
+    $nannyProfile = $pdo->prepare("INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, verification_status)
+        SELECT ?, ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM nanny_profiles WHERE user_id = ?)");
+    $setNannyStatus = $pdo->prepare('UPDATE nanny_profiles SET verification_status = ? WHERE user_id = ?');
+    $result = [];
+    $ids = [];
+    foreach ($accounts as [$name, $email, $role, $verification]) {
         $exists->execute([$email]);
-        $existingId = $exists->fetchColumn();
-        if ($existingId !== false) {
-            $repair->execute([$hash, $role, $email]);
-            $created[] = $email . ' (repaired)';
-            continue;
+        $row = $exists->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['role'] !== $role) {
+            throw new RuntimeException("Demo email $email already belongs to a different role; inspect it manually.");
         }
-        $insert->execute([$name, $email, $hash, $role, '1']);
-        $exists->execute([$email]);
-        $id = (int) $exists->fetchColumn();
-        if ($role === 'nanny') {
-            $pdo->prepare("INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, verification_status) VALUES (?, ?, 5, 170, 'Johannesburg', 'verified')")
-                ->execute([$id, 'Demo nanny account for trying Nanny-App.']);
+        if (!$row) {
+            $insert->execute([$name, $email, password_hash($password, PASSWORD_DEFAULT), $role]);
+            $exists->execute([$email]);
+            $row = $exists->fetch(PDO::FETCH_ASSOC);
+            $result[] = $email;
         } else {
-            $pdo->prepare('INSERT INTO parent_profiles (user_id, number_of_children) VALUES (?, 1)')->execute([$id]);
+            if (getenv('NANNYAPP_RESET_DEMO_PASSWORDS') === '1') {
+                $repair->execute([password_hash($password, PASSWORD_DEFAULT), $email]);
+                $revokeTokens->execute([(int) $row['id']]);
+                $result[] = $email . ' (repaired)';
+            } else {
+                $result[] = $email . ' (existing; unchanged)';
+            }
         }
-        $created[] = $email;
+        $id = (int) $row['id'];
+        $ids[$email] = $id;
+        if ($role === 'parent') $parentProfile->execute([$id, $email === 'james@nanny.app' ? 2 : 1, $id]);
+        if ($role === 'nanny') {
+            $pending = $email === 'grace@nanny.app';
+            $nannyProfile->execute([$id, $pending ? 'Pending verification demo nanny.' : 'Verified demo nanny with first-aid experience.',
+                $pending ? 3 : 5, $pending ? 150 : 170, $pending ? 'Sandton' : 'Johannesburg', $verification, $id]);
+            $setNannyStatus->execute([$verification, $id]);
+        }
     }
-    return $created;
-}
-
-/** Replaces any existing bots with a fresh set. Real accounts are never touched. */
-function add_demo_bots(PDO $pdo): array
-{
-    $data = demo_bot_data();
-    $pdo->beginTransaction();
-    try {
-        remove_demo_bots($pdo);
-        $insertUser = $pdo->prepare(
-            "INSERT INTO users (full_name, email, password_hash, role, status, email_verified, profile_image)
-             VALUES (?, ?, ?, ?, 'active', ?, ?)"
-        );
-        $userId = $pdo->prepare('SELECT id FROM users WHERE email = ?');
-        $create = function (string $name, string $email, string $role, string $photo) use ($insertUser, $userId): int {
-            // A random password nobody knows: bots exist to be looked at, not signed in to.
-            $insertUser->execute([$name, $email, password_hash(bin2hex(random_bytes(24)), PASSWORD_DEFAULT), $role, '1', $photo]);
-            $userId->execute([$email]);
-            return (int) $userId->fetchColumn();
-        };
-
-        $nannyIds = [];
-        $insertNanny = $pdo->prepare(
-            "INSERT INTO nanny_profiles (user_id, bio, experience_years, hourly_rate, location, skills, languages, verification_status, photo_url)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'verified', ?)"
-        );
-        foreach ($data['nannies'] as $i => [$first, $city, $rate, $years, $bio, $skills, $languages]) {
-            $photo = 'assets/img/people/nanny-' . ($i + 1) . '.jpg';
-            $id = $create("$first (Bot)", demo_bot_email('nanny', $i + 1), 'nanny', $photo);
-            $insertNanny->execute([$id, "$bio Demo bot profile, not a real person.", $years, $rate, $city, $skills, $languages, $photo]);
-            $nannyIds[] = $id;
-        }
-
-        $parentIds = [];
-        $insertParent = $pdo->prepare('INSERT INTO parent_profiles (user_id, number_of_children) VALUES (?, ?)');
-        foreach ($data['parents'] as $i => [$first]) {
-            $id = $create("$first (Bot)", demo_bot_email('parent', $i + 1), 'parent', 'assets/img/people/parent-' . ($i + 1) . '.jpg');
-            $insertParent->execute([$id, 1 + $i % 3]);
-            $parentIds[] = $id;
-        }
-
-        $insertBooking = $pdo->prepare(
-            "INSERT INTO bookings (parent_id, nanny_id, date_time, duration, location, notes, status)
-             VALUES (?, ?, ?, ?, ?, 'Demo bot booking.', 'completed')"
-        );
-        $bookingId = $pdo->prepare('SELECT MAX(id) FROM bookings WHERE parent_id = ? AND nanny_id = ?');
-        $insertReview = $pdo->prepare('INSERT INTO reviews (booking_id, reviewer_id, nanny_id, rating, comment) VALUES (?, ?, ?, ?, ?)');
-        foreach ($data['reviews'] as $i => [$p, $n, $rating, $comment]) {
-            $when = date('Y-m-d H:i:s', strtotime('-' . (7 + 5 * $i) . ' days 09:00'));
-            $insertBooking->execute([$parentIds[$p], $nannyIds[$n], $when, 4, $data['parents'][$p][1]]);
-            $bookingId->execute([$parentIds[$p], $nannyIds[$n]]);
-            $insertReview->execute([(int) $bookingId->fetchColumn(), $parentIds[$p], $nannyIds[$n], $rating, $comment]);
-        }
-
-        $pdo->prepare(
-            'UPDATE nanny_profiles SET average_rating = COALESCE((SELECT ROUND(AVG(r.rating), 2) FROM reviews r WHERE r.nanny_id = nanny_profiles.user_id), 0)
-             WHERE user_id IN (SELECT id FROM users WHERE email LIKE ?)'
-        )->execute(['%@' . DEMO_BOT_EMAIL_DOMAIN]);
-        $pdo->commit();
-    } catch (Throwable $e) {
-        $pdo->rollBack();
-        throw $e;
+    // Distinct parent journeys and visible sample activity; no purchase records.
+    $child = $pdo->prepare('INSERT INTO children (parent_id, name, age) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM children WHERE parent_id = ? AND name = ?)');
+    foreach ([['parent@nanny.app', 'Lebo', 4], ['james@nanny.app', 'Asha', 7], ['james@nanny.app', 'Ravi', 3]] as [$email, $name, $age]) {
+        $child->execute([$ids[$email], $name, $age, $ids[$email], $name]);
     }
-    return ['nannies' => count($nannyIds), 'parents' => count($parentIds), 'reviews' => count($data['reviews'])];
+    $pdo->prepare('UPDATE parent_profiles SET number_of_children = 2 WHERE user_id = ?')->execute([$ids['james@nanny.app']]);
+    $booking = $pdo->prepare("INSERT INTO bookings (parent_id, nanny_id, date_time, duration, location, notes, status)
+        SELECT ?, ?, ?, 4, ?, ?, ? WHERE NOT EXISTS (SELECT 1 FROM bookings WHERE parent_id = ? AND nanny_id = ? AND notes = ?)");
+    foreach ([['parent@nanny.app', 'completed', 'Johannesburg', 'Demo sample: Thandi completed booking.'],
+              ['james@nanny.app', 'pending', 'Cape Town', 'Demo sample: James pending booking.']] as [$email, $status, $city, $note]) {
+        $when = date('Y-m-d H:i:s', strtotime($status === 'completed' ? '-14 days 09:00' : '+7 days 09:00'));
+        $booking->execute([$ids[$email], $ids['amelia@nanny.app'], $when, $city, $note, $status,
+            $ids[$email], $ids['amelia@nanny.app'], $note]);
+    }
+    $saved = $pdo->prepare('INSERT INTO saved_nannies (parent_id, nanny_id) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM saved_nannies WHERE parent_id = ? AND nanny_id = ?)');
+    $saved->execute([$ids['james@nanny.app'], $ids['amelia@nanny.app'], $ids['james@nanny.app'], $ids['amelia@nanny.app']]);
+    $admin = $pdo->prepare("INSERT INTO admin_profiles (user_id, access_level, department) SELECT ?, 'super_admin', 'Operations'
+        WHERE NOT EXISTS (SELECT 1 FROM admin_profiles WHERE user_id = ?)");
+    $admin->execute([$ids['admin@nanny.app'], $ids['admin@nanny.app']]);
+    return $result;
 }

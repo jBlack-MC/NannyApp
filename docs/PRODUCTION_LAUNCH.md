@@ -7,10 +7,10 @@ Updated 2026-09-28: deployment instructions corrected; the [pilot plan](PILOT_DE
 ## Before deployment
 
 1. Follow [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md) and the [safe CLI migration instructions](../NannyApp.Shared/database/MIGRATION_ORDER.md). The current runner bootstraps an empty schema and adopts existing installations without deleting data; historical schema.sql copies were destructive. Back up and test upgrades/restoration before touching a pilot database. Apply v8 and schedule the operational workers described in [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md).
-2. Provision applicable environment values outside source control and the document root. Use HTTPS, non-root database credentials and a configured email transport. Resend setup is in [RESEND_INTEGRATION.md](RESEND_INTEGRATION.md); private local storage with off-host backups is acceptable for this pilot, and S3 is optional.
+2. Provision applicable environment values outside source control and the document root. Use HTTPS, non-root database credentials and a configured email transport. Resend setup is in [RESEND_INTEGRATION.md](RESEND_INTEGRATION.md). Configure persistent uploads: the database driver is suitable for a small Vercel prototype after migration v12; a persistent local volume with off-host backups may serve a single-server pilot; S3-compatible storage is recommended at scale. Verify live upload and readback before launch.
 3. Deploy `NannyApp.Web`, `NannyApp.Mobile/NannyApp/api`, and `NannyApp.Shared` so both PHP applications use the same production database and shared storage configuration. Keep `NannyApp.Shared` outside the public web root.
 4. Set the Android release `API_BASE_URL` to the HTTPS API URL, create a signed release build, and test it on physical devices.
-5. Remove or disable all `@nanny.app` seed/demo accounts. Replace placeholder support, privacy, legal, and emergency contact details with approved business details.
+5. Cleaning up the five named `@nanny.app` demo accounts is optional for a closed prototype; remove or disable them before admitting real users. Replace placeholder support, privacy, legal, and emergency contact details with approved business details.
 
 ## Manual-payment operations
 

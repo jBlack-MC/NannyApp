@@ -95,6 +95,15 @@ fun dial(context: Context, number: String) {
     context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$number")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
 }
 
+private fun shareApp(context: Context) {
+    val downloadUrl = BuildConfig.API_BASE_URL.removeSuffix("api/") + "download-app.php?platform=android&source=apk-share"
+    val sendIntent = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, context.getString(R.string.settings_share_app_message, downloadUrl))
+    }
+    context.startActivity(Intent.createChooser(sendIntent, context.getString(R.string.settings_share_app)))
+}
+
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
@@ -181,6 +190,7 @@ fun SettingsScreen(
             }
 
             SettingsSection(stringResource(R.string.settings_about)) {
+                LinkRow(stringResource(R.string.settings_share_app)) { shareApp(context) }
                 LinkRow(stringResource(R.string.settings_terms)) { onStaticPage("terms") }
                 LinkRow(stringResource(R.string.settings_privacy)) { onStaticPage("privacy") }
                 LinkRow(stringResource(R.string.settings_help)) { onStaticPage("faq") }
