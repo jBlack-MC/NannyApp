@@ -396,6 +396,8 @@ ADMIN  (web browser only — blocked inside the app/installed PWA)
 
 **Dark mode persistence.** The active theme is applied by an inline script at the very top of `includes/header.php`'s `<head>` — before any stylesheet loads — which reads `localStorage.na_theme` (falling back to the OS `prefers-color-scheme`) and sets `data-theme` on `<html>` immediately. This runs on every page load, so the theme no longer resets to light on navigation, and there's no flash of the wrong theme. `assets/js/app.js` only wires up the toggle button and persists the choice; it no longer overwrites the theme on load.
 
+Theme contrast is enforced through the semantic tokens and dark-mode guardrails in `assets/css/accessibility.css`. Test the web and Android themes with `python tests/check-theme-contrast.py`, then manually inspect forms, buttons, menus, cards, tables, notifications and dialogs in both modes. The full cross-platform checklist is in [docs/THEME_AND_CONTRAST.md](../docs/THEME_AND_CONTRAST.md).
+
 **CSRF:** Token stored in `$_SESSION['csrf']`, compared with `hash_equals()` on every POST.
 
 **File uploads:** Validated by MIME type whitelist and `getimagesize()`. Stored with a random `bin2hex(random_bytes(8))` filename, sharded into `<year>/<month>/` folders, under `NannyApp.Shared/storage/uploads/` in development (shared with every client, outside this project's webroot) or in S3-compatible object storage in production (set `NANNYAPP_STORAGE_DRIVER=s3`, see `NannyApp.Shared/README.md`) — and served through `media.php`.

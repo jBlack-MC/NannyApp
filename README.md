@@ -238,8 +238,9 @@ Development fixtures may seed accounts with the password `Password123!`. Deploye
 | --- | --- |
 | Admin | `admin@nanny.app` |
 | Parent | `parent@nanny.app` |
+| Parent | `james@nanny.app` |
 | Verified nanny | `amelia@nanny.app` |
-| Pending nanny | `jasmine@nanny.app` |
+| Pending nanny | `grace@nanny.app` |
 
 > Remove or disable demo accounts before admitting real users. Never reuse the fixture password on a deployed site.
 
@@ -277,15 +278,15 @@ The platform has built-in protections, but production hardening still matters:
 
 ## Roadmap and current status
 
-The project includes web and Android booking workflows, a manual-payment ledger and web administration. Remaining authorization, booking concurrency, release and operational work is tracked in the code review and launch checklist.
+The project includes web and Android booking workflows, a manual-payment ledger and web administration. The current product vision is a trust-and-reliability pilot: parents and nannies should be able to use the same account and data across web and physical Android devices, while administrators retain clear verification, support, dispute and audit controls.
 
-Planned areas of improvement include:
+The [Professional Engineering Audit & Vision Update](docs/deliverables/08-professional-engineering-audit.html) records the evidence, risks and release gates. The next priority is hardening and proving the existing flow rather than adding broad new features:
 
-- stronger automated migration/version tracking
-- more production-oriented deployment automation
-- deeper monitoring and release-check workflows
-- tighter payment/notification configuration for live environments
-- expanded QA and security validation
+- rotate exposed credentials and remove public demo passwords
+- align live environment configuration and verify HTTPS mobile registration/login/media readback
+- clear the backend bearer-policy test failure and keep GitHub Actions green
+- complete physical-device, accessibility, backup/restore and monitoring evidence
+- reconcile implementation documentation and release artefacts with the current build
 
 ---
 
@@ -298,6 +299,7 @@ For deeper technical guidance, see:
 - [NannyApp.Shared/README.md](NannyApp.Shared/README.md)
 - [docs](docs)
 - [tests](tests)
+- [Theme and contrast testing](docs/THEME_AND_CONTRAST.md)
 
 ---
 

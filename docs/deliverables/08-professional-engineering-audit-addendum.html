@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Professional Engineering Audit Addendum | Nanny-App</title>
+  <link rel="stylesheet" href="assets/document.css">
+</head>
+<body>
+  <article class="page">
+    <header class="hero">
+      <div class="eyebrow">Nanny-App · Engineering audit follow-up</div>
+      <h1>Audit Addendum</h1>
+      <p>Verification update for the account-sharing and seeded-login work.</p>
+      <div class="meta"><span>20 October 2026</span><span>Status: verified in disposable environment</span></div>
+    </header>
+    <main class="content">
+      <h2>Updated evidence</h2>
+      <p>The full disposable database/API regression suite now passes. It covers registration, duplicate-account conflicts, password hashing, mobile bearer login, session-version revocation, named demo-account password hashes, media authorization, web/API sessions, bookings, messages, uploads and notification flows.</p>
+      <p>The web application and Android API both load the shared database configuration and use the same database-backed account records. The Android client does not connect directly to the database; it calls the PHP API with a bearer token.</p>
+
+      <h2>Account baseline</h2>
+      <p>The local and documented named accounts are now aligned: <code>parent@nanny.app</code>, <code>james@nanny.app</code>, <code>amelia@nanny.app</code>, <code>grace@nanny.app</code>, and the web-only <code>admin@nanny.app</code>. Deployed demo passwords remain private and must be checked in the actual database.</p>
+
+      <h2>Remaining release gates</h2>
+      <ul>
+        <li>Rotate any credentials previously exposed outside protected server configuration.</li>
+        <li>Run the live Supabase registration/login/media-readback check after credential rotation.</li>
+        <li>Build and sign the APK with the real HTTPS API URL, then test on a physical phone.</li>
+      </ul>
+    </main>
+  </article>
+</body>
+</html>

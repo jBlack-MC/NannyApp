@@ -65,7 +65,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $pdo->commit();
         } catch (PDOException $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
-            if (in_array((string) $e->getCode(), ['23000', '23505'], true)) {
+            // A second request may have won the race after the pre-check.
+            $duplicate = $pdo->prepare('SELECT 1 FROM users WHERE email = ?');
+            $duplicate->execute([$old['email']]);
+            if ($duplicate->fetch() || in_array((string) $e->getCode(), ['23000', '23505'], true)) {
                 $errors[] = 'That email is already registered.';
             } else {
                 log_exception($e, 'registration_failed');

@@ -306,13 +306,34 @@ function recompute_rating(int $nannyUserId): void
 // ----------------------------------------------------------------------
 
 /** Build a browser-facing URL for a stored image/document path. */
-function media_url(string $path): string
+function media_url(?string $path): ?string
 {
+    // New accounts do not have a photo yet. Keep the API response valid and
+    // let each client render its normal initials/placeholder state.
+    if ($path === null || trim($path) === '') {
+        return null;
+    }
+
     // Legacy images saved directly under this project's assets/ folder.
     if (str_starts_with($path, 'assets/') && !str_contains($path, '/docs/') && !str_contains($path, '/portfolio/')) {
-        return url($path);
+        $built = url($path);
+    } else {
+        $built = storage_url($path, fn(string $p) => url('media.php?f=' . rawurlencode($p)));
     }
-    return storage_url($path, fn(string $p) => url('media.php?f=' . rawurlencode($p)));
+
+    // Browser pages can use relative URLs, but Android's image loader needs a
+    // complete URL. When BASE_URL is relative (local/XAMPP), derive the host
+    // from the current request so web and mobile still share the same media.
+    if (preg_match('~^https?://~i', $built)) {
+        return $built;
+    }
+    $forwardedProto = (string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
+    $scheme = $forwardedProto !== '' ? strtolower(trim(explode(',', $forwardedProto)[0])) : '';
+    if (!in_array($scheme, ['http', 'https'], true)) {
+        $scheme = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
+    }
+    $host = trim((string) ($_SERVER['HTTP_HOST'] ?? ''));
+    return $host !== '' ? $scheme . '://' . $host . '/' . ltrim($built, '/') : $built;
 }
 
 /** Render an avatar: the uploaded image if present, else coloured initials. */

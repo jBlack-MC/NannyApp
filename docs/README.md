@@ -5,6 +5,8 @@ Use these current documents rather than historical infrastructure suggestions.
 | Document | Purpose |
 | --- | --- |
 | [deliverables/index.html](deliverables/index.html) | Complete PRD, technical requirements, app flow, design brief, backend schema and implementation plan in HTML and PDF |
+| [deliverables/08-professional-engineering-audit.html](deliverables/08-professional-engineering-audit.html) | Evidence-based audit, project vision update, risk register and next-change record |
+| [deliverables/08-professional-engineering-audit-addendum.html](deliverables/08-professional-engineering-audit-addendum.html) | Follow-up evidence for account sharing, seeded login and remaining release gates |
 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) | One-command local website, API and demo database for development and the Android emulator |
 | [PLUS_SETUP.md](PLUS_SETUP.md) | Switching on the Nanny-App Plus subscription in Google Play, and translation limits |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Where the logs are, how to trace an error reference, the health check and common failures |
@@ -12,6 +14,7 @@ Use these current documents rather than historical infrastructure suggestions.
 | [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md) | Historical free-host evaluation |
 | [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md) | Booking/ledger policy, durable workers, storage limits and migration rollout |
 | [AUTOMATION.md](AUTOMATION.md) | Local Docker/non-Docker checks, CI setup and Android release configuration |
+| [THEME_AND_CONTRAST.md](THEME_AND_CONTRAST.md) | Shared web/Android theme rules, contrast test pass and static guardrail |
 | [DEMO_ACCOUNTS.md](DEMO_ACCOUNTS.md) | Demo account and bot operations, including production approval |
 | [LAUNCH_READINESS_AUDIT.md](LAUNCH_READINESS_AUDIT.md) | Completed source work versus remaining real-host/device/operations gates |
 | [CODE_REVIEW_2026-09-27.md](CODE_REVIEW_2026-09-27.md) | Original findings with dated remediation updates; historical lines may have moved |

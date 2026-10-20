@@ -23,6 +23,9 @@ import kotlinx.coroutines.withContext
  */
 @Composable
 fun rememberFilePickerLauncher(onPicked: (bytes: ByteArray, fileName: String) -> Unit): () -> Unit {
+    // Keep the client-side limit aligned with save_uploaded_image() on the API.
+    // This avoids reading a file that the server will reject after upload.
+    val maxUploadBytes = 2 * 1024 * 1024
     val context = LocalContext.current
     val callback = rememberUpdatedState(onPicked)
     val scope = rememberCoroutineScope()
@@ -38,7 +41,7 @@ fun rememberFilePickerLauncher(onPicked: (bytes: ByteArray, fileName: String) ->
                         while (true) {
                             val count = input.read(buffer)
                             if (count == -1) break
-                            require(output.size() + count <= 5 * 1024 * 1024) { "Choose an image smaller than 5 MB." }
+                            require(output.size() + count <= maxUploadBytes) { "Choose an image smaller than 2 MB." }
                             output.write(buffer, 0, count)
                         }
                         output.toByteArray()

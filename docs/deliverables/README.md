@@ -12,7 +12,8 @@ matching PDF suitable for submission and download.
 | Backend Schema & API | [HTML](05-backend-schema.html) | [PDF](05-backend-schema.pdf) |
 | Implementation Plan | [HTML](06-implementation-plan.html) | [PDF](06-implementation-plan.pdf) |
 | CI/CD and APK Release Plan | [HTML](07-ci-cd-and-release.html) | [PDF](07-ci-cd-and-release.pdf) |
+| Professional Engineering Audit & Vision Update | [HTML](08-professional-engineering-audit.html) | [PDF](08-professional-engineering-audit.pdf) |
 
-The documents describe the repository state on 10 October 2026. Regenerate the
+The numbered documents describe the repository state on 10 October 2026; the audit and vision update is dated 20 October 2026. Regenerate the
 HTML after editing `build-docs.js` with `node docs/deliverables/build-docs.js`,
 then render the PDFs again from the numbered HTML files.
