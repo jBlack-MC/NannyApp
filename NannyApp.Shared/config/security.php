@@ -51,7 +51,7 @@ function nannyapp_email_verification_required(): bool
 function verified_active_user(?array $user): bool
 {
     return $user !== null
-        && (nannyapp_email_verification_required() || (int) ($user['email_verified'] ?? 0) === 1)
+        && (!nannyapp_email_verification_required() || (int) ($user['email_verified'] ?? 0) === 1)
         && ($user['status'] ?? '') === 'active';
 }
 
@@ -77,9 +77,24 @@ function store_remember_token_if_current(int $userId, string $expectedHash, stri
 function replace_password_and_revoke_sessions(PDO $pdo, int $userId, string $password): void
 {
     if (!$pdo->inTransaction()) throw new LogicException('Credential changes require a transaction.');
-    $pdo->prepare('UPDATE users SET password_hash = ?, remember_token = NULL WHERE id = ?')->execute([password_hash($password, PASSWORD_DEFAULT), $userId]);
+    $pdo->prepare('UPDATE users SET password_hash = ?, remember_token = NULL, session_version = session_version + 1 WHERE id = ?')->execute([password_hash($password, PASSWORD_DEFAULT), $userId]);
     $pdo->prepare('UPDATE password_resets SET used = 1 WHERE user_id = ?')->execute([$userId]);
     $pdo->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([$userId]);
+}
+
+/** Revocation is shared by browser sessions, remember cookies and Android tokens. */
+function revoke_all_user_sessions(int $userId): void
+{
+    $pdo = db();
+    $pdo->beginTransaction();
+    try {
+        $pdo->prepare('UPDATE users SET session_version = session_version + 1, remember_token = NULL WHERE id = ?')->execute([$userId]);
+        $pdo->prepare('DELETE FROM api_tokens WHERE user_id = ?')->execute([$userId]);
+        $pdo->commit();
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
+        throw $e;
+    }
 }
 
 /** Recheck the current password under the same lock used by password recovery. */

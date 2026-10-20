@@ -39,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$errors) {
         $pdo = db();
         $pdo->beginTransaction();
+        try {
 
         $stmt = $pdo->prepare(
             'INSERT INTO users (full_name, email, phone, password_hash, role, email_verified) VALUES (?,?,?,?,?,?)'
@@ -49,7 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $old['phone'] ?: null,
             password_hash($password, PASSWORD_DEFAULT),
             $old['role'],
-            0,  // Not verified yet
+            nannyapp_email_verification_required() ? 0 : 1,
         ]);
         $userId = (int) $pdo->lastInsertId();
 
@@ -57,15 +58,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($old['role'] === 'nanny') {
             $pdo->prepare('INSERT INTO nanny_profiles (user_id, verification_status) VALUES (?, "pending")')
                 ->execute([$userId]);
+        } else {
+            $pdo->prepare('INSERT INTO parent_profiles (user_id, number_of_children) VALUES (?, 0)')->execute([$userId]);
         }
 
         $pdo->commit();
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) $pdo->rollBack();
+            if (in_array((string) $e->getCode(), ['23000', '23505'], true)) {
+                $errors[] = 'That email is already registered.';
+            } else {
+                log_exception($e, 'registration_failed');
+                $errors[] = 'Could not create your account right now. Please try again.';
+            }
+        }
 
-        // Send verification email
-        $verificationEmailSent = send_verification_email($userId, $old['email'], $old['full_name']);
+        if (!$errors) {
+            if (nannyapp_email_verification_required()) {
+                $verificationEmailSent = send_verification_email($userId, $old['email'], $old['full_name']);
+            }
 
-        $registered = true;
-        $registeredEmail = $old['email'];
+            $registered = true;
+            $registeredEmail = $old['email'];
+        }
     }
 }
 
@@ -87,7 +102,9 @@ if ($registered):
     <h1 class="auth-title"><?= icon('check') ?> Account Created!</h1>
     <p class="muted auth-subtitle">Welcome to <?= APP_NAME ?>!</p>
 
-    <?php if ($verificationEmailSent): ?>
+    <?php if (!nannyapp_email_verification_required()): ?>
+    <div class="flash flash-success">Your account is ready. You can log in now and complete your profile later.</div>
+    <?php elseif ($verificationEmailSent): ?>
     <div class="flash flash-success">
         <strong>Check your email!</strong> We've sent a verification link to <?php echo e($registeredEmail); ?> 
         <br><br>
@@ -104,8 +121,10 @@ if ($registered):
     <div class="auth-panel">
         <strong>What's next?</strong>
         <ul class="auth-list-plain">
+            <?php if (nannyapp_email_verification_required()): ?>
             <li>Check your email for the verification link</li>
             <li>Click the link to verify your account</li>
+            <?php endif; ?>
             <li>Log in with your credentials</li>
             <li>Start using <?php echo e(APP_NAME); ?></li>
         </ul>

@@ -51,7 +51,7 @@ class AuthViewModelTest {
     ): AuthRepository = object : AuthRepository {
         override val currentUser: Flow<User?> = flowOf(null)
         override suspend fun login(email: String, password: String, rememberMe: Boolean) = loginResult
-        override suspend fun googleLogin(idToken: String) = googleResult
+        override suspend fun googleLogin(idToken: String, rememberMe: Boolean) = googleResult
         override suspend fun register(request: RegisterData) = registerResult
         override suspend fun logout() {}
         override suspend fun forgotPassword(email: String) = Resource.Success(Unit)
@@ -62,6 +62,14 @@ class AuthViewModelTest {
     }
 
     // ── LoginViewModel — blank input validation ──────────────────────────────
+
+    @Test
+    fun `remember me requires explicit selection`() {
+        val vm = LoginViewModel(fakeRepo())
+        assertFalse(vm.state.value.rememberMe)
+        vm.onRememberMeChange(true)
+        assertTrue(vm.state.value.rememberMe)
+    }
 
     @Test
     fun `login with blank email shows validation error without calling API`() {
@@ -198,6 +206,29 @@ class AuthViewModelTest {
         ) }
         vm.register()
         assertNotNull("Nanny with bad hourly rate should fail", vm.state.value.error)
+    }
+
+    @Test
+    fun `nanny can register without phone or hourly rate`() {
+        val vm = RegisterViewModel(fakeRepo())
+        vm.update { it.copy(
+            role = UserRole.NANNY, fullName = "Bob", email = "b@b.com",
+            password = "Password1!", confirmPassword = "Password1!",
+        ) }
+        vm.register()
+        assertNull(vm.state.value.error)
+        assertTrue(vm.state.value.registered)
+    }
+
+    @Test
+    fun `nanny hourly rate must be positive when supplied`() {
+        val vm = RegisterViewModel(fakeRepo())
+        vm.update { it.copy(
+            role = UserRole.NANNY, fullName = "Bob", email = "b@b.com",
+            password = "Password1!", confirmPassword = "Password1!", hourlyRate = "0",
+        ) }
+        vm.register()
+        assertNotNull(vm.state.value.error)
     }
 }
 

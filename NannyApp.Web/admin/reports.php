@@ -4,38 +4,45 @@ require_role('admin');
 
 $users = db()->query(
     "SELECT
-        SUM(role='parent') AS parents,
-        SUM(role='nanny')  AS nannies,
-        SUM(role='admin')  AS admins,
-        SUM(status='suspended') AS suspended,
+        SUM(CASE WHEN role='parent' THEN 1 ELSE 0 END) AS parents,
+        SUM(CASE WHEN role='nanny' THEN 1 ELSE 0 END) AS nannies,
+        SUM(CASE WHEN role='admin' THEN 1 ELSE 0 END) AS admins,
+        SUM(CASE WHEN status='suspended' THEN 1 ELSE 0 END) AS suspended,
         COUNT(*) AS total
      FROM users"
 )->fetch();
 
 $bookings = db()->query(
     "SELECT
-        SUM(status='pending')   AS pending,
-        SUM(status='confirmed') AS confirmed,
-        SUM(status='completed') AS completed,
-        SUM(status='rejected')  AS rejected,
-        SUM(status='cancelled') AS cancelled,
+        SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END) AS pending,
+        SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) AS confirmed,
+        SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN status='rejected' THEN 1 ELSE 0 END) AS rejected,
+        SUM(CASE WHEN status='cancelled' THEN 1 ELSE 0 END) AS cancelled,
         COUNT(*) AS total
      FROM bookings"
 )->fetch();
 
 $revenue = db()->query(
     "SELECT
-        IFNULL(SUM(CASE WHEN status='paid' THEN amount END),0)    AS collected,
-        IFNULL(SUM(CASE WHEN status='pending' THEN amount END),0) AS outstanding
+        COALESCE(SUM(CASE WHEN status='paid' THEN amount END),0) AS collected,
+        COALESCE(SUM(CASE WHEN status='pending' THEN amount END),0) AS outstanding
      FROM payments"
 )->fetch();
 
 $verif = db()->query(
     "SELECT
-        SUM(verification_status='pending')  AS pending,
-        SUM(verification_status='verified') AS verified,
-        SUM(verification_status='rejected') AS rejected
+        SUM(CASE WHEN verification_status='pending' THEN 1 ELSE 0 END) AS pending,
+        SUM(CASE WHEN verification_status='verified' THEN 1 ELSE 0 END) AS verified,
+        SUM(CASE WHEN verification_status='rejected' THEN 1 ELSE 0 END) AS rejected
      FROM nanny_profiles"
+)->fetch();
+
+$apk = db()->query(
+    "SELECT COUNT(*) AS total,
+            SUM(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 ELSE 0 END) AS last_week,
+            SUM(CASE WHEN source='apk-share' THEN 1 ELSE 0 END) AS shared_from_app
+     FROM apk_download_events"
 )->fetch();
 
 $pageTitle = 'Reports';
@@ -95,6 +102,18 @@ function report_row(string $label, $value): void
             <tr><td>Outstanding (pending)</td><td class="text-right"><strong>R<?= number_format((float)$revenue['outstanding'], 2) ?></strong></td></tr>
         </table>
         <p class="muted text-sm">Note: payments are recorded by the in-app demo flow until a live gateway is connected.</p>
+    </div>
+
+    <div class="card">
+        <h2>Android downloads</h2>
+        <table class="table">
+            <?php
+                report_row('Download requests', $apk['total']);
+                report_row('Last 7 days', $apk['last_week']);
+                report_row('Shared from Android', $apk['shared_from_app']);
+            ?>
+        </table>
+        <p class="muted text-sm">Counts are requests through this website, including redirects to GitHub. They do not prove that the APK finished downloading or was installed; direct GitHub downloads are not included.</p>
     </div>
 </div>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

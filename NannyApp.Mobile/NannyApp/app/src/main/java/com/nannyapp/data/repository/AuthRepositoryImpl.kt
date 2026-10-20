@@ -59,14 +59,13 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun googleLogin(idToken: String): Resource<User> {
+    override suspend fun googleLogin(idToken: String, rememberMe: Boolean): Resource<User> {
         val result = safeApiCall { api.googleSso(GoogleSsoRequestDto(idToken)) }
         return when (result) {
             is Resource.Success -> {
                 val dto = result.data
                 val user = dto.user.asDomain()
-                // SSO sessions are always persistent (no explicit "remember me" toggle).
-                sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe = true)
+                sessionManager.saveSession(dto.token, user.id, user.role, user.fullName, user.email, rememberMe)
                 sessionManager.withCurrentSession(dto.token) { userDao.upsert(user.toEntity()) }
                 Resource.Success(user)
             }
@@ -101,7 +100,7 @@ class AuthRepositoryImpl @Inject constructor(
                     user.role,
                     user.fullName,
                     user.email,
-                    rememberMe = true,
+                    rememberMe = false,
                 )
                 sessionManager.withCurrentSession(result.data.token) { userDao.upsert(user.toEntity()) }
                 Resource.Success(user)

@@ -27,6 +27,7 @@ try:
     run([php, 'tests/security/public-urls.test.php'])
     run([php, 'tests/security/db-settings.test.php'])
     run([php, 'tests/security/web-sessions.test.php'])
+    run([php, 'tests/security/session-policy.test.php'])
     run([php, 'tests/security/demo-bots.test.php'])
     for test in ['service-worker.test.cjs', 'install.test.cjs']:
         run(['node', 'tests/security/' + test])

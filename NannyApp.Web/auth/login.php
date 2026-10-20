@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['auth_password'] = hash('sha256', $user['password_hash']);
+                $_SESSION['session_version'] = (int) $user['session_version'];
 
                 /* ── Remember me ──────────────────────────────────── */
                 if (!empty($_POST['remember'])) {
@@ -84,9 +85,9 @@ require __DIR__ . '/../includes/header.php';
 
         <?php // One-click demo sign-in exposes working passwords, so it is offered only to a browser on the
               // server itself (local development) or when NANNYAPP_DEMO_LOGIN=1 is set deliberately.
-        $demoLogin = getenv('NANNYAPP_DEMO_LOGIN') === '1'
-            || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true);
-        $demoPassword = (string) (getenv('NANNYAPP_DEMO_PASSWORD') ?: 'Password123!');
+        $demoPassword = (string) (getenv('NANNYAPP_DEMO_PASSWORD') ?: '');
+        $demoLogin = $demoPassword !== '' && (getenv('NANNYAPP_DEMO_LOGIN') === '1'
+            || in_array($_SERVER['REMOTE_ADDR'] ?? '', ['127.0.0.1', '::1'], true));
         if ($demoLogin): ?>
         <div class="demo-bar">
             <span class="demo-bar-label">Demo accounts — Log in as</span>

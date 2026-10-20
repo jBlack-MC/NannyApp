@@ -91,9 +91,9 @@ function issue_api_token(int $userId, ?string $deviceInfo = null): string
     $expires = (new DateTime())->modify('+' . API_TOKEN_TTL_DAYS . ' days')->format('Y-m-d H:i:s');
 
     $stmt = db()->prepare(
-        'INSERT INTO api_tokens (user_id, token_hash, device_info, expires_at) VALUES (:uid, :hash, :device, :expires)'
+        'INSERT INTO api_tokens (user_id, token_hash, device_info, expires_at, session_version) VALUES (:uid, :hash, :device, :expires, (SELECT session_version FROM users WHERE id = :uid_version))'
     );
-    $stmt->execute(['uid' => $userId, 'hash' => $hash, 'device' => $deviceInfo, 'expires' => $expires]);
+    $stmt->execute(['uid' => $userId, 'hash' => $hash, 'device' => $deviceInfo, 'expires' => $expires, 'uid_version' => $userId]);
 
     return $raw;
 }
@@ -131,7 +131,7 @@ function authenticated_user(): ?array
 
     $stmt = db()->prepare(
         'SELECT u.* FROM api_tokens t JOIN users u ON u.id = t.user_id
-         WHERE t.token_hash = :hash AND t.expires_at > NOW() LIMIT 1'
+         WHERE t.token_hash = :hash AND t.expires_at > NOW() AND t.session_version = u.session_version LIMIT 1'
     );
     $stmt->execute(['hash' => $hash]);
     $user = $stmt->fetch();

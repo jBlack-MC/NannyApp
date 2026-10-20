@@ -33,7 +33,7 @@ if (($argv[1] ?? '') === 'release-worker') {
 $pdo->exec("CREATE DATABASE `$schema`");
 $pdo->exec("USE `$schema`");
 try {
-    $pdo->exec("CREATE TABLE users (id INT PRIMARY KEY, full_name VARCHAR(100), email VARCHAR(100), role VARCHAR(20), status VARCHAR(20), email_verified INT, password_hash VARCHAR(255), remember_token VARCHAR(64), verification_token VARCHAR(64), verification_sent_at DATETIME, profile_image VARCHAR(255)) ENGINE=InnoDB");
+    $pdo->exec("CREATE TABLE users (id INT PRIMARY KEY, full_name VARCHAR(100), email VARCHAR(100), role VARCHAR(20), status VARCHAR(20), email_verified INT, password_hash VARCHAR(255), remember_token VARCHAR(64), verification_token VARCHAR(64), verification_sent_at DATETIME, profile_image VARCHAR(255), session_version INT NOT NULL DEFAULT 0) ENGINE=InnoDB");
     $pdo->exec("CREATE TABLE nanny_profiles (user_id INT PRIMARY KEY, photo_url VARCHAR(255), banner_image VARCHAR(255)) ENGINE=InnoDB");
     $pdo->exec("CREATE TABLE nanny_portfolio (id INT PRIMARY KEY, nanny_id INT, file_path VARCHAR(255)) ENGINE=InnoDB");
     $pdo->exec("CREATE TABLE password_resets (id INT AUTO_INCREMENT PRIMARY KEY, user_id INT, token VARCHAR(64) UNIQUE, used INT DEFAULT 0, expires_at DATETIME) ENGINE=InnoDB");

@@ -24,7 +24,7 @@
 
 declare(strict_types=1);
 
-if (!defined('STORAGE_DRIVER')) define('STORAGE_DRIVER', getenv('NANNYAPP_STORAGE_DRIVER') ?: 'local');
+if (!defined('STORAGE_DRIVER')) define('STORAGE_DRIVER', getenv('NANNYAPP_STORAGE_DRIVER') ?: (getenv('VERCEL') ? 'database' : 'local'));
 
 if (!defined('S3_BUCKET'))          define('S3_BUCKET', getenv('NANNYAPP_S3_BUCKET') ?: '');
 if (!defined('S3_REGION'))          define('S3_REGION', getenv('NANNYAPP_S3_REGION') ?: 'us-east-1');
@@ -97,6 +97,19 @@ function storage_store_upload(string $uploadedTmpPath, string $relativePath): bo
         $body=@file_get_contents($uploadedTmpPath);
         return $body!==false && s3_put_object($relativePath,$body,storage_mime_for($relativePath));
     }
+    if (STORAGE_DRIVER==='database') {
+        $size = @filesize($uploadedTmpPath);
+        if ($size === false || $size > 8 * 1024 * 1024) return false;
+        $body = @file_get_contents($uploadedTmpPath);
+        if ($body === false) return false;
+        try {
+            return db()->prepare('INSERT INTO stored_media (path, mime, data_base64) VALUES (?, ?, ?)')
+                ->execute([$relativePath, storage_mime_for($relativePath), base64_encode($body)]);
+        } catch (Throwable $e) {
+            error_log('Database media upload failed: ' . $e->getMessage());
+            return false;
+        }
+    }
     if (!is_dir(SHARED_STORAGE_DIR) && !@mkdir(SHARED_STORAGE_DIR,0700,true)) return false;
     $full=storage_local_target($relativePath);
     if ($full===false || file_exists($full)) return false;
@@ -119,6 +132,9 @@ function storage_delete(string $relativePath): bool
 {
     if (!storage_safe_path($relativePath)) return false;
     if (STORAGE_DRIVER==='s3') return s3_delete_object($relativePath);
+    if (STORAGE_DRIVER==='database') {
+        return db()->prepare('DELETE FROM stored_media WHERE path = ?')->execute([$relativePath]);
+    }
     $full=storage_local_target($relativePath);
     return $full!==false && (!file_exists($full) || (is_file($full) && @unlink($full)));
 }

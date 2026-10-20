@@ -2,16 +2,6 @@ name: Supabase database sync
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-    paths:
-      - 'NannyApp.Shared/database/**'
-      - 'NannyApp.Shared/config/migrations.php'
-      - 'NannyApp.Shared/bin/migrate.php'
-      - 'scripts/bootstrap_supabase.py'
-      - 'scripts/requirements-supabase.txt'
-      - '.github/workflows/supabase-migrate.yml'
 
 permissions:
   contents: read
@@ -19,6 +9,8 @@ permissions:
 jobs:
   sync:
     name: Migrate, seed and verify Supabase
+    if: github.ref == 'refs/heads/main'
+    environment: production-db
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -42,6 +34,7 @@ jobs:
           NANNYAPP_DB_URL: ${{ secrets.NANNYAPP_DB_URL }}
           NANNYAPP_DB_SSLMODE: require
           NANNYAPP_DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
+          NANNYAPP_RESET_DEMO_PASSWORDS: ${{ vars.NANNYAPP_RESET_DEMO_PASSWORDS }}
         run: python3 scripts/bootstrap_supabase.py
 
       - name: Verify deployed API uses the same database
@@ -64,5 +57,6 @@ jobs:
             --request POST "$APP_URL/api/auth/login.php" \
             --header 'Content-Type: application/json' \
             --data "{\"email\":\"parent@nanny.app\",\"password\":\"$DEMO_PASSWORD\",\"rememberMe\":true}")
+          # shellcheck disable=SC2001 # Regex redacts JSON token values before logging.
           echo "$response" | sed 's/"token":"[^"]*"/"token":"[redacted]"/'
           echo "$response" | grep -F '"success":true'

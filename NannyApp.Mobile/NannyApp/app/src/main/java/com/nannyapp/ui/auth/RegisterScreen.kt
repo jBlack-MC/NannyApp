@@ -28,6 +28,7 @@ fun RegisterScreen(
     viewModel: RegisterViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsState()
+    var showOptionalDetails by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.registered) {
         if (state.registered) onRegistered()
@@ -50,31 +51,40 @@ fun RegisterScreen(
             SectionLabel("Basic information")
             LabeledField("Full name", state.fullName) { viewModel.update { s -> s.copy(fullName = it) } }
             LabeledField("Email", state.email) { viewModel.update { s -> s.copy(email = it) } }
-            LabeledField("Phone", state.phone) { viewModel.update { s -> s.copy(phone = it) } }
-            LabeledField("Date of birth (YYYY-MM-DD)", state.dateOfBirth) { viewModel.update { s -> s.copy(dateOfBirth = it) } }
-            LabeledField("Address", state.address) { viewModel.update { s -> s.copy(address = it) } }
-            GenderDropdown(state.gender) { viewModel.update { s -> s.copy(gender = it) } }
             LabeledField("Password", state.password, isPassword = true) { viewModel.update { s -> s.copy(password = it) } }
             LabeledField("Confirm password", state.confirmPassword, isPassword = true) { viewModel.update { s -> s.copy(confirmPassword = it) } }
 
-            if (state.role == UserRole.PARENT) {
+            TextButton(onClick = { showOptionalDetails = !showOptionalDetails }) {
+                Text(if (showOptionalDetails) "Hide optional details" else "Add optional details now")
+            }
+            Text("You can complete your profile later.", style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            if (showOptionalDetails) {
                 Spacer(Modifier.height(20.dp))
-                SectionLabel("Parent details")
-                LabeledField("Number of children", state.numberOfChildren) { viewModel.update { s -> s.copy(numberOfChildren = it) } }
-                LabeledField("Emergency contact name", state.emergencyContactName) { viewModel.update { s -> s.copy(emergencyContactName = it) } }
-                LabeledField("Emergency contact phone", state.emergencyContact) { viewModel.update { s -> s.copy(emergencyContact = it) } }
-                LabeledField("Emergency contact relationship", state.emergencyContactRelationship) { viewModel.update { s -> s.copy(emergencyContactRelationship = it) } }
-            } else {
-                Spacer(Modifier.height(20.dp))
-                SectionLabel("Nanny profile")
-                LabeledField("Bio", state.bio, singleLine = false) { viewModel.update { s -> s.copy(bio = it) } }
-                LabeledField("Years of experience", state.experienceYears) { viewModel.update { s -> s.copy(experienceYears = it) } }
-                LabeledField("Hourly rate (R)", state.hourlyRate) { viewModel.update { s -> s.copy(hourlyRate = it) } }
-                LabeledField("Location", state.location) { viewModel.update { s -> s.copy(location = it) } }
-                LabeledField("Skills (comma separated)", state.skills) { viewModel.update { s -> s.copy(skills = it) } }
-                LabeledField("Languages (comma separated)", state.languages) { viewModel.update { s -> s.copy(languages = it) } }
-                LabeledField("Qualifications", state.qualifications) { viewModel.update { s -> s.copy(qualifications = it) } }
-                LabeledField("Specialisations (comma separated)", state.specialisations) { viewModel.update { s -> s.copy(specialisations = it) } }
+                SectionLabel("Optional details")
+                LabeledField("Phone", state.phone) { viewModel.update { s -> s.copy(phone = it) } }
+                LabeledField("Date of birth (YYYY-MM-DD)", state.dateOfBirth) { viewModel.update { s -> s.copy(dateOfBirth = it) } }
+                LabeledField("Address", state.address) { viewModel.update { s -> s.copy(address = it) } }
+                GenderDropdown(state.gender) { viewModel.update { s -> s.copy(gender = it) } }
+
+                if (state.role == UserRole.PARENT) {
+                    SectionLabel("Parent details")
+                    LabeledField("Number of children", state.numberOfChildren) { viewModel.update { s -> s.copy(numberOfChildren = it) } }
+                    LabeledField("Emergency contact name", state.emergencyContactName) { viewModel.update { s -> s.copy(emergencyContactName = it) } }
+                    LabeledField("Emergency contact phone", state.emergencyContact) { viewModel.update { s -> s.copy(emergencyContact = it) } }
+                    LabeledField("Emergency contact relationship", state.emergencyContactRelationship) { viewModel.update { s -> s.copy(emergencyContactRelationship = it) } }
+                } else {
+                    SectionLabel("Nanny profile")
+                    LabeledField("Bio", state.bio, singleLine = false) { viewModel.update { s -> s.copy(bio = it) } }
+                    LabeledField("Years of experience", state.experienceYears) { viewModel.update { s -> s.copy(experienceYears = it) } }
+                    LabeledField("Hourly rate (R)", state.hourlyRate) { viewModel.update { s -> s.copy(hourlyRate = it) } }
+                    LabeledField("Location", state.location) { viewModel.update { s -> s.copy(location = it) } }
+                    LabeledField("Skills (comma separated)", state.skills) { viewModel.update { s -> s.copy(skills = it) } }
+                    LabeledField("Languages (comma separated)", state.languages) { viewModel.update { s -> s.copy(languages = it) } }
+                    LabeledField("Qualifications", state.qualifications) { viewModel.update { s -> s.copy(qualifications = it) } }
+                    LabeledField("Specialisations (comma separated)", state.specialisations) { viewModel.update { s -> s.copy(specialisations = it) } }
+                }
             }
 
             if (state.error != null) {

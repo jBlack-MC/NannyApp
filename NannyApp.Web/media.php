@@ -13,6 +13,17 @@ if (STORAGE_DRIVER === 's3') {
     header('Location: ' . s3_presigned_url($requested, 60));
     exit;
 }
+if (STORAGE_DRIVER === 'database') {
+    $stmt = db()->prepare('SELECT mime, data_base64 FROM stored_media WHERE path = ?');
+    $stmt->execute([$requested]);
+    $media = $stmt->fetch();
+    $body = $media ? base64_decode($media['data_base64'], true) : false;
+    if ($body === false) { http_response_code(404); exit('Not found.'); }
+    header('Content-Type: ' . $media['mime']);
+    header('Content-Length: ' . strlen($body));
+    echo $body;
+    exit;
+}
 $root = realpath(SHARED_STORAGE_DIR);
 $full = $root === false ? false : realpath($root . '/' . $requested);
 if ($root === false || $full === false || !str_starts_with($full, $root . DIRECTORY_SEPARATOR) || !is_file($full)) {

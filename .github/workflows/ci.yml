@@ -11,6 +11,36 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 jobs:
+  postgres:
+    name: PostgreSQL schema and five-account seed
+    if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: synthetic_ci_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install PostgreSQL test client
+        run: python3 -m pip install --disable-pip-version-check -r scripts/requirements-supabase.txt
+      - name: Migrate and seed twice to verify idempotence
+        env:
+          NANNYAPP_DB_URL: postgresql://postgres:synthetic_ci_password@127.0.0.1:5432/postgres
+          NANNYAPP_DB_SSLMODE: disable
+          NANNYAPP_DEMO_PASSWORD: synthetic-ci-password-123
+        run: |
+          python3 scripts/bootstrap_supabase.py
+          python3 scripts/bootstrap_supabase.py
+          python3 -c "import os, psycopg2; c=psycopg2.connect(os.environ['NANNYAPP_DB_URL']); q=c.cursor(); q.execute(\"SELECT COUNT(*) FROM users WHERE email IN ('parent@nanny.app','james@nanny.app','amelia@nanny.app','grace@nanny.app','admin@nanny.app')\"); assert q.fetchone()[0] == 5; q.execute('SELECT COUNT(*) FROM users'); assert q.fetchone()[0] == 5; q.execute('SELECT COUNT(*) FROM stored_media'); assert q.fetchone()[0] == 0; print('Five demo accounts, no extra users, v12 media table ready')"
   security:
     name: PHP and synthetic security tests
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
@@ -81,7 +111,7 @@ jobs:
           DEBUG_RESULT: ${{ steps.debug.outcome }}
           RELEASE_RESULT: ${{ steps.release.outcome }}
         run: |
-          printf '## Android checks\n\nDebug build, JVM tests and lint: %s\n\nUnsigned release: %s\n\nVerification APKs are attached to this workflow run. Signed APK publishing is tag-controlled by android-release.yml.\n' "$DEBUG_RESULT" "$RELEASE_RESULT" >> "$GITHUB_STEP_SUMMARY"
+          printf '## Android checks\n\nDebug build, JVM tests and lint: %s\n\nUnsigned release: %s\n\nVerification APKs are attached to this workflow run. Signed APK publishing requires a manual dispatch from protected main.\n' "$DEBUG_RESULT" "$RELEASE_RESULT" >> "$GITHUB_STEP_SUMMARY"
   deliverables:
     name: Validate Task 2 deliverables
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
@@ -97,4 +127,4 @@ jobs:
           for file in docs/deliverables/*.pdf; do head -c 5 "$file" | grep -F '%PDF-' >/dev/null; done
       - name: Summarize deliverables
         run: printf '## Task 2 deliverables\n\nHTML and PDF project documents are present and valid.\n' >> "$GITHUB_STEP_SUMMARY"
-# No deploy, paid services, signing secrets, artifact uploads. Weekly checks use the same free-only gate.
+# CI does not deploy or publish. Weekly checks use the same free-only gate.

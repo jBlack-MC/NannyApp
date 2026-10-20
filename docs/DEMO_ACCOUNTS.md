@@ -1,44 +1,61 @@
-# Demo bots, demo accounts and admins
+# Demo accounts and legacy bots
 
-## Demo bots (make an empty site look lived-in)
+## Legacy bots
 
-Bots are fake but obviously labelled, so they are easy to spot and remove:
+Older prototypes may contain labelled bot accounts:
 
 - names end in **(Bot)**, for example `Amelia (Bot)`, and each nanny bio says "Demo bot profile, not a real person";
 - e-mails end in **`@bots.nanny-app.invalid`**, a reserved domain, so no e-mail can reach anyone;
 - passwords are random and never shown, so nobody can sign in as a bot.
 
-There are 6 verified nannies with photos, 4 parents, and 8 completed bookings with reviews. They fill the home page's nanny cards and testimonials, and the app's Welcome screen.
+Do not assume those accounts or their sample bookings still exist. The current
+`Demo accounts` workflow only offers `add` for the five named sign-ins below;
+it does not create or delete legacy bots. Automatic bot deletion is disabled.
 
-**Add or remove them:** GitHub → **Actions → Demo bots → Run workflow**, then choose `add` or `remove`. Running `add` again replaces the bots instead of duplicating them. Running `remove` deletes every bot together with its profiles, bookings, payments and reviews. Real accounts are never touched.
-
-The workflow uses the existing `NANNYAPP_MIGRATION_TOKEN` secret. The same token must be set in Vercel while you run it (as for the Supabase migration).
-
-To remove the bots by hand in the Supabase SQL editor:
+Preview legacy users before considering manual cleanup:
 
 ```sql
-DELETE FROM users WHERE email LIKE '%@bots.nanny-app.invalid';
+SELECT id, email, role, status FROM users
+WHERE email LIKE '%@bots.nanny-app.invalid'
+   OR email LIKE 'demo.parent%@nanny.app'
+   OR email LIKE 'demo.nanny%@nanny.app';
 ```
+
+Review dependent profiles, bookings, reviews, payments and messages for those
+IDs and take a backup before any manual deletion. No broad deletion query is
+safe to run without that review.
 
 ## Named demo accounts
 
-The Supabase prototype database currently contains these working seeded
-accounts, all verified and active. For the coursework demonstration they use
-the shared password `Password123!`:
+The Supabase prototype has used these seeded accounts. Check the actual database
+before relying on them. Newly created accounts use the private
+`NANNYAPP_DEMO_PASSWORD` secret; existing credentials may differ. Never use the
+public local fixture password `Password123!` on a deployed site:
 
 - `parent@nanny.app` — parent web/mobile account
 - `james@nanny.app` — parent web/mobile account
 - `amelia@nanny.app` — nanny web/mobile account
+- `grace@nanny.app` — nanny web/mobile account
 - `admin@nanny.app` — web-only administrator account
 
-Change or remove these public demonstration credentials before any real-user
-launch. The production repair workflow should use a private
-`NANNYAPP_DEMO_PASSWORD` secret instead.
+Cleaning up these five named accounts is optional while the site is a closed
+prototype. Remove or disable them before admitting real users. Back up the
+database and review linked demo profiles and bookings before deletion. Rotate
+the demo password if the old shared password was used on a deployed site.
 
-To repair them on a deployed site, add a repository secret
+To create missing accounts on a deployed prototype, add a repository secret
 **`NANNYAPP_DEMO_PASSWORD`** with a password of your own (12 or more
-characters), then run **Demo bots → add**. Existing named demo accounts are
-now repaired as well as missing accounts.
+characters), then run **Actions → Demo accounts → Run workflow → add** from
+`main` under the protected `production-db` environment. It uses the temporary
+`NANNYAPP_MIGRATION_TOKEN` configured in both GitHub and Vercel, and leaves
+existing named accounts unchanged. The separate `Supabase database sync`
+workflow seeds missing accounts and preserves existing passwords by default.
+To repair forgotten demo passwords, set the GitHub repository variable
+`NANNYAPP_RESET_DEMO_PASSWORDS=1` only for the reviewed manual sync, then
+remove it; this rotates all five passwords
+and revokes their sessions. Do not run seeding after cleanup unless those
+accounts are intended to return. Check the actual
+database before assuming any account exists.
 
 To check which demo accounts exist, run this in the Supabase SQL editor:
 
@@ -49,7 +66,8 @@ WHERE email LIKE '%@nanny.app' OR email LIKE '%@bots.nanny-app.invalid' ORDER BY
 
 ## Adding an admin
 
-No admin is created automatically, and admins can only sign in on the website, not in the app.
+The optional demo seed can create `admin@nanny.app`. For a real administrator,
+use a separate account; admins can sign in on the website, not in the app.
 
 1. Register normally on the website with the person's real e-mail address and confirm the e-mail.
 2. In Supabase → **SQL editor**, promote the account:

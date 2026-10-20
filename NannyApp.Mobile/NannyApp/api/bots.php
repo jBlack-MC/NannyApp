@@ -1,8 +1,8 @@
 <?php
 /**
- * POST /api/bots.php — adds or removes the demo bot accounts (NannyApp.Shared/config/demo_bots.php).
- * Protected by the same token as api/migrate.php and run from the "Demo bots" GitHub workflow.
- * Body: {"action": "add" | "remove", "demoPassword": optional password for the named demo accounts}.
+ * POST /api/bots.php — creates/repairs only five named demo accounts.
+ * Protected by the same token as api/migrate.php. Legacy bot deletion is disabled.
+ * Body: {"action": "add", "demoPassword": required private password}.
  */
 declare(strict_types=1);
 
@@ -30,15 +30,13 @@ $action = is_array($body) ? (string) ($body['action'] ?? '') : '';
 $demoPassword = is_array($body) ? (string) ($body['demoPassword'] ?? '') : '';
 
 try {
-    if ($action === 'remove') {
-        echo json_encode(['ok' => true, 'removedUsers' => remove_demo_bots(db())]);
-    } elseif ($action === 'add') {
+    if ($action === 'add' && $demoPassword !== '') {
         $result = add_demo_bots(db());
-        if ($demoPassword !== '') $result['demoAccountsCreated'] = ensure_demo_accounts(db(), $demoPassword);
+        $result['demoAccountsCreated'] = ensure_demo_accounts(db(), $demoPassword);
         echo json_encode(['ok' => true] + $result);
     } else {
         http_response_code(400);
-        echo json_encode(['ok' => false, 'message' => 'action must be "add" or "remove".']);
+        echo json_encode(['ok' => false, 'message' => 'Use action "add" with a private demo password. Legacy bot deletion is disabled.']);
     }
 } catch (InvalidArgumentException $e) {
     http_response_code(400);
@@ -46,5 +44,5 @@ try {
 } catch (Throwable $e) {
     log_exception($e, 'demo_bots_failed');
     http_response_code(500);
-    echo json_encode(['ok' => false, 'message' => 'Demo bots failed. Check Vercel logs.']);
+    echo json_encode(['ok' => false, 'message' => 'Demo account setup failed. Check server logs.']);
 }

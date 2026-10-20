@@ -1,24 +1,25 @@
-name: Demo bots
+name: Demo accounts
 
-# Adds or removes the obviously-fake demo accounts on the production site.
-# Bots: names end in "(Bot)", e-mails end in @bots.nanny-app.invalid, nobody can sign in as them.
+# Creates missing named demo accounts. Legacy bot cleanup requires a manual
+# preview of user IDs and dependent records (see config/demo_bots.php).
 on:
   workflow_dispatch:
     inputs:
       action:
-        description: Add (or refresh) the bots, or remove every bot
+        description: Create missing demo accounts
         required: true
         type: choice
         options:
           - add
-          - remove
 
 permissions:
   contents: read
 
 jobs:
   bots:
-    name: ${{ inputs.action }} demo bots
+    name: Create demo accounts
+    if: github.ref == 'refs/heads/main'
+    environment: production-db
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
@@ -26,13 +27,14 @@ jobs:
         env:
           APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
           TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
-          # Optional: also creates parent@nanny.app, james@nanny.app and amelia@nanny.app if missing.
+          # Required: creates the five named demo accounts if missing.
           DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
           ACTION: ${{ inputs.action }}
         run: |
           set -euo pipefail
           test -n "$APP_URL" || { echo 'Missing repository variable NANNYAPP_PRODUCTION_URL'; exit 1; }
           test -n "$TOKEN" || { echo 'Missing repository secret NANNYAPP_MIGRATION_TOKEN'; exit 1; }
+          test -n "$DEMO_PASSWORD" || { echo 'Missing repository secret NANNYAPP_DEMO_PASSWORD'; exit 1; }
           body=$(jq -n --arg action "$ACTION" --arg pw "$DEMO_PASSWORD" '{action: $action, demoPassword: $pw}')
           response=$(curl --fail-with-body --silent --show-error --retry 3 \
             --request POST "$APP_URL/api/bots.php" \

@@ -7,7 +7,7 @@ data class RegisterRequestDto(
     val role: String,
     val fullName: String,
     val email: String,
-    val phone: String,
+    val phone: String?,
     val password: String,
     val dateOfBirth: String?,
     val address: String?,

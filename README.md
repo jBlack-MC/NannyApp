@@ -2,9 +2,9 @@
 
 ## Automated checks
 
-Run `python tests/docker-checks.py` from the repository root for an isolated PHP/MariaDB security test environment with automatic cleanup. For non-Docker and Android commands, see [Automation](docs/AUTOMATION.md). CI runs on pushes and pull requests; private repositories require `FREE_CI_CONFIRMED=true` after the owner disables paid overages. No workflow deploys or publishes an app.
+Run `python tests/docker-checks.py` from the repository root for an isolated PHP/MariaDB security test environment with automatic cleanup. For non-Docker and Android commands, see [Automation](docs/AUTOMATION.md). GitHub `main` protection requires a PR, one approval, resolved conversations and strict security, Android and deliverables checks; administrators retain recovery bypass. Open a PR and wait for its required checks before merging. Private repositories require `FREE_CI_CONFIRMED=true` after the owner disables paid overages. CI does not deploy; production database sync and signed Android publishing require separate manual dispatch from `main`.
 
-Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. The [Vercel + Supabase deployment guide](docs/VERCEL_SUPABASE_DEPLOY.md) is the low-cost hosting path; the AWS deployment remains available as a fallback.
+Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. See the [Vercel + Supabase deployment guide](docs/VERCEL_SUPABASE_DEPLOY.md) or [AWS deployment guide](docs/AWS_DEPLOYMENT.md).
 
 
 ![Nanny-App logo](NannyApp.Web/assets/Icon_Logo.png)
@@ -60,7 +60,7 @@ This repository is split into three main parts:
 - The PHP web app and PHP API share the database; Android accesses it through the API.
 - Both systems use the same upload logic and storage abstraction managed through the shared layer.
 - The shared layer defines the canonical database schema and migration sequence.
-- In local development, uploads can stay on disk. In production, the system supports S3-compatible object storage.
+- Local uploads can stay on disk. Small Vercel prototypes can use the database storage driver after migration v12; S3-compatible storage is recommended as upload volume grows.
 - Both PHP frontends require the adjacent `NannyApp.Shared` folder for security, email, database and storage services.
 
 ```text
@@ -139,7 +139,7 @@ Nanny-App
 | Database | MySQL / MariaDB or Supabase PostgreSQL |
 | Native mobile app | Kotlin, Jetpack Compose |
 | API layer | PHP REST API for the Android app |
-| Storage | Local disk or S3-compatible object storage |
+| Storage | Local disk, database-backed prototype storage, or S3-compatible object storage |
 | Front-end | Vanilla JavaScript, custom CSS, responsive layout |
 | Auth | PHP session auth, email verification, reset tokens |
 | Packaging | PWA + Cordova-wrapped Android APK |
@@ -232,7 +232,7 @@ The project includes migration guidance in:
 
 ## Demo accounts
 
-Default seeded accounts use the password `Password123!`.
+Development fixtures may seed accounts with the password `Password123!`. Deployed Supabase demo accounts should use the private `NANNYAPP_DEMO_PASSWORD` secret; see [demo account operations](docs/DEMO_ACCOUNTS.md).
 
 | Role | Email |
 | --- | --- |
@@ -241,7 +241,7 @@ Default seeded accounts use the password `Password123!`.
 | Verified nanny | `amelia@nanny.app` |
 | Pending nanny | `jasmine@nanny.app` |
 
-> These demo accounts should be removed, altered, or disabled before exposing the system publicly.
+> Remove or disable demo accounts before admitting real users. Never reuse the fixture password on a deployed site.
 
 ---
 
@@ -252,7 +252,7 @@ Start with the [documentation index](docs/README.md) and [Vercel + Supabase guid
 Before production:
 
 - set real database credentials and avoid committing secrets
-- move uploads to S3-compatible object storage if running multiple app instances or ephemeral containers
+- configure persistent uploads: database storage with migration v12 for a small Vercel prototype, or S3-compatible storage for larger deployments; verify live upload and readback
 - keep shared storage protected from public web access
 - configure email delivery for verification and password resets
 - add operational procedures for backups, monitoring, and release management

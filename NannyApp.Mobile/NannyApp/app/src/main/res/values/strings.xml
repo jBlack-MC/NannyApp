@@ -4,6 +4,8 @@
     any key missing there falls back to this file. Screens not yet moved to resources stay English.
 -->
 <resources>
+    <string name="settings_share_app">Share app</string>
+    <string name="settings_share_app_message">Get Nanny-App for Android: %1$s</string>
     <string name="app_name" translatable="false">Nanny-App</string>
     <string name="tagline">Trusted childcare, on your schedule.</string>
 

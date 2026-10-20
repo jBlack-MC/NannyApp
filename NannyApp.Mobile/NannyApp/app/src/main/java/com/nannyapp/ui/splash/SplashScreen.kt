@@ -49,6 +49,7 @@ fun SplashScreen(
             }
             SessionCheck.LoggedOut -> onNavigateToWelcome()
             SessionCheck.Checking -> {}
+            is SessionCheck.Retry -> {}
         }
     }
 
@@ -71,7 +72,7 @@ fun SplashScreen(
         )
 
         Column(
-            modifier = Modifier.align(Alignment.Center),
+            modifier = Modifier.align(Alignment.Center).padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             AsyncImage(
@@ -88,6 +89,13 @@ fun SplashScreen(
             )
             Spacer(Modifier.height(72.dp))
             SplashPagerIndicator(motion)
+            if (state is SessionCheck.Retry) {
+                Spacer(Modifier.height(24.dp))
+                Text((state as SessionCheck.Retry).message, color = MaterialTheme.colorScheme.onBackground)
+                Spacer(Modifier.height(12.dp))
+                Button(onClick = viewModel::retry) { Text("Try again") }
+                TextButton(onClick = viewModel::signOut) { Text("Sign out") }
+            }
         }
     }
 }

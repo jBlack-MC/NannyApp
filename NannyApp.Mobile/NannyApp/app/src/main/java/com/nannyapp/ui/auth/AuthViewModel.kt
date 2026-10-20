@@ -14,6 +14,7 @@ import com.nannyapp.domain.model.Gender
 import com.nannyapp.domain.model.UserRole
 import com.nannyapp.domain.repository.AuthRepository
 import com.nannyapp.domain.repository.RegisterData
+import com.nannyapp.domain.repository.UserRepository
 import com.nannyapp.util.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,27 +27,59 @@ sealed class SessionCheck {
     data object Checking : SessionCheck()
     data class LoggedIn(val role: UserRole) : SessionCheck()
     data object LoggedOut : SessionCheck()
+    data class Retry(val message: String) : SessionCheck()
 }
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val sessionManager: SessionManager,
+    private val userRepository: UserRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow<SessionCheck>(SessionCheck.Checking)
     val state: StateFlow<SessionCheck> = _state.asStateFlow()
 
     init {
+        retry()
+    }
+
+    fun retry() {
         viewModelScope.launch {
-            val role = sessionManager.currentRole()
-            val loggedIn = sessionManager.currentToken() != null
+            _state.value = SessionCheck.Checking
+            val role = sessionManager.restoreSessionRole()
             // Older app installs may still have an admin session stored locally.
             // Remove it rather than exposing a native administration route.
-            if (loggedIn && role == UserRole.ADMIN) {
+            if (role == UserRole.ADMIN) {
                 sessionManager.clearSession()
                 _state.value = SessionCheck.LoggedOut
+            } else if (role == null) {
+                _state.value = SessionCheck.LoggedOut
             } else {
-                _state.value = if (loggedIn && role != null) SessionCheck.LoggedIn(role) else SessionCheck.LoggedOut
+                val token = sessionManager.currentToken()
+                when (val result = userRepository.getProfile(allowOfflineCache = false)) {
+                    is Resource.Success -> {
+                        if (token == null || sessionManager.currentToken() != token) {
+                            _state.value = SessionCheck.LoggedOut
+                        } else if (result.data.role == UserRole.ADMIN) {
+                            sessionManager.clearSessionIfCurrent(token)
+                            _state.value = SessionCheck.LoggedOut
+                        } else {
+                            _state.value = SessionCheck.LoggedIn(result.data.role)
+                        }
+                    }
+                    is Resource.Error -> {
+                        _state.value = if (sessionManager.currentToken() == null) SessionCheck.LoggedOut
+                            else SessionCheck.Retry(result.message)
+                    }
+                    Resource.Loading -> _state.value = SessionCheck.Retry("Couldn't check your session. Please try again.")
+                }
             }
+        }
+    }
+
+    fun signOut() {
+        viewModelScope.launch {
+            sessionManager.clearSession()
+            _state.value = SessionCheck.LoggedOut
         }
     }
 }
@@ -54,7 +87,7 @@ class SplashViewModel @Inject constructor(
 data class LoginUiState(
     val email: String = "",
     val password: String = "",
-    val rememberMe: Boolean = true,
+    val rememberMe: Boolean = false,
     val loading: Boolean = false,
     val error: String? = null,
     val loggedInRole: UserRole? = null,
@@ -88,6 +121,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun googleSso(context: Context) {
+        val rememberMe = _state.value.rememberMe
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
             try {
@@ -99,7 +133,7 @@ class LoginViewModel @Inject constructor(
                 val request = GetCredentialRequest(listOf(googleIdOption))
                 val response = credentialManager.getCredential(context = context, request = request)
                 val googleCred = GoogleIdTokenCredential.createFrom(response.credential.data)
-                when (val result = authRepository.googleLogin(googleCred.idToken)) {
+                when (val result = authRepository.googleLogin(googleCred.idToken, rememberMe)) {
                     is Resource.Success -> _state.value = _state.value.copy(loading = false, loggedInRole = result.data.role)
                     is Resource.Error -> _state.value = _state.value.copy(loading = false, error = result.message)
                     Resource.Loading -> {}
@@ -164,10 +198,12 @@ class RegisterViewModel @Inject constructor(
     private fun validate(s: RegisterUiState): String? {
         if (s.fullName.isBlank()) return "Please enter your full name."
         if (!s.email.contains("@")) return "Please enter a valid email address."
-        if (s.phone.isBlank()) return "Please enter a phone number."
         if (s.password.length < 8) return "Password must be at least 8 characters."
         if (s.password != s.confirmPassword) return "Passwords do not match."
-        if (s.role == UserRole.NANNY && s.hourlyRate.toDoubleOrNull() == null) return "Please enter a valid hourly rate."
+        if (s.role == UserRole.NANNY && s.hourlyRate.isNotBlank() &&
+            (s.hourlyRate.toDoubleOrNull()?.let { !it.isFinite() || it <= 0.0 } ?: true)) {
+            return "Please enter a valid hourly rate."
+        }
         return null
     }
 
@@ -181,7 +217,7 @@ class RegisterViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(loading = true, error = null)
             val data = RegisterData(
-                role = s.role, fullName = s.fullName.trim(), email = s.email.trim(), phone = s.phone.trim(),
+                role = s.role, fullName = s.fullName.trim(), email = s.email.trim(), phone = s.phone.trim().ifBlank { null },
                 password = s.password, dateOfBirth = s.dateOfBirth.ifBlank { null }, address = s.address.ifBlank { null },
                 gender = s.gender,
                 emergencyContact = s.emergencyContact.ifBlank { null },
