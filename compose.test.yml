@@ -24,4 +24,5 @@ services:
         condition: service_healthy
     environment:
       NANNYAPP_TEST_DB_PORT: '13379'
+      NANNYAPP_REQUIRE_EMAIL_VERIFICATION: '1'
 # No host ports, production credentials, persistent volumes or application DB imports.

@@ -75,8 +75,10 @@ All seeded accounts use the password **`Password123!`**:
 | Parent | `parent@nanny.app` |
 | Parent | `james@nanny.app` |
 | Nanny (verified) | `amelia@nanny.app` |
-| Nanny (verified) | `margaret@nanny.app` |
-| Nanny (pending verification) | `jasmine@nanny.app` |
+| Nanny (pending profile) | `grace@nanny.app` |
+
+The administrator account is web-only. Local development uses the fixture password
+shown above; deployed demo accounts use the private `NANNYAPP_DEMO_PASSWORD` secret.
 
 ## 5. Environment variables / secrets
 
@@ -143,7 +145,7 @@ This is a large brief (40+ requested screens/behaviors across three roles plus a
 - **Original web app admin-web-only rule overridden.** The original PHP explicitly blocks admin accounts from the packaged/native app (`is_native_app_request()` in `config/config.php`). Your brief explicitly asked for a native Admin module, so this project implements one and documents the conflict rather than silently dropping either requirement.
 - **Image assets** from `assets/img/` in the original zip were not migrated into Android drawables — the app uses Coil to load `photo_url`/`banner_image` values (and a couple of stock Unsplash placeholders on the Welcome screen) rather than bundling the original binary assets.
 - **Portfolio/ID uploads** reuse the original `save_uploaded_image()` helper, which only accepts image formats — extend it if you need PDF support for ID documents. File picking itself (`rememberFilePickerLauncher` in `ui/components/FilePicker.kt`) is fully wired end to end for both portfolio uploads and profile photo changes.
-- **Email verification** has a dedicated screen (`VerifyEmailScreen`) reachable from Register, from Login's "unverified" error, and via an `nannyapp://verify-email?token=...` deep link (registered in the manifest) for a real email link to open. Wiring the backend to actually *send* that email is still a `// TODO` in `api/auth/register.php`/`forgot.php` — see `backend_docs/API.md`.
+- **Email verification** has a dedicated screen (`VerifyEmailScreen`) reachable from Register, from Login's "unverified" error, and via an `nannyapp://verify-email?token=...` deep link (registered in the manifest). The API queues verification mail through the shared notification outbox; production delivery still requires a configured mail provider and worker.
 - **Background sync**: `NotificationSyncWorker` (Hilt + WorkManager) refreshes notifications every 15 minutes while logged in, so the badge count doesn't go stale when the app isn't in the foreground — this is the one place WorkManager is actually exercised, per the technology requirements.
 
 ## 8. Theme Handling and Contrast Testing

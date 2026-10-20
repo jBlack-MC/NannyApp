@@ -238,8 +238,9 @@ Development fixtures may seed accounts with the password `Password123!`. Deploye
 | --- | --- |
 | Admin | `admin@nanny.app` |
 | Parent | `parent@nanny.app` |
+| Parent | `james@nanny.app` |
 | Verified nanny | `amelia@nanny.app` |
-| Pending nanny | `jasmine@nanny.app` |
+| Pending nanny | `grace@nanny.app` |
 
 > Remove or disable demo accounts before admitting real users. Never reuse the fixture password on a deployed site.
 

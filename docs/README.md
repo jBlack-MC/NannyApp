@@ -6,6 +6,7 @@ Use these current documents rather than historical infrastructure suggestions.
 | --- | --- |
 | [deliverables/index.html](deliverables/index.html) | Complete PRD, technical requirements, app flow, design brief, backend schema and implementation plan in HTML and PDF |
 | [deliverables/08-professional-engineering-audit.html](deliverables/08-professional-engineering-audit.html) | Evidence-based audit, project vision update, risk register and next-change record |
+| [deliverables/08-professional-engineering-audit-addendum.html](deliverables/08-professional-engineering-audit-addendum.html) | Follow-up evidence for account sharing, seeded login and remaining release gates |
 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) | One-command local website, API and demo database for development and the Android emulator |
 | [PLUS_SETUP.md](PLUS_SETUP.md) | Switching on the Nanny-App Plus subscription in Google Play, and translation limits |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Where the logs are, how to trace an error reference, the health check and common failures |

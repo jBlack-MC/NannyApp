@@ -6,6 +6,10 @@ if ($port === '3306') throw new RuntimeException('Use a dedicated disposable dat
 $schema = $argv[2] ?? ('nanny_security_test_' . bin2hex(random_bytes(6)));
 if (!preg_match('/^nanny_security_test_[a-f0-9]{12}$/', $schema)) throw new RuntimeException('Unsafe test schema');
 $pdo = new PDO("mysql:host=127.0.0.1;port=$port;charset=utf8mb4", 'root', '', [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES => false]);
+// This test intentionally owns a direct MariaDB PDO connection rather than
+// loading the application bootstrap, so provide the driver contract consumed
+// by the shared security functions.
+if (!defined('DB_DRIVER')) define('DB_DRIVER', 'mysql');
 function db(): PDO { global $pdo; return $pdo; }
 require __DIR__ . '/../../NannyApp.Shared/config/security.php';
 function check(bool $value, string $label): void { if (!$value) throw new RuntimeException($label); echo "PASS $label\n"; }
@@ -171,13 +175,13 @@ try {
     $pdo->exec('DROP TABLE payments');
 
     // Exercise the real HTTP controllers, using only this generated schema/storage.
-    $pdo->exec('ALTER TABLE api_tokens ADD expires_at DATETIME, ADD last_used_at DATETIME, ADD device_info VARCHAR(255)');
+    $pdo->exec('ALTER TABLE api_tokens ADD expires_at DATETIME, ADD last_used_at DATETIME, ADD device_info VARCHAR(255), ADD session_version INT NOT NULL DEFAULT 0');
     $pdo->exec("ALTER TABLE users MODIFY id INT AUTO_INCREMENT, MODIFY status VARCHAR(20) DEFAULT 'active'");
     $pdo->exec('CREATE TABLE parent_profiles (user_id INT PRIMARY KEY, emergency_contact VARCHAR(100), emergency_contact_name VARCHAR(100), emergency_contact_relationship VARCHAR(100), number_of_children INT)');
     $pdo->exec('ALTER TABLE users ADD phone VARCHAR(40), ADD date_of_birth DATE, ADD address VARCHAR(255), ADD gender VARCHAR(30), ADD created_at DATETIME');
     $pdo->exec("ALTER TABLE nanny_portfolio ADD type VARCHAR(30) DEFAULT 'other', ADD title VARCHAR(100) DEFAULT 'Synthetic', ADD admin_verified INT DEFAULT 0, ADD created_at DATETIME");
     $pdo->exec('DELETE FROM security_rate_limits');
-    foreach ([1,2,3,4] as $id) $pdo->prepare('INSERT INTO api_tokens (user_id,token_hash,expires_at) VALUES (?,?,DATE_ADD(NOW(),INTERVAL 1 HOUR))')->execute([$id,hash('sha256',"synthetic-token-$id")]);
+    foreach ([1,2,3,4] as $id) $pdo->prepare('INSERT INTO api_tokens (user_id,token_hash,expires_at,session_version) VALUES (?,?,DATE_ADD(NOW(),INTERVAL 1 HOUR),(SELECT session_version FROM users WHERE id=?))')->execute([$id,hash('sha256',"synthetic-token-$id"),$id]);
     $storage=sys_get_temp_dir().'/'.$schema;
     mkdir($storage.'/uploads/docs',0700,true);
     file_put_contents($storage.'/uploads/docs/synthetic.pdf', '%PDF synthetic-only');

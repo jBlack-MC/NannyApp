@@ -3,9 +3,9 @@
  * Local development only: fills an empty database with demo data so the website and the
  * Android app have something to show. Run through deploy/local/compose.yml (`run --rm seed`).
  *
- * Creates four sign-in accounts, all with the password Password123!, matching the demo
- * buttons on the login page: parent@nanny.app, james@nanny.app, amelia@nanny.app (nanny)
- * and admin@nanny.app. Then runs NannyApp.Web/seed_demo.php for nannies, bookings,
+ * Creates five sign-in accounts, all with the password Password123!, matching the demo
+ * workflow: parent@nanny.app, james@nanny.app, amelia@nanny.app and grace@nanny.app
+ * (nannies), plus admin@nanny.app. Then runs NannyApp.Web/seed_demo.php for nannies, bookings,
  * payments, reviews and messages. Never run this against a real database.
  */
 declare(strict_types=1);
@@ -34,6 +34,7 @@ foreach ([
     ['Thandi Mokoena', 'parent@nanny.app', 'parent'],
     ['James Naidoo', 'james@nanny.app', 'parent'],
     ['Amelia Dlamini', 'amelia@nanny.app', 'nanny'],
+    ['Grace Dlamini', 'grace@nanny.app', 'nanny'],
     ['Site Admin', 'admin@nanny.app', 'admin'],
 ] as [$name, $email, $role]) {
     $insert->execute([$name, $email, $hash, $role]);
@@ -46,12 +47,13 @@ $parentProfile = db()->prepare("INSERT INTO parent_profiles (user_id, number_of_
     ON DUPLICATE KEY UPDATE number_of_children = GREATEST(number_of_children, 1)");
 $nannyProfile = db()->prepare("INSERT INTO nanny_profiles
     (user_id, bio, experience_years, hourly_rate, location, verification_status)
-    SELECT id, 'Demo nanny account for local testing.', 5, 170, 'Johannesburg', 'verified'
+    SELECT id, ?, ?, ?, ?, ?
     FROM users WHERE email = ?
-    ON DUPLICATE KEY UPDATE verification_status = 'verified'");
+    ON DUPLICATE KEY UPDATE verification_status = VALUES(verification_status)");
 $parentProfile->execute(['parent@nanny.app']);
 $parentProfile->execute(['james@nanny.app']);
-$nannyProfile->execute(['amelia@nanny.app']);
+$nannyProfile->execute(['Demo nanny account for local testing.', 5, 170, 'Johannesburg', 'verified', 'amelia@nanny.app']);
+$nannyProfile->execute(['Pending demo nanny account for local testing.', 3, 150, 'Sandton', 'pending', 'grace@nanny.app']);
 
 // seed_demo.php is an admin page; sign the script in as the demo admin.
 $admin = db()->query("SELECT id, password_hash FROM users WHERE email = 'admin@nanny.app'")->fetch();
