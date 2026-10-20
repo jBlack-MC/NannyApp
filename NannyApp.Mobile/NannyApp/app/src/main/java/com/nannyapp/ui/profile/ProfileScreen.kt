@@ -7,18 +7,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
 import com.nannyapp.ui.components.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -56,13 +53,13 @@ fun ProfileScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     val pickAvatar = rememberFilePickerLauncher { bytes, fileName -> viewModel.uploadAvatar(bytes, fileName) }
                     Box {
-                        Box(Modifier.size(72.dp).clip(CircleShape).background(MaterialTheme.colorScheme.secondaryContainer), contentAlignment = Alignment.Center) {
-                            if (!state.user!!.profileImageUrl.isNullOrBlank()) {
-                                AsyncImage(model = state.user!!.profileImageUrl, contentDescription = null, modifier = Modifier.fillMaxSize().clip(CircleShape), contentScale = ContentScale.Crop)
-                            } else {
-                                Icon(Icons.Filled.Person, contentDescription = null, modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
-                            }
-                        }
+                        PersonPhoto(
+                            name = state.user!!.fullName,
+                            url = state.user!!.profileImageUrl,
+                            modifier = Modifier.size(72.dp),
+                            shape = CircleShape,
+                            initialsStyle = MaterialTheme.typography.titleLarge,
+                        )
                         Box(
                             Modifier.align(Alignment.BottomEnd).size(28.dp)
                                 .border(2.dp, MaterialTheme.colorScheme.background, CircleShape)

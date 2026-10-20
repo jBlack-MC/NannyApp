@@ -64,8 +64,15 @@ try {
 
     db()->commit();
 } catch (Throwable $e) {
+    if (db()->inTransaction()) db()->rollBack();
+    // A second request may have won the race after the pre-check. Return a
+    // stable conflict instead of exposing a generic server error to mobile.
+    $duplicate = db()->prepare('SELECT id FROM users WHERE email = :email');
+    $duplicate->execute(['email' => $email]);
+    if ($duplicate->fetch()) {
+        json_error('An account with that email already exists.', 409);
+    }
     log_exception($e, 'registration_failed');
-    db()->rollBack();
     json_error('Could not create your account. Please try again.', 500);
 }
 

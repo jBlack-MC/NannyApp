@@ -86,7 +86,23 @@ All seeded accounts use the password **`Password123!`**:
 | `config/paystack.php` | `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY` — secret key **never** leaves the server |
 | `app/build.gradle.kts` | `API_BASE_URL` per build type |
 
-## 6. Project structure (Android)
+## 6. Theme and contrast testing
+
+The Android app offers `Match my phone`, `Light` and `Dark` in Settings. All
+normal content uses Material 3 `ColorScheme` roles (`onSurface`,
+`onSurfaceVariant`, `onPrimary`, `onError`, and the matching container roles),
+so text and controls switch with the selected theme. Gradient landing/primary
+buttons intentionally use white labels because their backgrounds remain dark in
+both modes.
+
+Test the same major screens as the web app in both modes: welcome,
+authentication, dashboard, discovery, booking, messaging, profile, settings,
+forms, menus and error states. Run `python tests/check-theme-contrast.py` from
+the repository root for the shared static guardrail, then verify TalkBack and
+physical-device rendering as part of release acceptance. See
+`../../docs/THEME_AND_CONTRAST.md` for the full checklist.
+
+## 7. Project structure (Android)
 
 ```text
 com.nannyapp
@@ -129,3 +145,23 @@ This is a large brief (40+ requested screens/behaviors across three roles plus a
 - **Portfolio/ID uploads** reuse the original `save_uploaded_image()` helper, which only accepts image formats — extend it if you need PDF support for ID documents. File picking itself (`rememberFilePickerLauncher` in `ui/components/FilePicker.kt`) is fully wired end to end for both portfolio uploads and profile photo changes.
 - **Email verification** has a dedicated screen (`VerifyEmailScreen`) reachable from Register, from Login's "unverified" error, and via an `nannyapp://verify-email?token=...` deep link (registered in the manifest) for a real email link to open. Wiring the backend to actually *send* that email is still a `// TODO` in `api/auth/register.php`/`forgot.php` — see `backend_docs/API.md`.
 - **Background sync**: `NotificationSyncWorker` (Hilt + WorkManager) refreshes notifications every 15 minutes while logged in, so the badge count doesn't go stale when the app isn't in the foreground — this is the one place WorkManager is actually exercised, per the technology requirements.
+
+## 8. Theme Handling and Contrast Testing
+
+The application implements a robust, unified Material 3 theming system across both the mobile app (`NannyAppTheme` in `Theme.kt`) and web UI clients.
+
+### Theme Switching Behavior
+- **Dark Mode:** Automatically activated based on system settings (`isInDarkTheme()`) or user preference. Background colors transition to deep dark slate (`#0F172A`, `#1E293B`), and text automatically switches from dark charcoal to high-contrast light colors (`#F1F5F9`, `#CBD5E1`) via `MaterialTheme.colorScheme.onSurface` and `onBackground`.
+- **Light Mode:** Reverts surfaces to crisp white (`#FFFFFF`) / light blue (`#F3F8FD`) with dark, highly legible typography (`#0D1F33`).
+- **Cross-Platform Consistency:** Both mobile and web UI components adhere to identical brand palette tokens (`NannyPrimary`, `NannySurface`, `NannyOnSurface`), ensuring seamless theme switching when moving between the native mobile app and web dashboard.
+
+### Component Contrast Verification & Testing
+Major UI components have been audited and tested for WCAG contrast compliance in both light and dark modes:
+1. **Buttons & CTAs:** Primary action buttons (`NannyPrimary`) use white/light text (`onPrimary`) with high-contrast states across modes.
+2. **Labels & Typography:** All body text, headings, and subtitles reference `MaterialTheme.colorScheme.onSurface` or `onSurfaceVariant`, preventing invisible dark-on-dark text in dark mode.
+3. **Forms & Inputs:** Text fields and input labels dynamically adjust their container backgrounds and ink colors to maintain readability.
+4. **Menus & Cards:** Surfaces maintain clean elevation and container separation with distinct borders (`outlineVariant`).
+
+**Testing Instructions:**
+- **Mobile (Android Studio):** Toggle system dark theme in emulator settings or use the Compose Preview interactive toggle to inspect screens (`WelcomeScreen`, `LoginScreen`, `DashboardScreen`, `BookingDetailScreen`, `SettingsScreen`).
+- **Web UI:** Toggle dark/light preference in browser dev tools or user settings to verify CSS custom properties updating text and surface colors correctly.

@@ -8,6 +8,11 @@
 }
 [data-theme="dark"] {
     color-scheme: dark;
+    /* Keep the shared legacy tokens in sync with the modern semantic tokens.
+       Older pages use --ink/--muted directly, so changing only --text left
+       dark text on dark cards. */
+    --ink: #f1f5f9;
+    --ink-soft: #cbd5e1;
     --text: #f1f5f9;
     --text-light: #b8c8d9;
     --surface: #1e293b;
@@ -15,6 +20,9 @@
     --muted: #b8c8d9;
     --line: #475569;
 }
+[data-theme="dark"] :is(a, button, summary) { color: inherit; }
+[data-theme="dark"] a:not(.btn):not(.nav-brand):not(.brand-name) { color: #b8ddff; }
+[data-theme="dark"] a:not(.btn):not(.nav-brand):not(.brand-name):hover { color: #e0f2ff; }
 [data-theme="dark"] .field input::placeholder,
 [data-theme="dark"] .field textarea::placeholder { color: #a9bbcf; opacity: 1; }
 [data-theme="dark"] :is(.h-eyebrow, .rate, .nanny-name a, .hero-sub-cta a) { color: #8ec9f8; }
@@ -45,7 +53,8 @@
     .field select, .field textarea, .chat-compose input, .stat, .auth,
     .auth-main, .modal, .toast, .footer, .footer-admin-col, .footer-guest,
     .faq-item, .tcard, .tip-card, .price-box, .res-emergency-item,
-    .res-meal-item, .subscribe-form input
+    .res-meal-item, .subscribe-form input, .nav-dropdown-menu, .dash-nav,
+    .filter-row input, .filter-row select, .admin-filter-select
 ) {
     background: var(--surface) !important;
     color: var(--text) !important;
@@ -69,6 +78,9 @@
     color: var(--text) !important;
     caret-color: var(--text);
     color-scheme: dark;
+}
+[data-theme="dark"] :is(.nav-dropdown-menu *, .dash-nav *, .filter-row input, .filter-row select, .admin-filter-select) {
+    color: var(--text) !important;
 }
 [data-theme="dark"] option { background: var(--surface); color: var(--text); }
 
