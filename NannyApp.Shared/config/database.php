@@ -35,6 +35,18 @@ function nannyapp_pg_sql(string $sql): string
 
     $sql = preg_replace('/\bNOW\(\)/i', 'CURRENT_TIMESTAMP', $sql) ?? $sql;
     $sql = preg_replace('/\bCURDATE\(\)/i', 'CURRENT_DATE', $sql) ?? $sql;
+    // Dashboard charts use only these two MySQL date formats. Keep the
+    // conversion explicit so unsupported format strings are not misinterpreted.
+    $sql = preg_replace_callback(
+        "/\\bDATE_FORMAT\\(\\s*([a-z_][a-z0-9_.]*)\\s*,\\s*'(%Y-%m|%b)'\\s*\\)/i",
+        static fn(array $m): string => "TO_CHAR({$m[1]}, '" . ($m[2] === '%Y-%m' ? 'YYYY-MM' : 'Mon') . "')",
+        $sql
+    ) ?? $sql;
+    $sql = preg_replace_callback(
+        '/\\b(MONTH|YEAR)\\(\\s*([a-z_][a-z0-9_.]*)\\s*\\)/i',
+        static fn(array $m): string => 'EXTRACT(' . strtoupper($m[1]) . " FROM {$m[2]})",
+        $sql
+    ) ?? $sql;
     $sql = preg_replace('/\bUNIX_TIMESTAMP\(\)/i', 'EXTRACT(EPOCH FROM CURRENT_TIMESTAMP)::bigint', $sql) ?? $sql;
     $sql = preg_replace_callback('/SHA2\(([^,]+),\s*256\)/i', static fn(array $m): string => "encode(digest({$m[1]}, 'sha256'), 'hex')", $sql) ?? $sql;
 

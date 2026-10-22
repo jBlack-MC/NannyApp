@@ -12,8 +12,8 @@ $stats = db()->query(
         (SELECT COUNT(*) FROM bookings WHERE status='confirmed') AS confirmed_bookings,
         (SELECT COUNT(*) FROM nanny_profiles WHERE verification_status='pending') AS pending_verifications,
         (SELECT COUNT(*) FROM nanny_profiles WHERE verification_status='verified') AS verified_nannies,
-        (SELECT IFNULL(SUM(amount),0) FROM payments WHERE status='paid') AS revenue,
-        (SELECT IFNULL(SUM(amount),0) FROM payments WHERE status='pending') AS pending_revenue"
+        (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='paid') AS revenue,
+        (SELECT COALESCE(SUM(amount),0) FROM payments WHERE status='pending') AS pending_revenue"
 )->fetch();
 
 // Pending document count
@@ -28,7 +28,7 @@ try {
     $mr = db()->query(
         "SELECT DATE_FORMAT(created_at,'%Y-%m') AS ym,
                 DATE_FORMAT(created_at,'%b') AS label,
-                IFNULL(SUM(amount),0) AS total
+                COALESCE(SUM(amount),0) AS total
          FROM payments WHERE status='paid'
            AND created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
          GROUP BY ym, label ORDER BY ym ASC"
@@ -60,7 +60,7 @@ try {
         "SELECT DATE_FORMAT(created_at,'%Y-%m') AS ym,
                 DATE_FORMAT(created_at,'%b') AS label,
                 COUNT(*) AS total,
-                SUM(status='completed') AS completed_ct
+                SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed_ct
          FROM bookings
          WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
          GROUP BY ym, label ORDER BY ym ASC"
@@ -113,7 +113,7 @@ $topNannies = [];
 try {
     $tn = db()->query(
         "SELECT u.full_name, np.average_rating, np.verification_status,
-                IFNULL(SUM(pay.amount),0) AS earned,
+                COALESCE(SUM(pay.amount),0) AS earned,
                 COUNT(pay.id) AS jobs
          FROM nanny_profiles np
          JOIN users u ON u.id=np.user_id

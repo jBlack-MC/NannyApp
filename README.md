@@ -284,9 +284,11 @@ The [Professional Engineering Audit & Vision Update](docs/deliverables/08-profes
 
 - rotate exposed credentials and remove public demo passwords
 - align live environment configuration and verify HTTPS mobile registration/login/media readback
-- clear the backend bearer-policy test failure and keep GitHub Actions green
+- keep the backend bearer/session-policy suite green in local and GitHub Actions runs
 - complete physical-device, accessibility, backup/restore and monitoring evidence
 - reconcile implementation documentation and release artefacts with the current build
+
+The latest account-sharing verification is recorded in the [audit addendum](docs/deliverables/08-professional-engineering-audit-addendum.html). It confirms the shared web/API database contract, registration and login checks, seeded-account hash checks, and mobile session revocation. Live Supabase and physical-device acceptance remain release gates.
 
 ---
 
