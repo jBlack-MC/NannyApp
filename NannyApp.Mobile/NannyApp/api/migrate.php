@@ -22,7 +22,9 @@ header('Content-Type: application/json; charset=utf-8');
 
 try {
     migrate_application(db());
-    echo json_encode(['ok' => true, 'message' => 'Schema is up to date.']);
+    $nativeCount = (int) db()->query("SELECT COUNT(*) FROM schema_migrations WHERE name LIKE 'postgres/%'")->fetchColumn();
+    echo json_encode(['ok' => true, 'message' => 'Schema is up to date.',
+        'schemaVersion' => 'migrate_v13_shared_sessions.sql', 'nativeMigrationCount' => $nativeCount]);
 } catch (Throwable $e) {
     log_exception($e, 'serverless_migration_failed');
     http_response_code(500);

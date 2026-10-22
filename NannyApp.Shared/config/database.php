@@ -38,8 +38,8 @@ function nannyapp_pg_sql(string $sql): string
     // Dashboard charts use only these two MySQL date formats. Keep the
     // conversion explicit so unsupported format strings are not misinterpreted.
     $sql = preg_replace_callback(
-        "/\\bDATE_FORMAT\\(\\s*([a-z_][a-z0-9_.]*)\\s*,\\s*'(%Y-%m|%b)'\\s*\\)/i",
-        static fn(array $m): string => "TO_CHAR({$m[1]}, '" . ($m[2] === '%Y-%m' ? 'YYYY-MM' : 'Mon') . "')",
+        "/\\bDATE_FORMAT\\(\\s*([a-z_][a-z0-9_.]*)\\s*,\\s*'(%Y-%m|%b %Y|%b)'\\s*\\)/i",
+        static fn(array $m): string => "TO_CHAR({$m[1]}, '" . ['%Y-%m' => 'YYYY-MM', '%b' => 'Mon', '%b %Y' => 'Mon YYYY'][$m[2]] . "')",
         $sql
     ) ?? $sql;
     $sql = preg_replace_callback(

@@ -10,8 +10,8 @@ $me = current_user()['id'];
 // actually payable; "held" = charged but still in escrow for a job in progress.
 $totals = db()->prepare(
     "SELECT
-        IFNULL(SUM(CASE WHEN pay.payout_status='released' THEN pay.amount END), 0) AS total_earned,
-        IFNULL(SUM(CASE WHEN pay.payout_status='held' THEN pay.amount END), 0) AS held,
+        COALESCE(SUM(CASE WHEN pay.payout_status='released' THEN pay.amount END), 0) AS total_earned,
+        COALESCE(SUM(CASE WHEN pay.payout_status='held' THEN pay.amount END), 0) AS held,
         COUNT(CASE WHEN pay.payout_status='released' THEN 1 END) AS paid_jobs,
         COUNT(DISTINCT MONTH(pay.created_at)) AS active_months
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
@@ -24,7 +24,7 @@ $t = $totals->fetch();
 $monthly = db()->prepare(
     "SELECT DATE_FORMAT(pay.created_at, '%Y-%m') AS ym,
             DATE_FORMAT(pay.created_at, '%b %Y') AS label,
-                        IFNULL(SUM(CASE WHEN pay.payout_status='released' THEN pay.amount END), 0) AS earned,
+                        COALESCE(SUM(CASE WHEN pay.payout_status='released' THEN pay.amount END), 0) AS earned,
                         COUNT(CASE WHEN pay.payout_status='released' THEN 1 END) AS jobs
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
      WHERE b.nanny_id=?
@@ -51,7 +51,7 @@ $recentRows = $recent->fetchAll();
 
 // This month
 $thisMonth = db()->prepare(
-    "SELECT IFNULL(SUM(pay.amount),0)
+    "SELECT COALESCE(SUM(pay.amount),0)
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
     WHERE b.nanny_id=? AND pay.payout_status='released'
        AND MONTH(pay.created_at)=MONTH(NOW()) AND YEAR(pay.created_at)=YEAR(NOW())"

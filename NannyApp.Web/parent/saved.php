@@ -10,8 +10,8 @@ try {
         "SELECT u.id, u.full_name, u.profile_image,
                 p.bio, p.experience_years, p.hourly_rate, p.location,
                 p.skills, p.availability, p.average_rating,
-                IFNULL(p.specialisations, '') AS specialisations,
-                IFNULL(p.languages, '')       AS languages,
+                COALESCE(p.specialisations, '') AS specialisations,
+                COALESCE(p.languages, '')       AS languages,
                 (SELECT COUNT(*) FROM reviews r WHERE r.nanny_id = u.id) AS review_count,
                 sn.created_at AS saved_at
          FROM saved_nannies sn

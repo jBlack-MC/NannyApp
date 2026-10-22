@@ -9,13 +9,16 @@ import tempfile
 root = Path(__file__).resolve().parents[1]
 folders = ['NannyApp.Shared/config', 'NannyApp.Shared/database', 'NannyApp.Shared/bin',
            'NannyApp.Shared/content',
-           'NannyApp.Web', 'NannyApp.Mobile/NannyApp/api', 'NannyApp.Mobile/NannyApp/includes',
+           'scripts', 'NannyApp.Web', 'NannyApp.Mobile/NannyApp/api', 'NannyApp.Mobile/NannyApp/includes',
            'NannyApp.Mobile/NannyApp/config', 'NannyApp.Mobile/NannyApp/app/src', 'tests']
 source_types = {'.php', '.js', '.cjs', '.css', '.json', '.sql', '.kt', '.xml', '.py', '.webmanifest'}
 
 if not shutil.which('docker'):
     raise SystemExit('Docker is required; start Docker Engine/Compose or use tests/run-checks.py locally.')
-compose = ['docker', 'compose', '-p', 'nannyapp-tests', '-f', str(root / 'compose.test.yml')]
+postgres = '--postgres' in sys.argv
+project = 'nannyapp-postgres-tests' if postgres else 'nannyapp-tests'
+compose_file = 'compose.postgres-test.yml' if postgres else 'compose.test.yml'
+compose = ['docker', 'compose', '-p', project, '-f', str(root / compose_file)]
 result = 1
 try:
     with tempfile.TemporaryFile() as context:

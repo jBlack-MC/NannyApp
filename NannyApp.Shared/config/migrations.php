@@ -20,11 +20,12 @@ function migrate_application(PDO $pdo): void
         if ((int) $stmt->fetchColumn() !== 1) throw new RuntimeException('Another migration is running.');
     }
     try {
+        if ($isPostgres) $pdo->beginTransaction();
         if (!$isPostgres) {
             $pdo->exec("SET SESSION sql_mode='STRICT_ALL_TABLES,NO_ZERO_DATE,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
         }
         $pdo->exec('CREATE TABLE IF NOT EXISTS schema_migrations (name VARCHAR(100) PRIMARY KEY, checksum CHAR(64) NOT NULL, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)' . ($isPostgres ? '' : ' ENGINE=InnoDB'));
-        $files = ['schema.sql','migrate_v2.sql','migrate_v3.sql','migrate_v4.sql','migrate_v5_api.sql','phase1_constraints.sql','phase2_authentication.sql','migrate_v6_security.sql','migrate_v7_email_outbox.sql','migrate_v8_operations.sql','migrate_v9_reports_holidays.sql','migrate_v10_plus_translation.sql','migrate_v11_deliverables.sql','migrate_v12_sessions_downloads.sql'];
+        $files = ['schema.sql','migrate_v2.sql','migrate_v3.sql','migrate_v4.sql','migrate_v5_api.sql','phase1_constraints.sql','phase2_authentication.sql','migrate_v6_security.sql','migrate_v7_email_outbox.sql','migrate_v8_operations.sql','migrate_v9_reports_holidays.sql','migrate_v10_plus_translation.sql','migrate_v11_deliverables.sql','migrate_v12_sessions_downloads.sql','migrate_v13_shared_sessions.sql'];
         foreach ($files as $file) {
             $sql = file_get_contents(__DIR__ . '/../database/' . $file);
             if ($sql === false) throw new RuntimeException('Missing migration: ' . $file);
@@ -50,6 +51,14 @@ function migrate_application(PDO $pdo): void
             }
             $pdo->prepare('INSERT INTO schema_migrations (name,checksum) VALUES (?,?)')->execute([$file,$hash]);
         }
+        if ($isPostgres) {
+            require_once __DIR__ . '/postgres_migrations.php';
+            apply_postgres_native_migrations($pdo);
+            $pdo->commit();
+        }
+    } catch (Throwable $e) {
+        if ($isPostgres && $pdo->inTransaction()) $pdo->rollBack();
+        throw $e;
     } finally {
         if ($isPostgres) {
             $pdo->prepare('SELECT pg_advisory_unlock(hashtext(?))')->execute([$lock]);

@@ -30,10 +30,10 @@ $rows = db()->query(
 
 $totals = db()->query(
     "SELECT
-        IFNULL(SUM(CASE WHEN status='paid' THEN amount END),0) AS paid,
-        IFNULL(SUM(CASE WHEN payout_status='held' THEN amount END),0) AS held,
-        IFNULL(SUM(CASE WHEN payout_status='released' THEN amount END),0) AS released,
-        IFNULL(SUM(CASE WHEN status='pending' THEN amount END),0) AS pending
+        COALESCE(SUM(CASE WHEN status='paid' THEN amount END),0) AS paid,
+        COALESCE(SUM(CASE WHEN payout_status='held' THEN amount END),0) AS held,
+        COALESCE(SUM(CASE WHEN payout_status='released' THEN amount END),0) AS released,
+        COALESCE(SUM(CASE WHEN status='pending' THEN amount END),0) AS pending
      FROM payments"
 )->fetch();
 

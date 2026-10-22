@@ -1,0 +1,24 @@
+name: nannyapp-postgres-tests
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_PASSWORD: synthetic_test_password
+    command: ['postgres', '-p', '13378', '-c', 'listen_addresses=127.0.0.1']
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-h', '127.0.0.1', '-p', '13378', '-U', 'postgres']
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  tests:
+    image: nannyapp-tests-tests
+    network_mode: 'service:db'
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NANNYAPP_TEST_PG_URL: postgresql://postgres:synthetic_test_password@127.0.0.1:13378/postgres
+    command: ['python3', 'tests/postgres-integration.py']
+# Disposable, loopback-only test server; no production secrets or host ports.

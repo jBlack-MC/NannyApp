@@ -2,61 +2,41 @@ name: Supabase database sync
 
 on:
   workflow_dispatch:
+    inputs:
+      seed_demo:
+        description: Create missing demo accounts and sample data
+        type: boolean
+        default: false
+      reset_demo_passwords:
+        description: Rotate demo passwords and revoke sessions (requires seed_demo and DB URL)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: nannyapp-production-database
+  cancel-in-progress: false
+
 jobs:
   sync:
-    name: Migrate, seed and verify Supabase
+    name: Migrate and verify Supabase
     if: github.ref == 'refs/heads/main'
     environment: production-db
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - name: Validate database settings
-        env:
-          DATABASE_URL: ${{ secrets.NANNYAPP_DB_URL }}
-          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
-        run: |
-          set -euo pipefail
-          test -n "$DATABASE_URL" || { echo 'Missing secret NANNYAPP_DB_URL'; exit 1; }
-          test -n "$APP_URL" || { echo 'Missing repository variable NANNYAPP_PRODUCTION_URL'; exit 1; }
-          case "$APP_URL" in https://*) ;; *) echo 'NANNYAPP_PRODUCTION_URL must use HTTPS'; exit 1 ;; esac
-
       - uses: actions/checkout@v6
-
-      - name: Install Supabase database client
+      - name: Install database client
         run: python3 -m pip install --disable-pip-version-check -r scripts/requirements-supabase.txt
-
-      - name: Apply migrations and repair demo data
+      - name: Apply migrations and verify the deployed application
         env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
           NANNYAPP_DB_URL: ${{ secrets.NANNYAPP_DB_URL }}
           NANNYAPP_DB_SSLMODE: require
+          NANNYAPP_MIGRATION_TOKEN: ${{ secrets.NANNYAPP_MIGRATION_TOKEN }}
           NANNYAPP_DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
-          NANNYAPP_RESET_DEMO_PASSWORDS: ${{ vars.NANNYAPP_RESET_DEMO_PASSWORDS }}
-        run: python3 scripts/bootstrap_supabase.py
-
-      - name: Verify deployed API uses the same database
-        env:
-          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
-        run: |
-          set -euo pipefail
-          health=$(curl --fail-with-body --silent --show-error --retry 3 "$APP_URL/api/health.php")
-          echo "$health"
-          echo "$health" | grep -F '"status":"ok"'
-
-      - name: Verify demo login through the deployed API
-        env:
-          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
-          DEMO_PASSWORD: ${{ secrets.NANNYAPP_DEMO_PASSWORD }}
-        run: |
-          set -euo pipefail
-          test -n "$DEMO_PASSWORD" || { echo 'Missing secret NANNYAPP_DEMO_PASSWORD'; exit 1; }
-          response=$(curl --fail-with-body --silent --show-error --retry 3 \
-            --request POST "$APP_URL/api/auth/login.php" \
-            --header 'Content-Type: application/json' \
-            --data "{\"email\":\"parent@nanny.app\",\"password\":\"$DEMO_PASSWORD\",\"rememberMe\":true}")
-          # shellcheck disable=SC2001 # Regex redacts JSON token values before logging.
-          echo "$response" | sed 's/"token":"[^"]*"/"token":"[redacted]"/'
-          echo "$response" | grep -F '"success":true'
+          SEED_DEMO: ${{ inputs.seed_demo }}
+          RESET_DEMO_PASSWORDS: ${{ inputs.reset_demo_passwords }}
+        run: python3 scripts/deploy_database.py

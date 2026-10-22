@@ -5,6 +5,7 @@ repository. The SQL translation mirrors NannyApp.Shared/config/migrations.php.
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import os
 import re
@@ -21,6 +22,7 @@ FILES = [
     "migrate_v6_security.sql", "migrate_v7_email_outbox.sql",
     "migrate_v8_operations.sql", "migrate_v9_reports_holidays.sql",
     "migrate_v10_plus_translation.sql", "migrate_v11_deliverables.sql", "migrate_v12_sessions_downloads.sql",
+    "migrate_v13_shared_sessions.sql",
 ]
 
 
@@ -54,7 +56,7 @@ def pg_statement(sql: str) -> list[str]:
     return [sql.strip()]
 
 
-def main() -> None:
+def connect_database():
     database_url = os.environ.get("NANNYAPP_DB_URL") or os.environ.get("POSTGRES_URL_NON_POOLING")
     parsed = urlparse(database_url) if database_url else None
     query = parse_qs(parsed.query) if parsed else {}
@@ -83,7 +85,10 @@ def main() -> None:
         sslmode=os.environ.get("NANNYAPP_DB_SSLMODE", query.get("sslmode", ["require"])[0]),
         connect_timeout=15,
     )
-    conn.autocommit = True
+    return conn
+
+
+def migrate_database(conn):
     cur = conn.cursor()
     cur.execute("CREATE TABLE IF NOT EXISTS schema_migrations (name VARCHAR(100) PRIMARY KEY, checksum CHAR(64) NOT NULL, applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)")
     for name in FILES:
@@ -107,8 +112,12 @@ def main() -> None:
         cur.execute("INSERT INTO schema_migrations (name, checksum) VALUES (%s, %s)", (name, checksum))
         print(f"applied {name}")
 
-    # Keep migration application idempotent; commit all demo DML together.
-    conn.autocommit = False
+    apply_native_migrations(cur)
+    conn.commit()
+
+
+def seed_demo(conn, reset_demo_passwords=False):
+    cur = conn.cursor()
     # bcrypt is compatible with PHP password_hash(..., PASSWORD_DEFAULT).
     import bcrypt
     demo_password = os.environ.get("NANNYAPP_DEMO_PASSWORD", "")
@@ -117,7 +126,6 @@ def main() -> None:
     password_hash = bcrypt.hashpw(demo_password.encode(), bcrypt.gensalt()).decode()
     # Normal syncs preserve existing hashes and sessions. Set this explicitly
     # for intentional credential repair/rotation; tell demo users the new password.
-    reset_demo_passwords = os.environ.get("NANNYAPP_RESET_DEMO_PASSWORDS") == "1"
     demos = [
         ("Thandi Mokoena", "parent@nanny.app", "parent"),
         ("James Naidoo", "james@nanny.app", "parent"),
@@ -134,9 +142,10 @@ def main() -> None:
                        VALUES (%s,%s,%s,%s,1,'active')
                        ON CONFLICT (email) DO NOTHING""", (full_name, email, password_hash, role))
         if existing and reset_demo_passwords:
-            cur.execute("""UPDATE users SET password_hash=%s, email_verified=1, status='active',
+            cur.execute("""UPDATE users SET password_hash=%s, remember_token=NULL, email_verified=1, status='active',
                            session_version=session_version+1
                            WHERE email=%s""", (password_hash, email))
+            cur.execute("UPDATE password_resets SET used=1 WHERE user_id=(SELECT id FROM users WHERE email=%s)", (email,))
             cur.execute("DELETE FROM api_tokens WHERE user_id=(SELECT id FROM users WHERE email=%s)", (email,))
         cur.execute("SELECT id FROM users WHERE email=%s", (email,))
         user_id = cur.fetchone()[0]
@@ -212,8 +221,60 @@ def main() -> None:
                          is_active=1""", (slug, title, description, html_file, pdf_file, order))
     conn.commit()
     cur.close()
-    conn.close()
-    print("database ready: migrations, five named demo accounts, sample activity and deliverables are synchronized")
+    print("Demo accounts and sample activity synchronized; existing credentials preserved unless reset explicitly requested.")
+
+
+def apply_native_migrations(cur):
+    for path in sorted((DB / "postgres").glob("*.sql")):
+        name = "postgres/" + path.name
+        raw = path.read_text(encoding="utf-8").replace("\r\n", "\n")
+        checksum = hashlib.sha256(raw.encode()).hexdigest()
+        cur.execute("SELECT checksum FROM schema_migrations WHERE name=%s", (name,))
+        existing = cur.fetchone()
+        if existing:
+            if existing[0] != checksum:
+                raise RuntimeError(f"Applied migration changed: {name}")
+            continue
+        # Adopt only byte-equivalent SQL already applied through Supabase MCP.
+        cur.execute("SELECT to_regclass('supabase_migrations.schema_migrations')")
+        recorded = None
+        if cur.fetchone()[0]:
+            migration_name = path.stem.split("_", 1)[1]
+            cur.execute("SELECT statements FROM supabase_migrations.schema_migrations WHERE name=%s", (migration_name,))
+            recorded = cur.fetchone()
+        if recorded:
+            applied = "\n".join(recorded[0]).replace("\r\n", "\n").strip()
+            if applied != raw.strip():
+                raise RuntimeError(f"Supabase migration source differs: {name}")
+        else:
+            cur.execute(raw)
+        cur.execute("INSERT INTO schema_migrations (name,checksum) VALUES (%s,%s)", (name,checksum))
+        print(f"applied or verified {name}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--seed-demo", action="store_true", help="Explicitly create missing demo accounts and sample data")
+    parser.add_argument("--reset-demo-passwords", action="store_true", help="Rotate demo credentials and revoke their sessions; requires --seed-demo")
+    args = parser.parse_args()
+    if args.reset_demo_passwords and not args.seed_demo:
+        parser.error("--reset-demo-passwords requires --seed-demo")
+    conn = connect_database()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("SELECT current_database()")
+            lock = "nanny-migrate-" + hashlib.sha256(cur.fetchone()[0].encode()).hexdigest()[:40]
+            cur.execute("SELECT pg_advisory_lock(hashtext(%s))", (lock,))
+        migrate_database(conn)
+        if args.seed_demo:
+            seed_demo(conn, args.reset_demo_passwords)
+        print("Database migrations verified.")
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        # Closing the dedicated connection releases its session advisory lock.
+        conn.close()
 
 
 if __name__ == "__main__":

@@ -44,7 +44,7 @@ try {
             (SELECT COUNT(*) FROM users WHERE role='parent') AS families,
             (SELECT COUNT(*) FROM users u2 JOIN nanny_profiles p2 ON p2.user_id=u2.id WHERE u2.role='nanny' AND p2.verification_status='verified') AS nannies,
             (SELECT COUNT(*) FROM bookings WHERE status='completed') AS bookings,
-            IFNULL((SELECT ROUND(AVG(rating),1) FROM reviews), 5.0) AS rating"
+            COALESCE((SELECT ROUND(AVG(rating),1) FROM reviews), 5.0) AS rating"
     )->fetch();
 } catch (Throwable $e) {
     $stats = ['families' => 10000, 'nannies' => 1500, 'bookings' => 8923, 'rating' => 4.9];

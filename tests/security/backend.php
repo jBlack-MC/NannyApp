@@ -214,6 +214,9 @@ try {
         check($threadStatus===200 && count($thread)===2,'message thread includes both directions and excludes other accounts');
         $threadIds=array_column($thread,'id');sort($threadIds);
         check($threadIds===[1,2],'message thread returns correct incoming and outgoing rows');
+        [$pollStatus,$pollBody]=request_test('/api/messages/poll.php?with=1&since_id=1',null,'synthetic-token-2');
+        check($pollStatus===200 && array_column(json_decode($pollBody,true)['data']??[],'id')===[2],
+            'poll returns incoming messages after cursor and excludes other conversations');
 
         $review = ['bookingId'=>10,'nannyId'=>4,'rating'=>5,'comment'=>'Synthetic review'];
         check(request_test('/api/reviews/create.php',$review,'synthetic-token-2')[0]===409,'review rejects mismatched nanny');
