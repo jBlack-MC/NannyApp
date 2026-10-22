@@ -4,6 +4,8 @@
     especially the safety and report text. Keys missing here fall back to English (values/).
 -->
 <resources>
+    <string name="settings_share_app">Deel die toepassing</string>
+    <string name="settings_share_app_message">Kry Nanny-App vir Android: %1$s</string>
     <string name="tagline">Betroubare kindersorg, wanneer dit jou pas.</string>
 
     <string name="action_ok">OK</string>

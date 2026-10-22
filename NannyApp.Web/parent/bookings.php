@@ -27,7 +27,7 @@ $stmt = db()->prepare(
      FROM bookings b
      JOIN users u ON u.id = b.nanny_id
      LEFT JOIN payments pay ON pay.booking_id = b.id
-     WHERE b.parent_id = ? ORDER BY FIELD(b.status,'pending','confirmed','in_progress','completed','disputed','rejected','cancelled'), b.date_time DESC"
+     WHERE b.parent_id = ? ORDER BY CASE b.status WHEN 'pending' THEN 1 WHEN 'confirmed' THEN 2 WHEN 'in_progress' THEN 3 WHEN 'completed' THEN 4 WHEN 'disputed' THEN 5 WHEN 'rejected' THEN 6 WHEN 'cancelled' THEN 7 ELSE 0 END, b.date_time DESC"
 );
 $stmt->execute([$me]);
 $rows = $stmt->fetchAll();

@@ -4,6 +4,8 @@
     before release, above all the safety and report text. Keys missing here fall back to English.
 -->
 <resources>
+    <string name="settings_share_app">Yabelana ngohlelo lokusebenza</string>
+    <string name="settings_share_app_message">Thola i-Nanny-App ye-Android: %1$s</string>
     <string name="tagline">Ukunakekelwa kwezingane okuthembekile, ngesikhathi esikufanele.</string>
 
     <string name="action_ok">Kulungile</string>

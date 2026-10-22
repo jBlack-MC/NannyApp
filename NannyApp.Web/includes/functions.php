@@ -291,7 +291,7 @@ function recompute_rating(int $nannyUserId): void
 {
     db()->prepare(
         'UPDATE nanny_profiles
-         SET average_rating = (SELECT IFNULL(ROUND(AVG(rating), 2), 0) FROM reviews WHERE nanny_id = ?)
+         SET average_rating = (SELECT COALESCE(ROUND(AVG(rating), 2), 0) FROM reviews WHERE nanny_id = ?)
          WHERE user_id = ?'
     )->execute([$nannyUserId, $nannyUserId]);
 }

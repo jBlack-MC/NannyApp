@@ -20,8 +20,8 @@ $rows = $payments->fetchAll();
 
 $totals = db()->prepare(
     "SELECT
-        IFNULL(SUM(CASE WHEN pay.status='paid' THEN pay.amount END), 0) AS total_paid,
-        IFNULL(SUM(CASE WHEN pay.status='pending' THEN pay.amount END), 0) AS total_pending,
+        COALESCE(SUM(CASE WHEN pay.status='paid' THEN pay.amount END), 0) AS total_paid,
+        COALESCE(SUM(CASE WHEN pay.status='pending' THEN pay.amount END), 0) AS total_pending,
         COUNT(CASE WHEN pay.status='paid' THEN 1 END) AS paid_count,
         COUNT(*) AS total_count
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id

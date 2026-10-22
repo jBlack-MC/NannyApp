@@ -16,31 +16,13 @@ jobs:
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 15
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: synthetic_ci_password
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U postgres"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
     steps:
       - uses: actions/checkout@v6
-      - name: Install PostgreSQL test client
-        run: python3 -m pip install --disable-pip-version-check -r scripts/requirements-supabase.txt
-      - name: Migrate and seed twice to verify idempotence
-        env:
-          NANNYAPP_DB_URL: postgresql://postgres:synthetic_ci_password@127.0.0.1:5432/postgres
-          NANNYAPP_DB_SSLMODE: disable
-          NANNYAPP_DEMO_PASSWORD: synthetic-ci-password-123
-        run: |
-          python3 scripts/bootstrap_supabase.py
-          python3 scripts/bootstrap_supabase.py
-          python3 -c "import os, psycopg2; c=psycopg2.connect(os.environ['NANNYAPP_DB_URL']); q=c.cursor(); q.execute(\"SELECT COUNT(*) FROM users WHERE email IN ('parent@nanny.app','james@nanny.app','amelia@nanny.app','grace@nanny.app','admin@nanny.app')\"); assert q.fetchone()[0] == 5; q.execute('SELECT COUNT(*) FROM users'); assert q.fetchone()[0] == 5; q.execute('SELECT COUNT(*) FROM stored_media'); assert q.fetchone()[0] == 0; print('Five demo accounts, no extra users, v12 media table ready')"
+      - name: Test PostgreSQL migrations, access controls and shared web/API data
+        run: python3 tests/docker-checks.py --postgres
+      - name: Clean disposable PostgreSQL containers
+        if: always()
+        run: docker compose -p nannyapp-postgres-tests -f compose.postgres-test.yml down --volumes --remove-orphans
   security:
     name: PHP and synthetic security tests
     if: github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true'
