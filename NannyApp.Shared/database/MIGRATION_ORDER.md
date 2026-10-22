@@ -1,5 +1,10 @@
 # Safe database setup and migrations
 
+Supabase installations also require the separate PostgreSQL access/integrity
+migrations after v12; see [PostgreSQL migration instructions](postgres/README.md).
+These are recorded in Supabase migration history and are not run by the shared
+MariaDB-compatible PHP/Python runners.
+
 Use MariaDB 10.11 (the tested runtime). Create an empty database and migration account in the host panel; the runner never creates, selects a hard-coded database, drops or clears an application database. Back up an existing database and test its upgrade on a disposable copy first.
 
 Set `NANNYAPP_DB_HOST`, `NANNYAPP_DB_PORT`, `NANNYAPP_DB_NAME`, `NANNYAPP_DB_USER` and `NANNYAPP_DB_PASS` in the process environment, then from the repository root run:

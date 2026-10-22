@@ -7,10 +7,10 @@ $meId = $me['id'];
 
 $counts = db()->prepare(
     "SELECT
-        SUM(status='pending')   AS pending,
-        SUM(status='confirmed') AS confirmed,
-        SUM(status='completed') AS completed,
-        SUM(date_time > NOW() AND status IN ('pending','confirmed')) AS upcoming,
+        SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END)   AS pending,
+        SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) AS confirmed,
+        SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN date_time > NOW() AND status IN ('pending','confirmed') THEN 1 ELSE 0 END) AS upcoming,
         COUNT(*)                AS total
      FROM bookings WHERE parent_id = ?"
 );
@@ -18,7 +18,7 @@ $counts->execute([$meId]);
 $c = $counts->fetch();
 
 $spent = db()->prepare(
-    "SELECT IFNULL(SUM(pay.amount),0) FROM payments pay JOIN bookings b ON b.id=pay.booking_id
+    "SELECT COALESCE(SUM(pay.amount),0) FROM payments pay JOIN bookings b ON b.id=pay.booking_id
      WHERE b.parent_id=? AND pay.status='paid'"
 );
 $spent->execute([$meId]);
@@ -79,7 +79,7 @@ $maxBookings   = max(array_column($bookingMonths, 'total') ?: [1]);
 $monthlySpend = db()->prepare(
     "SELECT DATE_FORMAT(pay.created_at,'%Y-%m') AS ym,
             DATE_FORMAT(pay.created_at,'%b') AS label,
-            IFNULL(SUM(pay.amount),0) AS total
+            COALESCE(SUM(pay.amount),0) AS total
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
      WHERE b.parent_id=? AND pay.status='paid'
        AND pay.created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)

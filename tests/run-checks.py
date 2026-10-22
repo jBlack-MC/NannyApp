@@ -26,6 +26,8 @@ try:
     run(['node', '--check', 'NannyApp.Web/service-worker.js'])
     run([php, 'tests/security/public-urls.test.php'])
     run([php, 'tests/security/db-settings.test.php'])
+    run([php, 'tests/security/postgres-dashboard.test.php', 'pgsql'])
+    run([php, 'tests/security/postgres-dashboard.test.php', 'mysql'])
     run([php, 'tests/security/web-sessions.test.php'])
     run([php, 'tests/security/session-policy.test.php'])
     run([php, 'tests/security/demo-bots.test.php'])

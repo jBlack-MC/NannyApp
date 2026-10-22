@@ -11,17 +11,17 @@ $p = $profile->fetch();
 
 $counts = db()->prepare(
     "SELECT
-        SUM(status='pending')   AS pending,
-        SUM(status='confirmed') AS confirmed,
-        SUM(status='completed') AS completed,
-        SUM(date_time > NOW() AND status='confirmed') AS upcoming
+        SUM(CASE WHEN status='pending' THEN 1 ELSE 0 END)   AS pending,
+        SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) AS confirmed,
+        SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed,
+        SUM(CASE WHEN date_time > NOW() AND status='confirmed' THEN 1 ELSE 0 END) AS upcoming
      FROM bookings WHERE nanny_id = ?"
 );
 $counts->execute([$uid]);
 $c = $counts->fetch();
 
 $earn = db()->prepare(
-    "SELECT IFNULL(SUM(pay.amount),0)
+    "SELECT COALESCE(SUM(pay.amount),0)
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
     WHERE b.nanny_id=? AND pay.status='paid' AND b.status='completed'
        AND MONTH(pay.created_at)=MONTH(NOW()) AND YEAR(pay.created_at)=YEAR(NOW())"
@@ -30,7 +30,7 @@ $earn->execute([$uid]);
 $monthEarnings = (float) $earn->fetchColumn();
 
 $totalEarned = db()->prepare(
-    "SELECT IFNULL(SUM(pay.amount),0) FROM payments pay
+    "SELECT COALESCE(SUM(pay.amount),0) FROM payments pay
      JOIN bookings b ON b.id=pay.booking_id
     WHERE b.nanny_id=? AND pay.status='paid' AND b.status='completed'"
 );
@@ -70,7 +70,7 @@ $pendingRows = $pending->fetchAll();
 $monthlyEarn = db()->prepare(
     "SELECT DATE_FORMAT(pay.created_at,'%Y-%m') AS ym,
             DATE_FORMAT(pay.created_at,'%b') AS label,
-            IFNULL(SUM(pay.amount),0) AS total,
+            COALESCE(SUM(pay.amount),0) AS total,
             COUNT(*) AS jobs
      FROM payments pay JOIN bookings b ON b.id=pay.booking_id
     WHERE b.nanny_id=? AND pay.status='paid' AND b.status='completed'
@@ -86,7 +86,7 @@ $monthlyBk = db()->prepare(
     "SELECT DATE_FORMAT(date_time,'%Y-%m') AS ym,
             DATE_FORMAT(date_time,'%b') AS label,
             COUNT(*) AS total,
-            SUM(status='completed') AS completed_ct
+            SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed_ct
      FROM bookings WHERE nanny_id=?
        AND date_time >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
      GROUP BY ym, label ORDER BY ym ASC"
