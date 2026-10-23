@@ -49,6 +49,8 @@ class Client:
             response = error
         with response:
             body = response.read().decode()
+            if '/auth/' in path:
+                check('no-store' in response.headers.get('Cache-Control', ''), 'authentication responses cannot be cached')
             check(response.status < 500, f'{path} does not crash ({response.status})')
             return response.status, body, response.url
 
@@ -156,16 +158,31 @@ def main():
             routes = {
                 'parent': ['parent/bookings.php', 'parent/children.php', 'parent/saved.php', 'parent/nannies.php', 'parent/payments.php'],
                 'nanny': ['nanny/bookings.php', 'nanny/profile.php', 'nanny/availability.php', 'nanny/earnings.php', 'nanny/reviews.php'],
-                'admin': ['admin/users.php', 'admin/bookings.php', 'admin/payments.php', 'admin/verifications.php', 'admin/operations.php'],
+                'admin': ['admin/users.php', 'admin/bookings.php', 'admin/payments.php', 'admin/verifications.php', 'admin/operations.php', 'admin/contacts.php', 'admin/support.php', 'admin/reports.php'],
             }
             for role, paths in routes.items():
-                for path in paths + ['account.php', 'notifications.php', 'messages.php']:
+                for path in paths + ['account.php', 'notifications.php', 'messages.php', 'pages/contact.php']:
                     status, _, _ = clients[role].request('/web/' + path)
                     check(status == 200, role + ' can load ' + path)
             parent, nanny = clients['parent'], clients['nanny']
+            for role in ('parent', 'nanny'):
+                password = 'Synthetic-new-account-123!'
+                email = f'web-{role}@example.invalid'
+                signup = Client(base)
+                _, body, _ = signup.request('/web/auth/register.php')
+                csrf = re.search(r'name="csrf" value="([^"]+)"', body).group(1)
+                _, body, _ = signup.request('/web/auth/register.php', {'csrf': csrf, 'full_name': 'Web Signup', 'email': email, 'role': role, 'password': password}, form=True)
+                check('Account Created!' in body, role + ' web registration succeeds')
+                created = signup.api('auth/login.php', {'email': email, 'password': password})
+                check(created['user']['role'] == role, 'web registration can sign in on mobile')
+                email = f'api-{role}@example.invalid'
+                created = signup.api('auth/register.php', {'fullName': 'API Signup', 'email': email, 'role': role, 'password': password})
+                check(created['user']['role'] == role, role + ' API registration succeeds')
+                signup.login(email, password, role)
+                check(True, 'mobile registration can sign in on web')
             parent.api('user/profile.php', {'fullName': 'Shared API Name'}, 'PUT')
             check('Shared API Name' in parent.request('/web/account.php')[1], 'mobile profile update is visible on web')
-            status, body, _ = parent.request('/web/messages.php')
+            status, body, _ = parent.request(f'/web/messages.php?with={ids["nanny"]}')
             csrf = re.search(r'name="csrf" value="([^"]+)"', body).group(1)
             sent = json.loads(parent.request('/web/messages_send.php', {'csrf': csrf, 'to': ids['nanny'], 'message': 'Web to mobile'}, form=True)[1])
             check(sent.get('ok'), 'web message stored')

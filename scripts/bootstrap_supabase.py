@@ -22,7 +22,7 @@ FILES = [
     "migrate_v6_security.sql", "migrate_v7_email_outbox.sql",
     "migrate_v8_operations.sql", "migrate_v9_reports_holidays.sql",
     "migrate_v10_plus_translation.sql", "migrate_v11_deliverables.sql", "migrate_v12_sessions_downloads.sql",
-    "migrate_v13_shared_sessions.sql",
+    "migrate_v13_shared_sessions.sql", "migrate_v14_contact_messages.sql",
 ]
 
 

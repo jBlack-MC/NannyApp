@@ -33,6 +33,11 @@ function nannyapp_pg_sql(string $sql): string
 {
     if (DB_DRIVER !== 'pgsql') return $sql;
 
+    // These legacy callers need only the first column (the column name).
+    if (preg_match('/^\s*SHOW COLUMNS FROM ([a-z_][a-z0-9_]*)\s*;?\s*$/i', $sql, $columns)) {
+        return "SELECT column_name FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='" . $columns[1] . "' ORDER BY ordinal_position";
+    }
+
     $sql = preg_replace('/\bNOW\(\)/i', 'CURRENT_TIMESTAMP', $sql) ?? $sql;
     $sql = preg_replace('/\bCURDATE\(\)/i', 'CURRENT_DATE', $sql) ?? $sql;
     // Dashboard charts use only these two MySQL date formats. Keep the

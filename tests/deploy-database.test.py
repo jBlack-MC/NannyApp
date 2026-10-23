@@ -11,7 +11,7 @@ import deploy_database
 
 class DeploymentTests(unittest.TestCase):
     def test_http_schema_only_needs_no_demo_password(self):
-        with patch.dict(os.environ, {'APP_URL': 'https://example.invalid', 'NANNYAPP_MIGRATION_TOKEN': 'synthetic'}, clear=True), patch.object(deploy_database, 'request', side_effect=[{'ok': True, 'schemaVersion': 'migrate_v13_shared_sessions.sql', 'nativeMigrationCount': 2}, {'status': 'ok'}]) as request:
+        with patch.dict(os.environ, {'APP_URL': 'https://example.invalid', 'NANNYAPP_MIGRATION_TOKEN': 'synthetic'}, clear=True), patch.object(deploy_database, 'request', side_effect=[{'ok': True, 'schemaVersion': 'migrate_v14_contact_messages.sql', 'nativeMigrationCount': 3}, {'status': 'ok'}]) as request:
             deploy_database.main()
             self.assertEqual([c.args[1] for c in request.call_args_list], ['/api/migrate.php', '/api/health.php'])
 

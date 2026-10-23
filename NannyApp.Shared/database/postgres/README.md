@@ -1,16 +1,18 @@
 # Supabase-specific migrations
 
-These files are PostgreSQL-only and are applied separately from the shared
-PHP/Python migration runners. Do not add them to the MariaDB migration list or
+These files are PostgreSQL-only and are now applied by both the PHP and Python
+migration runners after the portable shared migrations. Do not add them to the MariaDB migration list or
 edit the checksums of already-applied shared migrations.
 
-After shared migrations through v12, apply these files in order using Supabase's
-versioned migration tooling, each in one transaction:
+The runners apply native files in filename order and record their checksums in
+`schema_migrations`. They can adopt byte-equivalent SQL from Supabase migration
+history without rerunning existing constraints. Native files currently include:
 
 1. `20261022_backend_access_and_integrity.sql`
 2. `20261022_sequences_and_duplicate_indexes.sql`
+3. `20261023_contact_inbox_access.sql` (requires shared v14)
 
-Both were applied to project `gumltynuuwwfstusfdzy` on 22 October 2026 using
+The first two were applied to project `gumltynuuwwfstusfdzy` on 22 October 2026 using
 Supabase's migration API, with names `backend_access_and_integrity` and
 `sequences_and_duplicate_indexes`. The first file adds named constraints and
 must not be applied twice. The Supabase migration history records application.

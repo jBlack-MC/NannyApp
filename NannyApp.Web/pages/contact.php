@@ -1,19 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 
-// Ensure the contact inbox table exists (safe to run on every request, so the
-// form works on an existing database without re-importing schema.sql).
-db()->exec(
-    "CREATE TABLE IF NOT EXISTS contact_messages (
-        id          INT AUTO_INCREMENT PRIMARY KEY,
-        name        VARCHAR(100)  NOT NULL,
-        email       VARCHAR(150)  NOT NULL,
-        subject     VARCHAR(150)  DEFAULT NULL,
-        message     VARCHAR(2000) NOT NULL,
-        created_at  TIMESTAMP     DEFAULT CURRENT_TIMESTAMP
-    ) ENGINE=InnoDB"
-);
-
+// The deployment migrations create the contact inbox.
 $errors = [];
 $old = ['name' => '', 'email' => '', 'subject' => '', 'message' => ''];
 

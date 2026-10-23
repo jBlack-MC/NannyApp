@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // A nanny gets an (unverified) profile shell to complete later.
         if ($old['role'] === 'nanny') {
-            $pdo->prepare('INSERT INTO nanny_profiles (user_id, verification_status) VALUES (?, "pending")')
+            $pdo->prepare('INSERT INTO nanny_profiles (user_id, verification_status) VALUES (?, \'pending\')')
                 ->execute([$userId]);
         } else {
             $pdo->prepare('INSERT INTO parent_profiles (user_id, number_of_children) VALUES (?, 0)')->execute([$userId]);

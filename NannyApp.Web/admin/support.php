@@ -59,7 +59,7 @@ $sql = 'SELECT st.*, u.full_name AS user_name
         FROM support_tickets st
         LEFT JOIN users u ON u.id = st.user_id'
      . ($where ? ' WHERE ' . implode(' AND ', $where) : '')
-     . ' ORDER BY FIELD(st.status,"open","in_progress","resolved","closed"), st.created_at DESC';
+     . " ORDER BY CASE st.status WHEN 'open' THEN 1 WHEN 'in_progress' THEN 2 WHEN 'resolved' THEN 3 WHEN 'closed' THEN 4 ELSE 0 END, st.created_at DESC";
 
 $tickets = db()->prepare($sql);
 $tickets->execute($params);
