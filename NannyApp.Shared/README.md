@@ -1,92 +1,37 @@
-# NannyApp.Shared
+# Shared backend services
 
-![Nanny-App logo](../NannyApp.Web/assets/Icon_Logo.png)
+Required by both PHP frontends. This directory owns database connections, migrations, authentication/security helpers, storage and shared operational services. It is not an optional standalone fallback.
 
-Holds everything that's common to **every** Nanny-App client:
+## Database
 
-- `NannyApp.Web` — the PHP web app (and its Cordova/PWA packaging, which is
-  just that same site in a WebView — see `NannyApp.Web/apk/`).
-- `NannyApp.Mobile/NannyApp` — the native Kotlin/Compose Android app and its
-  PHP REST API layer (`api/`).
+The website and mobile API use one database: MariaDB for local Docker development or PostgreSQL/Supabase for the hosted application. Android accesses the PHP API, never database credentials or a privileged Supabase key.
 
-Today that's:
+From the repository root, with explicit target configuration:
 
-- `database/` — the single source of truth for the MySQL schema
-  (`schema.sql`) plus incremental migrations (`migrate_v2/3/4/5_api.sql`,
-  `phase1_constraints.sql`, `phase2_authentication.sql`, `seed_reviews.sql`).
-  Import `database/schema.sql` first, then run the numbered migrations in
-  order (`NannyApp.Web/migrate_v2.php` etc., or `mysql -u root nanny_app <
-  database/migrate_v2.sql` directly).
-- `config/database.php` — defines the `DB_*` constants and the `db()` PDO
-  singleton. Each client's own `config/database.php` requires this file when
-  it's present (falling back to a fully standalone connection otherwise), so
-  every client talks to the exact same MySQL database — nothing app-specific
-  is stored per project.
-- `storage/uploads/` — where uploaded profile photos, nanny gallery photos,
-  banners and verification documents actually live on disk **in local mode**.
-  This sits outside any client's webroot on purpose: `NannyApp.Web/media.php`
-  and `NannyApp.Mobile/NannyApp/api/media.php` both stream files from here by
-  relative path (`media.php?f=uploads/nannies/2026/09/ab12cd34.jpg`),
-  validating the path stays inside `storage/` before serving it. Only the
-  small path stored in the database (e.g. `users.profile_image`) needs to be
-  duplicated — the file itself is never copied per app. `.htaccess` here
-  blocks direct browser access, since PHP reads these files from disk, not
-  over HTTP.
-- `config/storage.php` — the upload storage abstraction both clients call
-  through `save_uploaded_image()` / `media_url()`. Two drivers, switched with
-  **no code changes**:
-  - `local` (default) — files sharded into `<subdir>/<year>/<month>/`
-    folders under `storage/uploads/` so no single folder ever grows
-    unbounded. Fine for development or a single-server deployment.
-  - `s3` — any S3-compatible object storage (AWS S3, Cloudflare R2,
-    DigitalOcean Spaces, MinIO...). Files never touch local disk, so it
-    works across any number of stateless app instances/containers and
-    doesn't fill up server disk as usage grows. **Use this driver in
-    production.** Enable it with environment variables (never commit
-    secrets to the repo):
+```sh
+php NannyApp.Shared/bin/migrate.php
+```
 
-    ```bash
-    NANNYAPP_STORAGE_DRIVER=s3
-    NANNYAPP_S3_BUCKET=nannyapp-uploads
-    NANNYAPP_S3_REGION=us-east-1
-    NANNYAPP_S3_ACCESS_KEY=...
-    NANNYAPP_S3_SECRET_KEY=...
-    NANNYAPP_S3_ENDPOINT=            # leave blank for real AWS S3; set for R2/Spaces/MinIO
-    NANNYAPP_S3_PUBLIC_BASE_URL=     # set if the bucket/CDN serves objects publicly (skips presigning)
-    ```
+The runner records checksums in `schema_migrations`, applies ordered shared migrations through v14, and applies native PostgreSQL SQL after the shared schema. [Migration order](database/MIGRATION_ORDER.md) and [PostgreSQL notes](database/postgres/README.md) describe locking, adoption and access restrictions. The Python Supabase runner is schema-only by default; seeding and password reset are separate explicit options.
 
-**Working standalone.** Every client also works if `NannyApp.Shared` isn't
-checked out next to it (e.g. one project zipped up alone): each
-`config/database.php` checks whether the shared file exists and only then
-requires it — otherwise it falls back to its own local `DB_*`
-constants/`db()`/upload folder (local storage driver only; standalone mode
-has no shared config to read S3 credentials from). No code changes needed
-either way.
+Current `schema.sql` is empty idempotent DDL. Historical versions were destructive: do not import old dumps into an existing database. Do not edit an applied migration to change its checksum; add a migration.
 
-Adding a second client in the future just means pointing its config at this
-folder instead of re-implementing DB access or file storage.
+## Authentication
 
-## Current gaps to close before production
+Web sessions and API tokens refer to shared `users` records. Supabase Auth is not used. Private hosted demo credentials are distributed separately; `Password123!` is only for local development fixtures. [Account operations](../docs/DEMO_ACCOUNTS.md).
 
-- The shared database has migration files but no automated migration runner or
-  schema-version table. Follow [database/MIGRATION_ORDER.md](database/MIGRATION_ORDER.md)
-  and add migration tracking before frequent releases.
-- `schema.sql` is a local bootstrap script: it drops the database and seeds demo
-  accounts/content. Never use it on staging or production.
-- SMTP delivery for verification/password-reset messages, production backups and
-  restore drills, push-notification delivery, and payment gateway webhooks are
-  deployment/operations work, not configured by the shared folder yet.
-- Store Android APK release metadata and checksums using
-  [releases/README.md](releases/README.md); do not commit signed binaries or
-  keystores.
+## Storage and workers
 
-## Going to production
+| Driver | Use |
+| --- | --- |
+| `local` | Persistent single-host disk, under `storage/uploads/` |
+| `database` | Small stateless-host prototype; requires v12 |
+| `s3` | Private S3-compatible object storage for larger deployments |
 
-- Set the `NANNYAPP_S3_*` env vars above so uploads go to object storage
-  instead of local disk — required if you deploy to more than one app
-  instance/container, or to any host with ephemeral/non-shared disk.
-- Set real `DB_*` values via env vars or by editing `config/db_credentials.php`
-  (Mobile) / `NannyApp.Web/config/config.php` (Web) — never commit production
-  DB credentials.
-- Keep `NannyApp.Shared/.htaccess` (or equivalent web-server rule) in place so
-  this folder is never served directly if it ends up under a public docroot.
+Select `NANNYAPP_STORAGE_DRIVER` and the corresponding environment settings in the [deployment guide](../docs/VERCEL_SUPABASE_DEPLOY.md). Shared files must not be directly public. Media endpoints authorize access before streaming or signing; public-CDN bypass is not supported. Database storage has capacity limits and is not a general replacement for object storage.
+
+Email, notifications and file-deletion queues require workers. See [operations](../docs/PHASE1_OPERATIONS.md) and [Resend setup](../docs/RESEND_INTEGRATION.md). Ledger release/refund decisions do not perform bank transfers.
+
+## Validation and releases
+
+Run both `python tests/docker-checks.py` and `python tests/docker-checks.py --postgres` from the root. PostgreSQL tests cover schema replay, checksum drift, RLS/grants and shared web/API journeys. [CI/CD](../docs/CI_CD.md) explains production migration gates. [Android release files](releases/README.md) belong outside Git.

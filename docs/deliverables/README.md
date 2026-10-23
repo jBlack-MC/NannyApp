@@ -17,3 +17,5 @@ matching PDF suitable for submission and download.
 The numbered documents describe the repository state on 10 October 2026; the audit and vision update is dated 20 October 2026. Regenerate the
 HTML after editing `build-docs.js` with `node docs/deliverables/build-docs.js`,
 then render the PDFs again from the numbered HTML files.
+
+For current login/setup and executable pipeline behavior, use the [root README](../../README.md) and [CI/CD guide](../CI_CD.md). The numbered HTML/PDF files are dated deliverables; this README update does not regenerate them. The [audit addendum](08-professional-engineering-audit-addendum.html) records subsequent account-sharing evidence.

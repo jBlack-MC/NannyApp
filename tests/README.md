@@ -1,21 +1,20 @@
-# NannyApp test suite
+# Project tests
 
-This folder is the launch test home for the web portal, PHP API, and native Android app.
+Run from the repository root unless noted otherwise. Use synthetic data and disposable databases; never point integration tests at production.
 
-## Before every staging deployment
+| Command | Coverage |
+| --- | --- |
+| `python tests/docker-checks.py` | PHP/JavaScript checks, MariaDB migrations, real HTTP auth/authorization, mail workers, booking operations, media, PWA and cache regressions |
+| `python tests/docker-checks.py --postgres` | PostgreSQL schema/seed replay, native migration adoption, checksum drift, database privileges, parent/nanny registration and cross-client data |
+| `python tests/check-readmes.py` | README relative links and accidental credential patterns |
+| `python tests/deploy-database.test.py` | Production migration helper behavior without live secrets |
+| `python tests/apk-endpoint.test.py` | APK endpoint validation using synthetic archives |
+| `node tests/security/service-worker.test.cjs` | Public caching and private/auth route exclusion |
 
-1. Run the Android unit tests:
-   `./gradlew testDebugUnitTest`
-2. Run the Android release build:
-   `./gradlew assembleRelease`
-3. Execute the [launch smoke checklist](manual/launch-smoke-checklist.md) against staging.
-4. Record the browser/device, API URL, tester, and result for every failed check.
+Docker wrappers build a source-only image and clean their test stacks. MariaDB uses loopback port 13379; PostgreSQL uses 13378. Do not run concurrent copies of the same stack.
 
-Do not use production accounts, payment details, or identity documents during testing.
+From `NannyApp.Mobile/NannyApp`, run `./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug` (`gradlew.bat` on Windows). Release compilation requires an explicit API URL; CI uses a synthetic endpoint, never a production signing key.
 
-## Test layers
+[Security tests](security/README.md) · [API coverage](api/README.md) · [manual acceptance](manual/launch-smoke-checklist.md) · [CI/CD](../docs/CI_CD.md)
 
-- `manual/` — cross-product journeys that require a real device or browser.
-- `api/` — endpoint contract and security cases to automate when staging credentials are available.
-- `NannyApp.Mobile/NannyApp/app/src/test/` — fast Kotlin unit tests run by Gradle.
-
+Deployment verification is read-only and separate from synthetic integration tests. It checks availability, health, cache policy and anonymous access denial; it does not prove real-device login or external email delivery. Record those results separately with the actual device, app version and backend URL.

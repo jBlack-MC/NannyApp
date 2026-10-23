@@ -1,0 +1,41 @@
+name: Production verification
+
+on:
+  deployment_status:
+  status:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 5 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-verification
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Verify deployed web and API
+    if: >-
+      (github.event.repository.private == false || vars.FREE_CI_CONFIRMED == 'true') &&
+      ((github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success' && github.event.deployment.production_environment == true) ||
+       (github.event_name == 'status' && github.event.context == 'Vercel' && github.event.state == 'success' && contains(github.event.branches.*.name, 'main')) ||
+       ((github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'))
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Check the configured production origin
+        env:
+          APP_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
+        run: python3 scripts/verify_deployment.py --url "$APP_URL"
+      - name: Summarize deployment verification
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+        run: |
+          printf '## Production verification\n\nResult: %s\n\nRead-only availability, health, authentication cache policy and anonymous API denial. No accounts or production data changed. This does not verify a specific deployment SHA or physical-device login.\n' "$RESULT" >> "$GITHUB_STEP_SUMMARY"

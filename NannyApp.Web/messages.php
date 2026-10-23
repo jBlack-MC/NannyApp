@@ -22,7 +22,7 @@ $with = (int) ($_GET['with'] ?? 0);
 $convos = db()->prepare(
     "SELECT u.id, u.full_name, u.role,
             MAX(m.created_at) AS last_at,
-            SUM(m.receiver_id = ? AND m.is_read = 0) AS unread,
+            SUM(CASE WHEN m.receiver_id = ? AND m.is_read = 0 THEN 1 ELSE 0 END) AS unread,
             (SELECT m2.content FROM chat_messages m2
              WHERE (m2.sender_id = u.id AND m2.receiver_id = ?) OR (m2.sender_id = ? AND m2.receiver_id = u.id)
              ORDER BY m2.created_at DESC LIMIT 1) AS last_content

@@ -6,7 +6,7 @@ if (!$profileId) { redirect('index.php'); }
 
 $stmt = db()->prepare(
     'SELECT id, full_name, profile_image, role, status, email_verified, created_at
-     FROM users WHERE id = ? AND status = "active"'
+     FROM users WHERE id = ? AND status = \'active\''
 );
 $stmt->execute([$profileId]);
 $profile = $stmt->fetch();
@@ -24,10 +24,7 @@ if ($profile['role'] === 'nanny') {
 if ($profile['role'] !== 'parent') { redirect('index.php'); }
 
 // --- Stats ---
-$completedBookings = (int) db()->prepare('SELECT COUNT(*) FROM bookings WHERE parent_id=? AND status="completed"')
-    ->execute([$profileId]) ? db()->query("SELECT COUNT(*) FROM bookings WHERE parent_id=$profileId AND status='completed'")->fetchColumn() : 0;
-
-$stmt2 = db()->prepare('SELECT COUNT(*) FROM bookings WHERE parent_id=? AND status="completed"');
+$stmt2 = db()->prepare('SELECT COUNT(*) FROM bookings WHERE parent_id=? AND status=\'completed\'');
 $stmt2->execute([$profileId]);
 $completedBookings = (int) $stmt2->fetchColumn();
 

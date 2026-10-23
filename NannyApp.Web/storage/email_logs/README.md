@@ -1,8 +1,5 @@
-Mail bodies, recipients and account links are no longer logged. Configure
-`NANNYAPP_MAIL_TRANSPORT=mail`, `NANNYAPP_MAIL_FROM` and the host PHP mail transport.
-Use the synthetic SMTP sink in `tests/security/` for development tests.
+# Legacy email log directory
 
-Historical local logs are ignored and denied by Apache. Two previously tracked
-logs were removed from the index; existing local copies and Git history are
-preserved. Deployment owners must assess historical exposure, revoke any
-affected live tokens, and arrange history cleanup separately if required.
+The application does not log email bodies, recipients or account links here. Configure delivery using the supported mail transport or Resend adapter described in [email operations](../../../docs/RESEND_INTEGRATION.md). Use the synthetic mail tests in [security tests](../../../tests/security/README.md) for development.
+
+Historical local logs are ignored and denied by Apache. Previously tracked files may remain in Git history; deployment owners must assess exposure and revoke affected live tokens. Do not publish or upload local log contents as CI artifacts. Runtime delivery status belongs in the protected email outbox and operations dashboard.

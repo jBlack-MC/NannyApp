@@ -94,7 +94,12 @@ jobs:
         run: ./gradlew --no-daemon :app:validateReleaseApiUrl :app:assembleRelease -PNANNYAPP_RELEASE_API_URL="$RELEASE_API_URL"
 
       - name: Use stable release asset name
+        env:
+          RELEASE_API_URL: ${{ vars.NANNYAPP_RELEASE_API_URL }}
+          PRODUCTION_URL: ${{ vars.NANNYAPP_PRODUCTION_URL }}
         run: |
+          test "$RELEASE_API_URL" = "${PRODUCTION_URL%/}/api/" || { echo 'APK and website must use the same backend'; exit 1; }
+          python3 ../../scripts/check_apk_endpoint.py app/build/outputs/apk/release/app-release.apk --expected "$RELEASE_API_URL"
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/release/app-release.apk
           cp app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/NannyApp.apk
 

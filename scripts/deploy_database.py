@@ -44,7 +44,7 @@ def main():
         if reset:
             raise RuntimeError('Password rotation requires direct database access; HTTP migrations preserve credentials.')
         result = request(base, '/api/migrate.php', {}, token)
-        if result.get('ok') is not True or result.get('schemaVersion') != 'migrate_v13_shared_sessions.sql' or result.get('nativeMigrationCount', 0) < 2:
+        if result.get('ok') is not True or result.get('schemaVersion') != 'migrate_v14_contact_messages.sql' or result.get('nativeMigrationCount', 0) < 3:
             raise RuntimeError('The deployed migration endpoint is outdated or incomplete. Deploy the reviewed code first.')
         if seed:
             result = request(base, '/api/bots.php', {'action': 'add', 'demoPassword': os.environ['NANNYAPP_DEMO_PASSWORD']}, token)

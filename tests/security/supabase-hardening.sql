@@ -5,7 +5,7 @@ DECLARE
   table_name text;
   client_role text;
 BEGIN
-  FOREACH table_name IN ARRAY ARRAY['admin_profiles','api_tokens','apk_download_events','availability_slots','bookings','chat_messages','children','email_outbox','email_verifications','nanny_availability','nanny_portfolio','nanny_profiles','notification_outbox','notifications','page_content','parent_profiles','password_resets','payments','profile_views','project_deliverables','public_holidays_cache','reviews','saved_nannies','schema_migrations','security_rate_limits','storage_deletions','stored_media','subscriptions','support_tickets','translation_cache','users','web_sessions'] LOOP
+  FOREACH table_name IN ARRAY ARRAY['contact_messages','admin_profiles','api_tokens','apk_download_events','availability_slots','bookings','chat_messages','children','email_outbox','email_verifications','nanny_availability','nanny_portfolio','nanny_profiles','notification_outbox','notifications','page_content','parent_profiles','password_resets','payments','profile_views','project_deliverables','public_holidays_cache','reviews','saved_nannies','schema_migrations','security_rate_limits','storage_deletions','stored_media','subscriptions','support_tickets','translation_cache','users','web_sessions'] LOOP
     IF NOT EXISTS (SELECT 1 FROM pg_class WHERE oid=to_regclass('public.'||table_name) AND relrowsecurity) THEN
       RAISE EXCEPTION 'RLS missing: %', table_name;
     END IF;

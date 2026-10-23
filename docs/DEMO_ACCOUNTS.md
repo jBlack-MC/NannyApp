@@ -27,6 +27,12 @@ safe to run without that review.
 
 ## Named demo accounts
 
+`Password123!` does not sign in to the hosted database. Use the private password
+issued for each account. Passwords are never recovered from their database hashes.
+The Supabase dashboard login, Supabase API keys and database password are not
+application-user passwords. Web authentication and the mobile PHP API share
+`public.users` records; they do not use Supabase Auth accounts.
+
 The Supabase prototype has used these seeded accounts. Check the actual database
 before relying on them. Newly created accounts use the private
 `NANNYAPP_DEMO_PASSWORD` secret; existing credentials may differ. Never use the
@@ -49,11 +55,10 @@ characters), then run **Actions → Demo accounts → Run workflow → add** fro
 `main` under the protected `production-db` environment. It uses the temporary
 `NANNYAPP_MIGRATION_TOKEN` configured in both GitHub and Vercel, and leaves
 existing named accounts unchanged. The separate `Supabase database sync`
-workflow seeds missing accounts and preserves existing passwords by default.
-To repair forgotten demo passwords, set the GitHub repository variable
-`NANNYAPP_RESET_DEMO_PASSWORDS=1` only for the reviewed manual sync, then
-remove it; this rotates all five passwords
-and revokes their sessions. Do not run seeding after cleanup unless those
+workflow updates schema only by default. Select `seed_demo` to create missing
+accounts. To repair forgotten demo passwords, select both `seed_demo` and
+`reset_demo_passwords`; direct database access is required for rotation.
+This rotates all five passwords and revokes their sessions. Do not run seeding after cleanup unless those
 accounts are intended to return. Check the actual
 database before assuming any account exists.
 

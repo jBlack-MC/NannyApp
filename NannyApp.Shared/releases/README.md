@@ -1,16 +1,9 @@
-# Android release hand-off
+# Android release distribution
 
-The signed file served by `NannyApp.Web/download-app.php` is expected at
-`NannyApp-latest.apk` in this directory for local/shared deployments, or at the
-private path specified by `NANNYAPP_APK_PATH` in production.
+The hosted website can redirect its download route to the signed APK on GitHub Releases. For local/shared-file deployments, `NannyApp-latest.apk` in this directory is the fallback; production can instead set `NANNYAPP_APK_PATH` to a private file. See [CI/CD](../../docs/CI_CD.md) and the [download handler](../../NannyApp.Web/download-app.php).
 
-Do not commit APKs, keystores, or signing passwords. For each release, record
-outside the repository:
+Use the protected Android release workflow with a version tag already merged into main. It checks the embedded API URL and APK signature before publishing. Do not distribute old `app/release/` outputs or unsigned CI verification artifacts.
 
-- version name and version code;
-- SHA-256 checksum of the signed APK;
-- signing-key owner and recovery location;
-- staging test result and release date.
+Record the APK's actual version name/code, SHA-256, signing-key owner, tested backend URL and physical-device acceptance result. A release tag alone does not establish the binary's version. Retain the signing key for updates and increase the version code.
 
-The website serves the file as an attachment and this directory remains outside
-the web project’s public asset folder.
+APKs, keystores, passwords and private release records stay out of Git. Local release files remain outside the public web asset directory.

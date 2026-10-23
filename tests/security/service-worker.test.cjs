@@ -15,7 +15,7 @@ vm.runInNewContext(readFileSync('NannyApp.Web/service-worker.js','utf8'),context
   let pending;
   events.activate({waitUntil:p=>pending=p}); await pending;
   assert.deepEqual(deleted,['nannyapp-v9','nannyapp-public-v10','nannyapp-public-v11']);
-  for(const path of ['parent/children.php','messages.php','account.php','media.php?f=portfolio/A.jpg','index.php','auth/logout.php']) {
+  for(const path of ['parent/children.php','messages.php','account.php','media.php?f=portfolio/A.jpg','index.php','auth/logout.php','auth/login.php','auth/register.php','api/auth/login.php','api/auth/register.php']) {
     for(const state of [true,false]) {
       online=state; let intercepted=false;
       events.fetch({request:{method:'GET',url:scope+path},respondWith:()=>intercepted=true});
