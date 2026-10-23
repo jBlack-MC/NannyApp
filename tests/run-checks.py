@@ -28,6 +28,7 @@ try:
     run([php, 'tests/security/db-settings.test.php'])
     run([sys.executable, 'tests/deploy-database.test.py'])
     run([sys.executable, 'tests/apk-endpoint.test.py'])
+    run([sys.executable, 'tests/verify-deployment.test.py'])
     run([php, 'tests/security/postgres-dashboard.test.php', 'pgsql'])
     run([php, 'tests/security/postgres-dashboard.test.php', 'mysql'])
     run([php, 'tests/security/web-sessions.test.php'])

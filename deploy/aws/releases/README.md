@@ -1,10 +1,7 @@
-# Android downloads
+# AWS Android download directory
 
-Place the tested, signed native Android release here as **NannyApp-latest.apk**.
-The production compose configuration mounts this folder privately and connects
-it to the website's **Download App** page automatically. Replacing the file
-publishes the next download without rebuilding the server image.
+For the AWS compose deployment, put the tested signed native APK at `NannyApp-latest.apk` here. The production stack mounts it privately for the website download handler; replacing this file changes the download without rebuilding the server image. Keep the previous signed APK outside Git for rollback.
 
-Local development uses `NannyApp.Shared/releases/NannyApp-latest.apk` instead.
-APKs and signing keys must stay out of Git. Build with the deployed HTTPS API URL
-and retain the same signing key for updates.
+This is the AWS filesystem alternative, not the hosted Vercel/GitHub Release path. Local development uses [shared releases](../../../NannyApp.Shared/releases/README.md). See [CI/CD](../../../docs/CI_CD.md) for signed publishing and [AWS deployment](../../../docs/AWS_DEPLOYMENT.md) for mount configuration.
+
+Verify the embedded HTTPS API URL, actual Android version code, signature and SHA-256 before replacement. Keep the signing key stable for upgrades. APKs and signing secrets must stay out of Git.

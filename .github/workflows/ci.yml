@@ -1,6 +1,7 @@
 name: CI
 on:
   push:
+    branches: [main]
   pull_request:
   workflow_dispatch:
   schedule:
@@ -83,6 +84,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-verification-${{ github.sha }}
+          retention-days: 7
           if-no-files-found: error
           path: |
             NannyApp.Mobile/NannyApp/app/build/outputs/apk/debug/app-debug.apk
@@ -100,6 +102,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
+      - name: Check README links and credential hygiene
+        run: python3 tests/check-readmes.py
       - name: Verify documentation catalogue
         run: |
           set -euo pipefail

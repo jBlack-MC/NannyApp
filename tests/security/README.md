@@ -6,8 +6,7 @@
 
 The Apache test now supports Debian Apache as well as Windows XAMPP. Backend coverage also includes review-target authorization, rating validation and completed-booking ownership.
 
-Only synthetic users, documents, tokens and email addresses are used. No test
-imports `schema.sql` or connects to the application's configured database.
+Only synthetic users, documents, tokens and email addresses are used. Tests import schema files only into their disposable synthetic databases; they do not connect to the application's configured database.
 
 ## Backend and HTTP tests
 
@@ -51,7 +50,7 @@ python tests/security/apache.test.py C:/xampp/apache
 The PWA tests execute the actual worker with simulated network/cache events.
 The SQLite tests execute the actual Room DAO query strings on synthetic rows.
 The Apache test uses a temporary document root, copied application deny rules,
-synthetic logs and loopback port 13383; this runner currently targets Windows
+synthetic logs and loopback port 13383; the runner supports Debian and Windows
 Apache. No existing logs are opened or printed.
 
 From `NannyApp.Mobile/NannyApp`:
@@ -66,11 +65,10 @@ tests; device navigation and the Room 1-to-2 upgrade still need device testing.
 
 ## Deployment requirements for these fixes
 
-1. Apply `NannyApp.Shared/database/migrate_v6_security.sql` after the existing
-   v3/v5/auth migrations, before deploying the PHP code. Tested with MariaDB
-   10.4.32; its `ADD COLUMN IF NOT EXISTS` syntax needs adaptation/verification
-   for other database engines. It preserves application data. Missing limiter
-   storage blocks protected attempts rather than permitting them.
+1. Apply the complete versioned migration sequence with the shared runner,
+   including v14 and PostgreSQL-specific files when applicable. Do not apply only
+   v6 to a current deployment. Both MariaDB and PostgreSQL have disposable
+   integration suites; run `python tests/docker-checks.py --postgres` for the latter.
 2. Deploy `NannyApp.Shared` alongside both clients. Shared security/mail helpers
    are required. API database settings can come from environment variables when
    the optional local credentials file is absent.
@@ -106,3 +104,5 @@ The service-worker suite also covers cache-open/write/read failures, offline mis
 ## Phase 1 schema and operational regressions
 
 The Docker backend gate also runs `migrations.test.php` and `operations.test.php` against fresh random disposable schemas on port 13379. The operations HTTP server uses loopback port 13382 and only synthetic accounts/files. Coverage includes repeated and populated migrations, checksum/duplicate conflict refusal without data loss, server booking validation, concurrent overlap and accept/cancel requests, rescheduling, PIN limits and actor authorization, injected ledger/outbox failures, exactly-once local notification insertion, durable document deletion, private-path checks, real web wizard/API requests, MIME spoofing and total upload quota rejection. Neither test uses application databases or real providers.
+
+[CI/CD](../../docs/CI_CD.md) documents the production verification workflow. Authentication responses are checked for `no-store`; do not cache credentials or private responses to mask a backend failure.

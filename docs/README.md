@@ -1,16 +1,20 @@
 # Documentation index
 
-Use these current documents rather than historical infrastructure suggestions.
+Start with the [root README](../README.md) for login, local setup and current architecture. Hosted demo passwords are private; `Password123!` is only a local fixture.
+
+The current hosted app uses Vercel and Supabase PostgreSQL. AWS instructions describe an alternative deployment. Dated audits record evidence at their publication date, not the current live deployment status.
 
 | Document | Purpose |
 | --- | --- |
 | [deliverables/index.html](deliverables/index.html) | Complete PRD, technical requirements, app flow, design brief, backend schema and implementation plan in HTML and PDF |
 | [deliverables/08-professional-engineering-audit.html](deliverables/08-professional-engineering-audit.html) | Evidence-based audit, project vision update, risk register and next-change record |
 | [deliverables/08-professional-engineering-audit-addendum.html](deliverables/08-professional-engineering-audit-addendum.html) | Follow-up evidence for account sharing, seeded login and remaining release gates |
+| [CI_CD.md](CI_CD.md) | Workflow coverage, environment settings, deployment verification and rollback |
+| [VERCEL_SUPABASE_DEPLOY.md](VERCEL_SUPABASE_DEPLOY.md) | Hosted web/API and PostgreSQL setup |
 | [LOCAL_DEVELOPMENT.md](LOCAL_DEVELOPMENT.md) | One-command local website, API and demo database for development and the Android emulator |
 | [PLUS_SETUP.md](PLUS_SETUP.md) | Switching on the Nanny-App Plus subscription in Google Play, and translation limits |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Where the logs are, how to trace an error reference, the health check and common failures |
-| [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) | Current AWS deployment, shared database, workers and APK publishing |
+| [AWS_DEPLOYMENT.md](AWS_DEPLOYMENT.md) | Alternative AWS deployment, shared database, workers and APK publishing |
 | [FREE_DEPLOYMENT_PLAN.md](FREE_DEPLOYMENT_PLAN.md) | Historical free-host evaluation |
 | [PHASE1_OPERATIONS.md](PHASE1_OPERATIONS.md) | Booking/ledger policy, durable workers, storage limits and migration rollout |
 | [AUTOMATION.md](AUTOMATION.md) | Local Docker/non-Docker checks, CI setup and Android release configuration |

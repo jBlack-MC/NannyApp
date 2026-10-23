@@ -1,312 +1,94 @@
 # Nanny-App
 
-## Automated checks
+Childcare booking for parents and nannies, with browser-based administration. The PHP website and Android API share accounts, bookings, messages, uploads and a manual payment ledger through `NannyApp.Shared`.
 
-Run `python tests/docker-checks.py` from the repository root for an isolated PHP/MariaDB security test environment with automatic cleanup. For non-Docker and Android commands, see [Automation](docs/AUTOMATION.md). GitHub `main` protection requires a PR, one approval, resolved conversations and strict security, Android and deliverables checks; administrators retain recovery bypass. Open a PR and wait for its required checks before merging. Private repositories require `FREE_CI_CONFIRMED=true` after the owner disables paid overages. CI does not deploy; production database sync and signed Android publishing require separate manual dispatch from `main`.
+[Website](https://nannyapp-two.vercel.app) · [Download Android](https://nannyapp-two.vercel.app/download-app.php?platform=android) · [Documentation](docs/README.md) · [CI runs](https://github.com/jBlack-MC/NannyApp/actions)
 
-Release builds require `NANNYAPP_RELEASE_API_URL` as a Gradle property or environment variable. See the [Vercel + Supabase deployment guide](docs/VERCEL_SUPABASE_DEPLOY.md) or [AWS deployment guide](docs/AWS_DEPLOYMENT.md).
+## Sign in and demo accounts
 
+**`Password123!` is a local development fixture password. It does not work for the hosted demo accounts.** Use the private password issued for the specific account. On the maintainer's existing checkout, these are in the ignored `.codex/demo-login-credentials.md` file; that file is not distributed with the repository. Ask the deployment owner for access if you do not have it.
 
-![Nanny-App logo](NannyApp.Web/assets/Icon_Logo.png)
+| Role | Email | Client |
+| --- | --- | --- |
+| Admin | `admin@nanny.app` | Normal web browser only |
+| Parent | `parent@nanny.app` | Web and native Android |
+| Parent | `james@nanny.app` | Web and native Android |
+| Verified nanny | `amelia@nanny.app` | Web and native Android |
+| Pending nanny | `grace@nanny.app` | Web and native Android; verification restrictions apply |
 
-Nanny-App is a childcare booking marketplace that connects parents with verified nannies, supported by an admin moderation layer and a manually reconciled payment ledger. The project is designed as a full-stack platform with a PHP web app, a native Android app, and a shared backend/data layer used by both.
+Supabase keys and the database password are not application login passwords. Both clients authenticate against the same application `users` records; Supabase Auth is not the account system. New accounts follow the application's verification rules. See [demo account operations](docs/DEMO_ACCOUNTS.md) for explicit seeding and password rotation. Schema upgrades preserve existing passwords. Disable demo accounts before admitting real users.
 
-**Module:** XISD6329 — Work Integrated Learning 3B
+Install Android from the website download link, rather than an old `app/release/` file. Release APKs must point to `https://nannyapp-two.vercel.app/api/`. A successful web login does not prove that an older APK uses the correct server.
 
-**Demo video:** [Watch on YouTube](https://youtu.be/nO85AqjW2E4)
+## Architecture
 
----
+| Component | Implementation | Guide |
+| --- | --- | --- |
+| Website and administration | PHP 8.3, PDO, vanilla JavaScript, PWA | [Web](NannyApp.Web/README.md) |
+| Android | Kotlin, Jetpack Compose, Hilt, Retrofit, Room | [Mobile](NannyApp.Mobile/README.md) |
+| JSON API | PHP under `NannyApp.Mobile/NannyApp/api/`, served at `/api/` | [API and Android setup](NannyApp.Mobile/NannyApp/README.md) |
+| Shared services | Authentication, migrations, storage, queues and booking rules | [Shared](NannyApp.Shared/README.md) |
+| Database | Supabase PostgreSQL for the hosted app; MariaDB supported locally | [Migration order](NannyApp.Shared/database/MIGRATION_ORDER.md) |
 
-## Overview
+Android communicates with the API over HTTPS; it never connects directly to PostgreSQL. Keep `NannyApp.Shared` alongside both PHP frontends. Private media is served through authorized endpoints. Storage supports local disk, database-backed prototype uploads and private S3-compatible storage.
 
-Nanny-App enables families to:
+Parents can manage children, request bookings, communicate with nannies and review completed sessions. Nannies manage profiles, availability, bookings and check-in/out. Admins handle verification, support, disputes and the operations dashboard. Payments are manual: held/released/refunded values describe ledger decisions, not automatic bank transfers or escrow services.
 
-- browse and filter verified nannies
-- create child profiles and booking requests
-- manage booking flow, check-ins, and session completion
-- confirm session completion and record payment-release decisions
-- communicate in-app with nannies and receive notifications
+## Run locally
 
-Nanny-App also gives nannies:
+Install Docker Desktop, then run from the repository root:
 
-- a profile and availability management system
-- job acceptance/rejection workflow
-- earnings tracking and verification status
-- messaging and review management
-
-And admins can:
-
-- verify nanny accounts
-- manage users and bookings
-- oversee payments and disputes
-- handle support issues and broadcast notices
-
-Payments are manual/offline in the current pilot. Held, released and refunded are ledger states; the app does not charge cards, transfer funds or provide automated escrow.
-
----
-
-## Product architecture
-
-This repository is split into three main parts:
-
-| Folder | Purpose |
-| --- | --- |
-| [NannyApp.Web](NannyApp.Web/README.md) | Main PHP web application for desktop and mobile browsers. Runs on PHP + MySQL, supports a PWA and a wrapped Android APK experience. |
-| [NannyApp.Mobile](NannyApp.Mobile/README.md) | Native Android app built with Kotlin and Jetpack Compose, backed by a REST API layer. |
-| [NannyApp.Shared](NannyApp.Shared/README.md) | Shared database schema, config, and file-storage abstraction reused by both client apps. |
-
-### How the system fits together
-
-- The PHP web app and PHP API share the database; Android accesses it through the API.
-- Both systems use the same upload logic and storage abstraction managed through the shared layer.
-- The shared layer defines the canonical database schema and migration sequence.
-- Local uploads can stay on disk. Small Vercel prototypes can use the database storage driver after migration v12; S3-compatible storage is recommended as upload volume grows.
-- Both PHP frontends require the adjacent `NannyApp.Shared` folder for security, email, database and storage services.
-
-```text
-Nanny-App
-├── NannyApp.Web/        PHP marketplace + PWA + packaged APK wrapper
-├── NannyApp.Mobile/     Native Android client + PHP JSON API
-├── NannyApp.Shared/     Shared DB schema, config and upload storage layer
-├── docs/                Project docs and deployment notes
-├── tests/               Automated checks and validation scripts
-├── compose.test.yml     Local test environment configuration
-├── README.md            Project overview
-└── ...
+```sh
+docker compose -f deploy/local/compose.yml up -d --build
+docker compose -f deploy/local/compose.yml run --rm seed
 ```
 
----
+Open `http://localhost/`. The local seed is for development only; rerunning it can add duplicate sample bookings. See [local development](docs/LOCAL_DEVELOPMENT.md) for ports, emulator/phone addresses and stopping the stack.
 
-## Core platform features
+For Android, open `NannyApp.Mobile/NannyApp` in Android Studio. Use JDK 21 and the SDK configuration in Gradle. The emulator defaults to `http://10.0.2.2/nannyapp/api/`; a physical phone needs a reachable LAN or HTTPS API address.
 
-### Parent features
+## Test before merging
 
-- secure registration and profile creation
-- browse verified nannies by location, rate, experience, and skills
-- search and filter nanny listings
-- complete booking workflow with child details and scheduling
-- serialize booking overlap checks across web/API creation and rescheduling
-- receive a one-time check-in PIN for a verified in-person arrival
-- confirm session completion to update the manual payment ledger
-- cancel eligible bookings and record refund decisions for manual reconciliation
-- manage saved nannies and favourites
-- view payment history and manual payout status
-- review completed sessions with ratings and written feedback
-- message nannies in-app
-- access notifications and account settings
-
-### Nanny features
-
-- nanny registration and editable public profile
-- upload profile image, banner image, and verification documents
-- manage availability and schedules
-- accept or reject booking requests
-- perform check-in and check-out using the parent-issued PIN
-- track held and released earnings
-- manage reviews and reputation
-- communicate with parents through direct messages
-- monitor profile completeness and trust indicators
-
-### Admin features
-
-- admin dashboard with platform analytics
-- nanny verification queue and approval/rejection flow
-- user management, suspension, and account controls
-- booking and payment oversight
-- release/refund actions for held or disputed payments
-- support ticket visibility and moderation
-- contact message inbox
-- broadcast notifications to users
-- access migration and maintenance tools
-
-### Security and platform controls
-
-- role-based access control enforced on key pages and actions
-- CSRF protection across forms
-- bcrypt password hashing
-- email verification and password reset flows
-- rate limiting for login and messages
-- dark mode persistence and responsive UI
-- service worker and PWA support for the web experience
-
----
-
-## Tech stack
-
-| Layer | Stack |
-| --- | --- |
-| Web app | PHP 8.x, plain PHP with MySQL access via PDO |
-| Database | MySQL / MariaDB or Supabase PostgreSQL |
-| Native mobile app | Kotlin, Jetpack Compose |
-| API layer | PHP REST API for the Android app |
-| Storage | Local disk, database-backed prototype storage, or S3-compatible object storage |
-| Front-end | Vanilla JavaScript, custom CSS, responsive layout |
-| Auth | PHP session auth, email verification, reset tokens |
-| Packaging | PWA + Cordova-wrapped Android APK |
-| Local dev | Docker: `deploy/local/compose.yml` (see [docs/LOCAL_DEVELOPMENT.md](docs/LOCAL_DEVELOPMENT.md)), or XAMPP |
-
----
-
-## Repository structure
-
-```text
-NannyApp/
-├── README.md                        Project overview
-├── compose.test.yml                 Test environment definition
-├── docs/                            Product and deployment documentation
-├── tests/                           Validation and security checks
-├── NannyApp.Web/                    PHP web application
-│   ├── README.md
-│   ├── assets/
-│   ├── admin/
-│   ├── auth/
-│   ├── config/
-│   ├── includes/
-│   ├── nanny/
-│   ├── parent/
-│   ├── pages/
-│   ├── apk/
-│   └── ...
-├── NannyApp.Mobile/                 Native Android app + API layer
-│   ├── README.md
-│   └── NannyApp/
-│       ├── app/
-│       ├── api/
-│       ├── config/
-│       ├── includes/
-│       ├── assets/
-│       └── backend_docs/
-├── NannyApp.Shared/                 Shared database + storage layer
-│   ├── README.md
-│   ├── database/
-│   ├── config/
-│   ├── storage/
-│   └── releases/
-└── ...
+```sh
+python tests/docker-checks.py
+python tests/docker-checks.py --postgres
+python tests/check-readmes.py
 ```
 
----
+From `NannyApp.Mobile/NannyApp`:
 
-## Getting started
+```sh
+./gradlew --no-daemon :app:assembleDebug :app:testDebugUnitTest :app:lintDebug
+```
 
-### Requirements
+Use `gradlew.bat` on Windows. Database suites create disposable synthetic databases and clean them up. They cover registration/login, authorization, shared web/API data, migrations, session revocation and cache boundaries. [Test guide](tests/README.md).
 
-- PHP 8.3 for the automated test environment
-- MariaDB 10.11 for container tests; validate migrations before using another database engine/version
-- Apache / XAMPP or similar local stack
-- Android Studio for native app development
+## CI/CD
 
-### Quick start by project
+| Pipeline | Trigger | Outcome |
+| --- | --- | --- |
+| CI | Pull requests, main pushes, manual and weekly | MariaDB/PHP security, PostgreSQL integration, Android build/unit/lint, README and deliverable checks |
+| Workflow validation | Pull requests, main pushes, manual and weekly | actionlint checks workflow syntax and shell expressions |
+| Vercel integration | Connected repository PRs and production branch | Preview/production web and API deployment; configured in Vercel |
+| Production verification | Successful production deployment, manual and daily | Read-only health, login/register availability, private API denial and cache headers |
+| Supabase database sync | Manual on protected `main` | Versioned schema upgrade; optional explicit demo seeding/reset |
+| Android release | Manual on protected `main`, existing merged version tag | Signed APK, backend URL/signature checks and GitHub release |
+| Demo accounts | Manual on protected `main` | Create missing named demos using a private secret |
 
-Choose the project you want to work on:
+[CI/CD setup and release sequence](docs/CI_CD.md) lists variables, secrets, deployment gates and rollback. Repository review/check requirements still apply. Production credentials are not used in pull-request tests. Private repositories use the existing `FREE_CI_CONFIRMED` gate; configuring workflows does not guarantee runner availability or hosting configuration.
 
-- Web app: [NannyApp.Web/README.md](NannyApp.Web/README.md)
-- Android app + API: [NannyApp.Mobile/README.md](NannyApp.Mobile/README.md)
-- Shared database and storage setup: [NannyApp.Shared/README.md](NannyApp.Shared/README.md)
+## Database and operations
 
-### Recommended local setup
+Use `php NannyApp.Shared/bin/migrate.php` with explicit database configuration, or the Supabase sync workflow. Shared migrations currently extend through v14 (contact inbox), followed by PostgreSQL-specific access restrictions. Runners track checksums and reject changes to applied migrations. Never replace a populated database with a fixture or historical bootstrap dump.
 
-1. Place the project folder in your local web server directory.
-2. Keep `NannyApp.Shared` next to both PHP frontends; it is required.
-3. For isolated regression checks, use `python tests/docker-checks.py`. For application setup, follow the migration-order guide; never import the drop-and-seed schema into an existing database.
-4. Configure DB credentials and storage settings.
-5. Run the web app in a browser or open the Android app in Android Studio.
+The operations page at `/admin/operations.php` requires the contact inbox and queue tables. Missing tables indicate an incomplete schema upgrade. Trace error reference codes in server logs, apply the versioned migrations, and check `/api/health.php`. Do not hide schema failures with empty dashboard counts.
 
----
+Authentication and private account responses must not be cached. The PWA caches public content; Android's private caches are scoped to the account and cleared at session boundaries. Other devices observe changes when they refresh/poll; this is not a promise of instantaneous offline synchronization. Logout revokes the account's sessions across clients on their next authenticated request.
 
-## Database and migration notes
+## Deployment and project documents
 
-The shared database folder is the canonical schema source for the project.
+- [Vercel + Supabase](docs/VERCEL_SUPABASE_DEPLOY.md), [AWS alternative](docs/AWS_DEPLOYMENT.md), [troubleshooting](docs/TROUBLESHOOTING.md)
+- [Documentation index](docs/README.md), [HTML/PDF deliverables](docs/deliverables/README.md), [engineering audit](docs/deliverables/08-professional-engineering-audit.html)
+- [Demo video](https://youtu.be/nO85AqjW2E4); module XISD6329, Work Integrated Learning 3B
 
-- Use `php NannyApp.Shared/bin/migrate.php` with explicit database environment settings for safe, versioned setup and upgrades. Current `schema.sql` contains empty idempotent DDL only; older revisions were destructive. See `NannyApp.Shared/database/MIGRATION_ORDER.md`.
-- Migration files are imported in order as the system evolves.
-- Do not use the base schema drop-and-seed file on production or staging.
-- Keep migration ordering and release sequencing consistent.
-
-The project includes migration guidance in:
-
-- [NannyApp.Shared/database/MIGRATION_ORDER.md](NannyApp.Shared/database/MIGRATION_ORDER.md)
-- [NannyApp.Shared/database](NannyApp.Shared/database)
-
----
-
-## Demo accounts
-
-Development fixtures may seed accounts with the password `Password123!`. Deployed Supabase demo accounts should use the private `NANNYAPP_DEMO_PASSWORD` secret; see [demo account operations](docs/DEMO_ACCOUNTS.md).
-
-| Role | Email |
-| --- | --- |
-| Admin | `admin@nanny.app` |
-| Parent | `parent@nanny.app` |
-| Parent | `james@nanny.app` |
-| Verified nanny | `amelia@nanny.app` |
-| Pending nanny | `grace@nanny.app` |
-
-> Remove or disable demo accounts before admitting real users. Never reuse the fixture password on a deployed site.
-
----
-
-## Deployment and production guidance
-
-Start with the [documentation index](docs/README.md) and [Vercel + Supabase guide](docs/VERCEL_SUPABASE_DEPLOY.md). AWS deployment files remain in `deploy/aws/`.
-
-Before production:
-
-- set real database credentials and avoid committing secrets
-- configure persistent uploads: database storage with migration v12 for a small Vercel prototype, or S3-compatible storage for larger deployments; verify live upload and readback
-- keep shared storage protected from public web access
-- configure email delivery for verification and password resets
-- add operational procedures for backups, monitoring, and release management
-- keep payments manual; provider charging/webhooks remain unimplemented and are not required for the current pilot
-
-The project includes detailed guidance in the documentation folder and in the project-specific READMEs.
-
----
-
-## Security notes
-
-The platform has built-in protections, but production hardening still matters:
-
-- enforce HTTPS everywhere
-- limit admin access to the correct environment and browser context
-- protect shared upload folders from direct public access
-- rotate credentials and never commit production secrets
-- verify all user-upload validation and file-serving rules remain in place
-- review booking and payment code paths before external launch
-
----
-
-## Roadmap and current status
-
-The project includes web and Android booking workflows, a manual-payment ledger and web administration. The current product vision is a trust-and-reliability pilot: parents and nannies should be able to use the same account and data across web and physical Android devices, while administrators retain clear verification, support, dispute and audit controls.
-
-The [Professional Engineering Audit & Vision Update](docs/deliverables/08-professional-engineering-audit.html) records the evidence, risks and release gates. The next priority is hardening and proving the existing flow rather than adding broad new features:
-
-- rotate exposed credentials and remove public demo passwords
-- align live environment configuration and verify HTTPS mobile registration/login/media readback
-- keep the backend bearer/session-policy suite green in local and GitHub Actions runs
-- complete physical-device, accessibility, backup/restore and monitoring evidence
-- reconcile implementation documentation and release artefacts with the current build
-
-The latest account-sharing verification is recorded in the [audit addendum](docs/deliverables/08-professional-engineering-audit-addendum.html). It confirms the shared web/API database contract, registration and login checks, seeded-account hash checks, and mobile session revocation. Live Supabase and physical-device acceptance remain release gates.
-
----
-
-## Documentation
-
-For deeper technical guidance, see:
-
-- [NannyApp.Web/README.md](NannyApp.Web/README.md)
-- [NannyApp.Mobile/README.md](NannyApp.Mobile/README.md)
-- [NannyApp.Shared/README.md](NannyApp.Shared/README.md)
-- [docs](docs)
-- [tests](tests)
-- [Theme and contrast testing](docs/THEME_AND_CONTRAST.md)
-
----
-
-## Summary
-
-Nanny-App is a full childcare marketplace platform built to solve the practical issues of trust, scheduling, payment safety, and moderation in a nanny booking flow. It combines web, mobile, and shared backend architecture in a way that keeps the core business logic consistent across channels while allowing independent client experiences.
-
-If you are starting to work on the project, begin with the project-specific README for the app you want to run, then use the shared layer documentation to configure the database and storage correctly.
+Live device acceptance, external email delivery, backup restoration and monitoring still require deployment evidence. Never publish passwords, database URLs containing credentials, signing keys or private test logs.

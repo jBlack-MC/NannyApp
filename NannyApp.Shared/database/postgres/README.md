@@ -37,3 +37,5 @@ Also verify `/api/health.php` and authenticated API requests after deployment.
 Duplicate-index cleanup compares the complete PostgreSQL index definitions and
 refuses to remove an index backing a constraint. No CASCADE or data cleanup is
 used. No user, booking, payment, review, or uploaded-file rows are changed.
+
+On 23 October 2026, `repair_missing_contact_inbox` applied shared v14 and restricted the new contact table/sequence in the hosted database. This restored the admin operations and contact pages. Normal migration runs still verify the shared checksum and apply/adopt native files. [CI/CD sequence](../../../docs/CI_CD.md).

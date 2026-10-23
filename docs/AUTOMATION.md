@@ -1,5 +1,11 @@
 # Automatic checks and local Docker tests
 
+For the current workflow inventory, deployment order, variables and secrets, use
+[CI/CD and release operations](CI_CD.md). CI now includes PostgreSQL integration
+and README validation; main pushes and PRs avoid duplicate branch builds.
+Production verification checks the deployed web/API after production events and
+daily. Dated run evidence below is historical, not the current deployment status.
+
 Validation on 2026-09-28: full Docker suite passed with PHP 8.3 and MariaDB 10.11; Windows Apache denial check also passed. Android debug/unit/lint passed (0 lint errors, 52 warnings); missing release URL was rejected and an explicitly configured unsigned release compiled. Merged manifest retains other Startup initializers and removes WorkManager default metadata. No GitHub-hosted run or device execution is claimed.
 
 This project uses local tools and quota-limited GitHub Actions. CI does not deploy. Separate manual workflows can change production demo data or publish a signed Android APK from protected `main`.
