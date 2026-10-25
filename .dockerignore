@@ -14,6 +14,12 @@
 !NannyApp.Shared/bin/*.php
 !NannyApp.Web/
 !NannyApp.Web/**
+!docs/
+!docs/deliverables/
+!docs/deliverables/*.html
+!docs/deliverables/*.pdf
+!docs/deliverables/assets/
+!docs/deliverables/assets/**
 !NannyApp.Mobile/
 !NannyApp.Mobile/NannyApp/
 !NannyApp.Mobile/NannyApp/api/

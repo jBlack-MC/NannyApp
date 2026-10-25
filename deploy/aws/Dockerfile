@@ -9,6 +9,7 @@ COPY NannyApp.Shared/database/ NannyApp.Shared/database/
 COPY NannyApp.Shared/content/ NannyApp.Shared/content/
 COPY NannyApp.Shared/bin/ NannyApp.Shared/bin/
 COPY NannyApp.Web/ NannyApp.Web/
+COPY docs/deliverables/ docs/deliverables/
 COPY NannyApp.Mobile/NannyApp/api/ NannyApp.Mobile/NannyApp/api/
 COPY NannyApp.Mobile/NannyApp/config/ NannyApp.Mobile/NannyApp/config/
 COPY NannyApp.Mobile/NannyApp/includes/ NannyApp.Mobile/NannyApp/includes/
