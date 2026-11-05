@@ -60,7 +60,7 @@ if ($html === false) {
 // Keep the original HTML documents reusable while routing their relative
 // stylesheet/script links through the same authenticated endpoint.
 $assetBase = url('admin/deliverable-file.php?slug=' . rawurlencode($slug) . '&format=asset&path=');
-$html = str_replace(['href="assets/', 'src="assets/'], ['href="' . $assetBase, 'src="' . $assetBase], $html);
+$html = str_replace(['href="assets/', 'src="assets/'], ['href="' . $assetBase . 'assets/', 'src="' . $assetBase . 'assets/'], $html);
 foreach ($files as $targetSlug => $targetFiles) {
     $html = str_replace(
         'href="' . $targetFiles['html'] . '"',

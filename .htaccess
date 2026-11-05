@@ -3,7 +3,7 @@ RewriteEngine On
 Options -Indexes
 
 # Internal source directories are never public entry points.
-RewriteRule ^(?:NannyApp\.(?:Shared|Mobile|Web)|deploy|tests|state)(?:/|$) - [R=404,END]
+RewriteRule ^(?:NannyApp\.(?:Shared|Mobile|Web)|deploy|docs|tests|state)(?:/|$) - [R=404,END]
 RewriteRule (^|/)\. - [R=404,END]
 
 # Serve the existing web assets from the web application directory.
