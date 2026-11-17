@@ -22,6 +22,7 @@ One platform, three clients' worth of reach: a PHP website and installable PWA, 
 [**🌐 Live site**](https://nannyapp-two.vercel.app) &nbsp;·&nbsp;
 [**📱 Download Android**](https://nannyapp-two.vercel.app/download-app.php?platform=android) &nbsp;·&nbsp;
 [**▶️ Demo video**](https://youtu.be/nO85AqjW2E4) &nbsp;·&nbsp;
+[**📱 Mobile app presentation**](https://youtu.be/jk8Va17GIyc) &nbsp;·&nbsp;
 [**📚 Docs**](docs/README.md) &nbsp;·&nbsp;
 [**⚙️ CI runs**](https://github.com/jBlack-MC/NannyApp/actions)
 
@@ -38,6 +39,16 @@ One platform, three clients' worth of reach: a PHP website and installable PWA, 
 [![Watch the Nanny-App demo on YouTube](https://img.youtube.com/vi/nO85AqjW2E4/maxresdefault.jpg)](https://youtu.be/nO85AqjW2E4)
 
 **[▶️ Watch the full walkthrough on YouTube](https://youtu.be/nO85AqjW2E4)**
+
+</div>
+
+### 📱 Mobile app video presentation
+
+<div align="center">
+
+[![Watch the Nanny-App mobile app presentation on YouTube](https://img.youtube.com/vi/jk8Va17GIyc/maxresdefault.jpg)](https://youtu.be/jk8Va17GIyc)
+
+**[▶️ Watch the Android app presentation on YouTube](https://youtu.be/jk8Va17GIyc)**
 
 </div>
 
@@ -534,6 +545,6 @@ The platform runs web and Android booking workflows, a manual payment ledger and
 
 Built by **[jBlack-MC](https://github.com/jBlack-MC)** for XISD6329 — Work Integrated Learning 3B
 
-[🌐 Live site](https://nannyapp-two.vercel.app) · [▶️ Demo video](https://youtu.be/nO85AqjW2E4) · [🐛 Report an issue](https://github.com/jBlack-MC/NannyApp/issues)
+[🌐 Live site](https://nannyapp-two.vercel.app) · [▶️ Demo video](https://youtu.be/nO85AqjW2E4) · [📱 Mobile app presentation](https://youtu.be/jk8Va17GIyc) · [🐛 Report an issue](https://github.com/jBlack-MC/NannyApp/issues)
 
 </div>

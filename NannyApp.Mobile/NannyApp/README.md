@@ -2,6 +2,8 @@
 
 Kotlin/Jetpack Compose with Hilt, Retrofit, Room and DataStore. The API uses the required shared PHP services and the same database as the website. Read [API contracts](backend_docs/API.md) alongside the actual endpoint code.
 
+Video presentation of the mobile app: [watch on YouTube](https://youtu.be/jk8Va17GIyc). Full project demo: [watch on YouTube](https://youtu.be/nO85AqjW2E4).
+
 ## Start the backend
 
 Use [local Docker setup](../../docs/LOCAL_DEVELOPMENT.md) from the repository root. It serves both website and API. For deployment, keep `NannyApp.Shared` adjacent and follow [Vercel + Supabase](../../docs/VERCEL_SUPABASE_DEPLOY.md). Apply migrations with the shared runner; authentication and integrity migrations are required, not optional extras. Payments currently use a manual ledger; Paystack credentials are not required for the pilot.
